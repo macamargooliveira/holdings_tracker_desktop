@@ -1,0 +1,18 @@
+[project]
+name = "holdings-tracker-desktop"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Marco Aurélio Camargo Oliveira",email = "macamargooliveira@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+]
+
+[tool.poetry]
+packages = [{include = "holdings_tracker_desktop", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
