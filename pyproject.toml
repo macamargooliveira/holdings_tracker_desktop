@@ -1,7 +1,7 @@
 [project]
 name = "holdings-tracker-desktop"
 version = "0.1.0"
-description = ""
+description = "Desktop application for tracking investment holdings."
 authors = [
     {name = "Marco Aurélio Camargo Oliveira",email = "macamargooliveira@gmail.com"}
 ]
