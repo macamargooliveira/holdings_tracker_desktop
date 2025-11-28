@@ -1,8 +1,5 @@
 from holdings_tracker_desktop.database.database import SessionLocal
-from holdings_tracker_desktop.models.country import Country
-from holdings_tracker_desktop.models.currency import Currency
-from holdings_tracker_desktop.models.asset_type import AssetType
-from holdings_tracker_desktop.models.broker import Broker
+from holdings_tracker_desktop.models import Country, Currency, AssetType, Broker
 
 def run_seeds():
     db = SessionLocal()

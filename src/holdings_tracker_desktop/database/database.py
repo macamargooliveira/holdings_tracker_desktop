@@ -17,15 +17,6 @@ SessionLocal = sessionmaker(
 
 def init_db():
     from holdings_tracker_desktop.models.base import Base
-    from holdings_tracker_desktop.models import (
-        asset_event,
-        asset_type,
-        asset,
-        broker_note,
-        broker,
-        country,
-        currency,
-        position_snapshot
-    )
 
     Base.metadata.create_all(bind=engine)
+    print("Database initialized successfully.")
