@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Numeric, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from .base import Base
 
 if TYPE_CHECKING:
@@ -18,9 +18,9 @@ class PositionSnapshot(Base):
         ForeignKey("assets.id"), nullable=False
     )
 
-    timestamp = mapped_column(
+    timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=datetime.utcnow,
+        default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
 

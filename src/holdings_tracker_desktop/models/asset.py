@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from .broker_note import BrokerNote
     from .currency import Currency
     from .position_snapshot import PositionSnapshot
+    from .asset_ticker_history import AssetTickerHistory
 
 class Asset(Base):
     __tablename__ = "assets"
@@ -33,5 +34,9 @@ class Asset(Base):
     )
 
     events: Mapped[list[AssetEvent]] = relationship(
+        back_populates="asset"
+    )
+
+    ticker_history: Mapped[list[AssetTickerHistory]] = relationship(
         back_populates="asset"
     )
