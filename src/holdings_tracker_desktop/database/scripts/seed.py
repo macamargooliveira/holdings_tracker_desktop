@@ -18,12 +18,12 @@ def run_seeds():
         db.add_all(currencies)
 
         asset_types = [
-            AssetType(name="Ação"),
-            AssetType(name="Fiagro"),
-            AssetType(name="FI-Infra"),
-            AssetType(name="FII"),
-            AssetType(name="Reit"),
-            AssetType(name="Stock")
+            AssetType(name="Ação", country_id=1),
+            AssetType(name="Fiagro", country_id=1),
+            AssetType(name="FI-Infra", country_id=1),
+            AssetType(name="FII", country_id=1),
+            AssetType(name="Reit", country_id=2),
+            AssetType(name="Stock", country_id=2)
         ]
         db.add_all(asset_types)
 

@@ -10,11 +10,13 @@ requires-python = ">=3.12,<3.15"
 dependencies = [
     "pyside6 (>=6.10.1,<7.0.0)",
     "python-dotenv (>=1.2.1,<2.0.0)",
+    "qtawesome (>=1.4.0,<2.0.0)",
     "sqlalchemy (>=2.0.44,<3.0.0)"
 ]
 
 [tool.poetry]
 packages = [{include = "holdings_tracker_desktop", from = "src"}]
+include = ["src/holdings_tracker_desktop/ui/flags/*.svg"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

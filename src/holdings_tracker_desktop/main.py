@@ -1,19 +1,9 @@
 import sys
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QMainWindow, QLabel
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("HoldingsTracker")
-        self.setGeometry(100, 100, 800, 600)
-
-        label = QLabel("Welcome to HoldingsTracker!", self)
-        label.setAlignment(Qt.AlignCenter)
-        self.setCentralWidget(label)
+from PySide6.QtWidgets import QApplication
+from holdings_tracker_desktop.ui.main_window import MainWindow
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
-    window.show()
+    window.showMaximized()
     sys.exit(app.exec())
