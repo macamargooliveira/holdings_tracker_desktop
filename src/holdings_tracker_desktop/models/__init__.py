@@ -1,5 +1,6 @@
 from .asset import Asset
 from .asset_event import AssetEvent
+from .asset_sector import AssetSector
 from .asset_ticker_history import AssetTickerHistory
 from .asset_type import AssetType
 from .broker import Broker
@@ -11,8 +12,9 @@ from .position_snapshot import PositionSnapshot
 __all__ = [
     "Asset",
     "AssetEvent",
-    "AssetType",
+    "AssetSector",
     "AssetTickerHistory",
+    "AssetType",
     "Broker",
     "BrokerNote",
     "Country",

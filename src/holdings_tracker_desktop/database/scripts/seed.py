@@ -1,5 +1,5 @@
 from holdings_tracker_desktop.database.database import SessionLocal
-from holdings_tracker_desktop.models import Country, Currency, AssetType, Broker
+from holdings_tracker_desktop.models import Country, Currency, AssetSector, AssetType, Broker
 
 def run_seeds():
     db = SessionLocal()
@@ -26,6 +26,15 @@ def run_seeds():
             AssetType(name="Stock", country_id=2)
         ]
         db.add_all(asset_types)
+
+        asset_sector = [
+            AssetSector(name="Híbridos", asset_type_id=4),
+            AssetSector(name="Lajes Comerciais", asset_type_id=4),
+            AssetSector(name="Logísticos", asset_type_id=4),
+            AssetSector(name="Recebíveis Imobiliários", asset_type_id=4),
+            AssetSector(name="Shoppings", asset_type_id=4)
+        ]
+        db.add_all(asset_sector)
 
         brokers = [
             Broker(name="BB-BI S.A.", country_id=1)

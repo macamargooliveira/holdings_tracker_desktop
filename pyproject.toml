@@ -21,8 +21,8 @@ include = ["src/holdings_tracker_desktop/ui/flags/*.svg"]
 
 [tool.poetry.scripts]
 app = "holdings_tracker_desktop.main:main"
-migrate = "holdings_tracker_desktop.database.migrate:run_migrations"
-seed = "holdings_tracker_desktop.database.scripts.seed:run_seeds"
+migrations = "holdings_tracker_desktop.database.migrate:run_migrations"
+seeds = "holdings_tracker_desktop.database.scripts.seed:run_seeds"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
