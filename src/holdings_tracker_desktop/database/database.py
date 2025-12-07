@@ -14,9 +14,3 @@ SessionLocal = sessionmaker(
     autoflush=False,
     bind=engine
 )
-
-def init_db():
-    from holdings_tracker_desktop.models.base import Base
-
-    Base.metadata.create_all(bind=engine)
-    print("Database initialized successfully.")

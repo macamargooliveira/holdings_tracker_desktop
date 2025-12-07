@@ -17,6 +17,8 @@ logs/
 
 *.env
 *.ini
+!alembic.ini
+
 *.cfg
 .env.local
 .env.development
