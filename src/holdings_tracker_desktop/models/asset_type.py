@@ -3,22 +3,30 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import Base
+from .base import BaseModel
 
 if TYPE_CHECKING:
     from .asset import Asset
     from .asset_sector import AssetSector
     from .country import Country
 
-class AssetType(Base):
+class AssetType(BaseModel):
     __tablename__ = "asset_types"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(
+        String(20), 
+        unique=True, 
+        nullable=False
+    )
 
-    country_id: Mapped[int] = mapped_column(ForeignKey("countries.id"), nullable=False)
+    country_id: Mapped[int] = mapped_column(
+        ForeignKey("countries.id"), 
+        nullable=False
+    )
 
-    country: Mapped[Country] = relationship(back_populates="asset_types")
+    country: Mapped[Country] = relationship(
+        back_populates="asset_types"
+    )
 
     assets: Mapped[list[Asset]] = relationship(
         back_populates="asset_type"
