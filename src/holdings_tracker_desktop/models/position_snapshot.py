@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Numeric, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
+from decimal import Decimal
 from .base import BaseModel
 
 if TYPE_CHECKING:
@@ -23,17 +24,17 @@ class PositionSnapshot(BaseModel):
         nullable=False
     )
 
-    quantity: Mapped[float] = mapped_column(
+    quantity: Mapped[Decimal] = mapped_column(
         Numeric(20, 6), 
         nullable=False
     )
 
-    avg_price: Mapped[float] = mapped_column(
+    avg_price: Mapped[Decimal] = mapped_column(
         Numeric(20, 6), 
         nullable=False
     )
 
-    total_invested: Mapped[float] = mapped_column(
+    total_invested: Mapped[Decimal] = mapped_column(
         Numeric(20, 6), 
         nullable=False
     )

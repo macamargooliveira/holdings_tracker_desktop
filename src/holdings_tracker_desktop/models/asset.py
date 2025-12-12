@@ -33,7 +33,7 @@ class Asset(BaseModel):
         nullable=False
     )
 
-    sector_id: Mapped[int] = mapped_column(
+    sector_id: Mapped[int | None] = mapped_column(
         ForeignKey("asset_sectors.id"), 
         nullable=True
     )

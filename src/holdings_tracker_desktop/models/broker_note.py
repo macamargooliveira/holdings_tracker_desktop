@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import String, ForeignKey, Enum, Numeric, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from enum import Enum as PyEnum
+from decimal import Decimal
 from .base import BaseModel
 
 if TYPE_CHECKING:
@@ -37,27 +38,27 @@ class BrokerNote(BaseModel):
         nullable=False
     )
 
-    quantity: Mapped[float] = mapped_column(
+    quantity: Mapped[Decimal] = mapped_column(
         Numeric(20, 6), 
         nullable=False
     )
 
-    price: Mapped[float] = mapped_column(
+    price: Mapped[Decimal] = mapped_column(
         Numeric(20, 6), 
         nullable=False
     )
 
-    fees: Mapped[float] = mapped_column(
+    fees: Mapped[Decimal] = mapped_column(
         Numeric(20, 6), 
         default=0
     )
 
-    taxes: Mapped[float] = mapped_column(
+    taxes: Mapped[Decimal] = mapped_column(
         Numeric(20, 6), 
         default=0
     )
 
-    note_number: Mapped[str] = mapped_column(
+    note_number: Mapped[str | None] = mapped_column(
         String(30),
         nullable=True
     )
