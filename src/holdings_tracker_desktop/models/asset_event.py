@@ -53,5 +53,6 @@ class AssetEvent(BaseModel):
     residual_value: Mapped[Decimal | None] = mapped_column(Numeric(20, 6), nullable=True)
 
     asset: Mapped[Asset] = relationship(
-        back_populates="events"
+        back_populates="events",
+        foreign_keys=[asset_id]
     )

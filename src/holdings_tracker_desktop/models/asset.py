@@ -59,7 +59,8 @@ class Asset(BaseModel):
     )
 
     events: Mapped[list[AssetEvent]] = relationship(
-        back_populates="asset"
+        back_populates="asset",
+        foreign_keys="[AssetEvent.asset_id]"
     )
 
     ticker_history: Mapped[list[AssetTickerHistory]] = relationship(

@@ -1,6 +1,7 @@
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QLabel, QFrame, QHeaderView
+    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, 
+    QLabel, QFrame, QHeaderView, QMessageBox
 )
 from holdings_tracker_desktop.ui.translations import t
 import qtawesome as qta
@@ -25,9 +26,9 @@ class EntityManagerWidget(QWidget):
     
     def open_new_form(self): raise NotImplementedError
     
-    def open_edit_form(self, selected_id): raise NotImplementedError
-    
-    def delete_record(self, selected_id): raise NotImplementedError
+    def open_edit_form(self): raise NotImplementedError
+
+    def delete_record(self): raise NotImplementedError
 
     def get_selected_id(self):
         row = self.table.currentRow()
@@ -37,19 +38,40 @@ class EntityManagerWidget(QWidget):
 
     def on_add_clicked(self):
         self.open_new_form()
-        self.load_data()
 
     def on_edit_clicked(self):
         selected_id = self.get_selected_id()
         if selected_id:
             self.open_edit_form(selected_id)
-            self.load_data()
 
     def on_delete_clicked(self):
         selected_id = self.get_selected_id()
         if selected_id:
             self.delete_record(selected_id)
-            self.load_data()
+
+    def show_warning(self, message: str):
+        QMessageBox.warning(self, "Warning", message)
+
+    def show_error(self, message: str):
+        QMessageBox.critical(self, "Error", message)
+
+    def ask_confirmation(self, title: str, message: str) -> bool:
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(message)
+        msg_box.setIcon(QMessageBox.Question)
+
+        btn_yes = QPushButton(t('yes'))
+        btn_no = QPushButton(t('no'))
+
+        msg_box.addButton(btn_yes, QMessageBox.YesRole)
+        msg_box.addButton(btn_no, QMessageBox.NoRole)
+        msg_box.setDefaultButton(btn_no)
+        msg_box.setEscapeButton(btn_no)
+
+        msg_box.exec()
+
+        return msg_box.clickedButton() == btn_yes
 
     def _init_state(self):
         self.window().widgets_with_translation.append(self)

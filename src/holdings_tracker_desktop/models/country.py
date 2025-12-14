@@ -19,9 +19,80 @@ class Country(BaseModel):
     )
 
     asset_types: Mapped[list[AssetType]] = relationship(
-        back_populates="country"
+        back_populates="country",
+        cascade="save-update",
+        lazy="selectin"
     )
 
     brokers: Mapped[list[Broker]] = relationship(
-        back_populates="country"
+        back_populates="country",
+        cascade="save-update",
+        lazy="selectin"
     )
+
+    def to_response(self) -> dict:
+        """Convert to dictionary compatible with CountryResponse"""
+        from holdings_tracker_desktop.schemas.country import CountryResponse
+        return CountryResponse.model_validate(self).model_dump()
+
+    @classmethod
+    def from_create_schema(cls, schema_data: dict) -> Country:
+        """Create instance from creation schema"""
+        from holdings_tracker_desktop.schemas.country import CountryCreate
+
+        validated_data = CountryCreate(**schema_data).model_dump()
+        return cls(**validated_data)
+
+    def update_from_schema(self, schema_data: dict):
+        """Update instance from update schema"""
+        from holdings_tracker_desktop.schemas.country import CountryUpdate
+
+        update_data = CountryUpdate(**schema_data).model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(self, key, value)
+
+    @property
+    def asset_types_count(self) -> int:
+        try:
+            return self.asset_types.count()
+        except:
+            return 0
+    
+    @property
+    def brokers_count(self) -> int:
+        try:
+            return self.brokers.count()
+        except:
+            return 0
+
+    def validate_for_deletion(self) -> tuple[bool, str]:
+        """
+        Validate if country can be deleted.
+        
+        Returns:
+            Tuple of (can_delete: bool, reason: str)
+            If can_delete is False, reason contains error message
+        """
+        count = self.brokers.count()
+        if count > 0:
+            return False, f"Cannot delete '{self.name}' because it has {count} brokers associated"
+
+        count = self.asset_types.count()
+        if count > 0:
+            return False, f"Cannot delete '{self.name}' because it has {count} asset types associated"
+
+        return True, ""
+
+    def to_ui_dict(self) -> dict:
+        """Optimized for PySide6 table widgets"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'asset_types_count': self.asset_types_count,
+            'brokers_count': self.brokers_count,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self) -> str:
+        return f"<Country(id={self.id}, name='{self.name}')>"

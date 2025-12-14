@@ -1,4 +1,4 @@
-from holdings_tracker_desktop.database.database import SessionLocal
+from holdings_tracker_desktop.database import SessionLocal
 from holdings_tracker_desktop.models import Country, Currency, AssetSector, AssetType, Broker
 
 def run_seeds():

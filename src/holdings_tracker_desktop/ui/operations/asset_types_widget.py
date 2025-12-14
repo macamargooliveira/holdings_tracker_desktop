@@ -1,8 +1,7 @@
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QTableWidgetItem
-from sqlalchemy.orm import joinedload
-from holdings_tracker_desktop.database.database import SessionLocal
-from holdings_tracker_desktop.models.asset_type import AssetType
+from PySide6.QtWidgets import QTableWidgetItem, QDialog
+from holdings_tracker_desktop.database import get_db
+from holdings_tracker_desktop.services.asset_type_service import AssetTypeService
 from holdings_tracker_desktop.ui.translations import t
 from holdings_tracker_desktop.ui.operations.entity_manager_widget import EntityManagerWidget
 
@@ -13,49 +12,85 @@ class AssetTypesWidget(EntityManagerWidget):
         self.load_data()
 
     def load_data(self):
-        items = self._get_items()
-        self._populate_table(items)
+        try:
+            with get_db() as db:
+                service = AssetTypeService(db)
+                ui_data = service.list_all_for_ui(order_by="name")
+                self._populate_table(ui_data)
+
+        except Exception as e:
+            self.show_error(f"Error loading asset types: {str(e)}")
+            self.table.setRowCount(0)
+
         self.translate_ui()
 
     def translate_ui(self):
         super().translate_ui()
         self.title_label.setText(t("asset_types"))
-        self.table.setHorizontalHeaderLabels([t("name"), t("country")])
+        self.table.setHorizontalHeaderLabels([t("name"), t("country"), t("assets_count")])
 
     def open_new_form(self):
-        print("Open AssetType NEW form")
+        from holdings_tracker_desktop.ui.forms.asset_type_form import AssetTypeForm
+
+        form = AssetTypeForm(parent=self)
+
+        if form.exec() == QDialog.Accepted:
+            self.load_data()
 
     def open_edit_form(self, selected_id):
-        print("Edit AssetType ID:", selected_id)
-
-    def delete_record(self, selected_id):
-        print("Delete AssetType ID:", selected_id)
-
-    def _get_items(self):
-        """Query database and return list of AssetType objects."""
-        session = SessionLocal()
+        from holdings_tracker_desktop.ui.forms.asset_type_form import AssetTypeForm
 
         try:
-            items = (
-                session.query(AssetType)
-                .options(joinedload(AssetType.country))
-                .order_by(AssetType.id)
-                .all()
-            )
-        finally:
-            session.close()
+            with get_db() as db:
+                service = AssetTypeService(db)
+                asset_type = service.get(selected_id)
 
-        return items
+                form = AssetTypeForm(
+                    asset_type_id=selected_id,
+                    initial_data={
+                        'name': asset_type.name,
+                        'country_id': asset_type.country_id
+                    },
+                    parent=self
+                )
+
+                if form.exec() == QDialog.Accepted:
+                    self.load_data()
+
+        except Exception as e:
+            self.show_error(f"Error opening edit form: {str(e)}")
+
+    def delete_record(self, selected_id):
+        try:
+            with get_db() as db:
+                service = AssetTypeService(db)
+                asset_type = service.get(selected_id)
+
+                if not self.ask_confirmation(title=t('delete_asset_type'), message=t('confirm_delete')):
+                    return
+
+                deleted = service.delete(selected_id)
+
+                if deleted:
+                    self.load_data()
+                else:
+                    self.show_error(f"Delete failed")
+
+        except Exception as e:
+            self.show_error(f"Error deleting asset type: {str(e)}")
 
     def _populate_table(self, items):
-        """Clears and fills the table with rows based on items."""
         self.table.clear()
-        self.table.setColumnCount(2)
+        self.table.setColumnCount(3)
         self.table.setRowCount(len(items))
 
         for row, item in enumerate(items):
-            item_name = QTableWidgetItem(item.name)
-            item_name.setData(Qt.UserRole, item.id)
-            self.table.setItem(row, 0, item_name)
+            name_item = QTableWidgetItem(item['name'])
+            name_item.setData(Qt.UserRole, item['id'])
+            self.table.setItem(row, 0, name_item)
 
-            self.table.setItem(row, 1, QTableWidgetItem(item.country.name))
+            self.table.setItem(row, 1, QTableWidgetItem(item['country_name']))
+
+            count_item = QTableWidgetItem(str(item['assets_count']))
+            count_item.setTextAlignment(Qt.AlignCenter)
+            self.table.setItem(row, 2, count_item)
