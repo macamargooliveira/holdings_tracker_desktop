@@ -1,9 +1,10 @@
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, 
-    QLabel, QFrame, QHeaderView, QMessageBox
+    QLabel, QFrame, QHeaderView, QMessageBox, QDialog
 )
 from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.confirm_dialog import ConfirmDialog
 import qtawesome as qta
 
 BUTTONS_CONFIG = [
@@ -56,22 +57,12 @@ class EntityManagerWidget(QWidget):
         QMessageBox.critical(self, "Error", message)
 
     def ask_confirmation(self, title: str, message: str) -> bool:
-        msg_box = QMessageBox(self)
-        msg_box.setWindowTitle(title)
-        msg_box.setText(message)
-        msg_box.setIcon(QMessageBox.Question)
-
-        btn_yes = QPushButton(t('yes'))
-        btn_no = QPushButton(t('no'))
-
-        msg_box.addButton(btn_yes, QMessageBox.YesRole)
-        msg_box.addButton(btn_no, QMessageBox.NoRole)
-        msg_box.setDefaultButton(btn_no)
-        msg_box.setEscapeButton(btn_no)
-
-        msg_box.exec()
-
-        return msg_box.clickedButton() == btn_yes
+        dialog = ConfirmDialog(
+            title=title,
+            message=message,
+            parent=self
+        )
+        return dialog.exec() == QDialog.Accepted
 
     def _init_state(self):
         self.window().widgets_with_translation.append(self)

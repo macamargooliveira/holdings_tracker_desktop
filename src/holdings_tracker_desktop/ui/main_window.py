@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
     def _setup_layout(self):
         self.central_widget = QWidget()
         self.main_layout = QHBoxLayout(self.central_widget)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setContentsMargins(5, 5, 5, 5)
         self.main_layout.setSpacing(5)
         self.setCentralWidget(self.central_widget)
 
@@ -47,51 +47,74 @@ class MainWindow(QMainWindow):
 
     def _apply_styles(self):
         self.setStyleSheet("""
-            QWidget {
-                font-size: 14px;
-            }
-
             QPushButton {
                 background-color: #f5f5f5;
                 border: 1px solid #c6c6c6;
-                padding: 6px 10px;
-                border-radius: 4px;
+                padding: 4px 8px;
+                border-radius: 6px;
+                min-width: 64px;
+                min-height: 20px;
+                outline: none;
             }
+
             QPushButton:hover {
                 background-color: #eaeaea;
             }
+
             QPushButton:pressed {
                 background-color: #dcdcdc;
             }
 
-            QFrame#TitleFrame {
-                border: 1px solid #cccccc;
-                border-radius: 6px;
-                background: #f8f8f8;
+            QPushButton:disabled {
+                background-color: #eeeeee;
+                color: #999999;
             }
 
+            QFrame#TitleFrame,
             QFrame#BodyFrame {
                 border: 1px solid #cccccc;
-                border-radius: 6px;
+                border-radius: 8px;
                 background: #f8f8f8;
             }
                            
             QLabel#TitleLabel {
-                font-size: 20px;
+                font-size: 13pt;
                 font-weight: bold;
             }
 
             QTableWidget {
                 background: #ffffff;
                 border: 1px solid #dcdcdc;
+                border-radius: 6px;
                 gridline-color: #e0e0e0;
                 selection-background-color: #0066cc;
                 selection-color: white;
+                outline: none;
             }
+
+            QTableWidget::item {
+                border: none;
+            }
+
+            QHeaderView {
+                background-color: #f2f2f2;
+            }
+
             QHeaderView::section {
-                background-color: #efefef;
-                padding: 5px;
-                border: 1px solid #d0d0d0;
-                font-weight: bold;
+                background-color: #f2f2f2;
+                color: #333;
+                padding: 4px 8px;
+                border: none;
+                border-bottom: 1px solid #d0d0d0;
+                font-weight: 600;
+                font-size: 10.5pt;
+            }
+
+            QHeaderView::section:hover {
+                background-color: #eaeaea;
+            }
+
+            QHeaderView::section:pressed {
+                background-color: #dddddd;
             }
         """)
