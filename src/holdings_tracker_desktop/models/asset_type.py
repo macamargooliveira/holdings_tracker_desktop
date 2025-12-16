@@ -65,10 +65,7 @@ class AssetType(BaseModel):
 
     @property
     def assets_count(self) -> int:
-        try:
-            return self.assets.count()
-        except:
-            return 0
+        return self.assets.count()
 
     def validate_for_deletion(self) -> tuple[bool, str]:
         """
@@ -76,11 +73,13 @@ class AssetType(BaseModel):
         
         Returns:
             Tuple of (can_delete: bool, reason: str)
-            If can_delete is False, reason contains error message
         """
-        count = self.assets.count()
+        count = self.assets_count
         if count > 0:
-            return False, f"Cannot delete '{self.name}' because it has {count} assets associated"
+            return (
+                False, 
+                f"Cannot delete '{self.name}' because it has {count} associated assets"
+            )
 
         return True, ""
 
@@ -96,4 +95,4 @@ class AssetType(BaseModel):
         }
 
     def __repr__(self) -> str:
-        return f"<AssetType(id={self.id}, name='{self.name}', country_id={self.country_id})>"
+        return f"<AssetType(id={self.id}, name={self.name}, country_id={self.country_id})>"

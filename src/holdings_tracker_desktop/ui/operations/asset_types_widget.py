@@ -15,7 +15,7 @@ class AssetTypesWidget(EntityManagerWidget):
         try:
             with get_db() as db:
                 service = AssetTypeService(db)
-                ui_data = service.list_all_for_ui(order_by="name")
+                ui_data = service.list_all_for_ui()
                 self._populate_table(ui_data)
 
         except Exception as e:
@@ -27,7 +27,7 @@ class AssetTypesWidget(EntityManagerWidget):
     def translate_ui(self):
         super().translate_ui()
         self.title_label.setText(t("asset_types"))
-        self.table.setHorizontalHeaderLabels([t("name"), t("country"), t("assets_count")])
+        self.table.setHorizontalHeaderLabels([t("name"), t("country"), t("assets")])
 
     def open_new_form(self):
         from holdings_tracker_desktop.ui.forms.asset_type_form import AssetTypeForm
@@ -64,7 +64,6 @@ class AssetTypesWidget(EntityManagerWidget):
         try:
             with get_db() as db:
                 service = AssetTypeService(db)
-                asset_type = service.get(selected_id)
 
                 if not self.ask_confirmation(title=t('delete_asset_type'), message=t('confirm_delete')):
                     return

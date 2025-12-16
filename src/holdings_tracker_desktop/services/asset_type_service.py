@@ -1,5 +1,6 @@
-from typing import List, Optional
+from typing import List
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from holdings_tracker_desktop.models.asset_type import AssetType
 from holdings_tracker_desktop.schemas.asset_type import (
   AssetTypeCreate, AssetTypeUpdate, AssetTypeResponse
@@ -16,10 +17,7 @@ class AssetTypeService:
 
     def create(self, data: AssetTypeCreate) -> AssetTypeResponse:
         """Create new AssetType with validation"""
-        if self._exists_by_name_country(data.name, data.country_id):
-            raise ConflictException(
-                f"AssetType '{data.name}' already exists for country ID {data.country_id}"
-            )
+        self._ensure_name_is_unique(data.name)
 
         asset_type = self.repository.create_from_schema(data)
         return AssetTypeResponse.model_validate(asset_type)
@@ -31,13 +29,8 @@ class AssetTypeService:
 
     def update(self, asset_type_id: int, data: AssetTypeUpdate) -> AssetTypeResponse:
         """Update AssetType"""
-        asset_type = self.repository.get_or_raise(asset_type_id)
-
-        if data.name and data.name != asset_type.name:
-            if self._exists_by_name_country(data.name, asset_type.country_id, exclude_id=asset_type_id):
-                raise ConflictException(
-                    f"AssetType '{data.name}' already exists for this country"
-                )
+        if "name" in data.model_fields_set:
+            self._ensure_name_is_unique(data.name, exclude_id=asset_type_id)
 
         updated = self.repository.update_from_schema(asset_type_id, data)
         return AssetTypeResponse.model_validate(updated)
@@ -83,19 +76,23 @@ class AssetTypeService:
         asset_types = self.repository.find_all_by(country_id=country_id)
         return [AssetTypeResponse.model_validate(at) for at in asset_types]
 
-    def _exists_by_name_country(
-        self, 
-        name: str, 
-        country_id: int, 
-        exclude_id: Optional[int] = None
-    ) -> bool:
-        """Check if AssetType with name+country exists"""
-        query = self.repository.db.query(AssetType).filter(
-            AssetType.name.ilike(name),
-            AssetType.country_id == country_id
+    def _ensure_name_is_unique(
+        self,
+        name: str,
+        exclude_id: int | None = None
+    ) -> None:
+        """
+        Validate that asset type name is unique (case-insensitive).
+        """
+        query = (
+            self.repository.db.query(AssetType)
+            .filter(func.lower(AssetType.name) == name.lower())
         )
 
-        if exclude_id:
+        if exclude_id is not None:
             query = query.filter(AssetType.id != exclude_id)
 
-        return query.first() is not None
+        if self.repository.db.query(query.exists()).scalar():
+            raise ConflictException(
+                f"Asset Type '{name}' already exists"
+            )

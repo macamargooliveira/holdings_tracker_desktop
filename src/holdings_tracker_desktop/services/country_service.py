@@ -1,5 +1,6 @@
-from typing import List, Optional
+from typing import List
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from holdings_tracker_desktop.models.country import Country
 from holdings_tracker_desktop.schemas.country import ( 
   CountryCreate, CountryUpdate, CountryResponse
@@ -16,6 +17,8 @@ class CountryService:
 
     def create(self, data: CountryCreate) -> CountryResponse:
         """Create new Country with validation"""
+        self._ensure_name_is_unique(data.name)
+
         country = self.repository.create_from_schema(data)
         return CountryResponse.model_validate(country)
 
@@ -26,6 +29,9 @@ class CountryService:
 
     def update(self, country_id: int, data: CountryUpdate) -> CountryResponse:
         """Update Country"""
+        if "name" in data.model_fields_set:
+            self._ensure_name_is_unique(data.name, exclude_id=country_id)
+
         updated = self.repository.update_from_schema(country_id, data)
         return CountryResponse.model_validate(updated)
 
@@ -68,3 +74,24 @@ class CountryService:
     def count_all(self) -> int:
         """Count all Countries"""
         return self.repository.count()
+
+    def _ensure_name_is_unique(
+        self,
+        name: str,
+        exclude_id: int | None = None
+    ) -> None:
+        """
+        Validate that country name is unique (case-insensitive).
+        """
+        query = (
+            self.repository.db.query(Country)
+            .filter(func.lower(Country.name) == name.lower())
+        )
+
+        if exclude_id is not None:
+            query = query.filter(Country.id != exclude_id)
+
+        if self.repository.db.query(query.exists()).scalar():
+            raise ConflictException(
+                f"Country '{name}' already exists"
+            )

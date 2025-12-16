@@ -53,17 +53,11 @@ class Country(BaseModel):
 
     @property
     def asset_types_count(self) -> int:
-        try:
-            return self.asset_types.count()
-        except:
-            return 0
-    
+        return len(self.asset_types)
+
     @property
     def brokers_count(self) -> int:
-        try:
-            return self.brokers.count()
-        except:
-            return 0
+        return len(self.brokers)
 
     def validate_for_deletion(self) -> tuple[bool, str]:
         """
@@ -71,15 +65,18 @@ class Country(BaseModel):
         
         Returns:
             Tuple of (can_delete: bool, reason: str)
-            If can_delete is False, reason contains error message
         """
-        count = self.brokers.count()
-        if count > 0:
-            return False, f"Cannot delete '{self.name}' because it has {count} brokers associated"
+        if self.brokers_count > 0:
+            return (
+                False, 
+                f"Cannot delete '{self.name}' because it has {self.brokers_count} associated brokers"
+            )
 
-        count = self.asset_types.count()
-        if count > 0:
-            return False, f"Cannot delete '{self.name}' because it has {count} asset types associated"
+        if self.asset_types_count > 0:
+            return (
+                False, 
+                f"Cannot delete '{self.name}' because it has {self.asset_types_count} associated asset types"
+            )
 
         return True, ""
 
@@ -95,4 +92,4 @@ class Country(BaseModel):
         }
 
     def __repr__(self) -> str:
-        return f"<Country(id={self.id}, name='{self.name}')>"
+        return f"<Country(id={self.id}, name={self.name})>"

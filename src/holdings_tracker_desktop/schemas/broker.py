@@ -2,21 +2,23 @@ from pydantic import Field, field_validator, model_validator
 from typing import Optional
 from .base import BaseSchema, TimestampSchema
 
-class CountryBase(BaseSchema):
+class BrokerBase(BaseSchema):
     name: str = Field(..., min_length=2, max_length=80)
+    country_id: int = Field(..., gt=0)
 
     @field_validator("name", mode="before")
     @classmethod
     def strip_name(cls, v: str) -> str:
         return v.strip()
 
-class CountryCreate(CountryBase):
+class BrokerCreate(BrokerBase):
     model_config = {
         "extra": "forbid"
     }
 
-class CountryUpdate(BaseSchema):
+class BrokerUpdate(BaseSchema):
     name: Optional[str] = Field(None, min_length=2, max_length=80)
+    country_id: Optional[int] = Field(None, gt=0)
 
     @field_validator("name", mode="before")
     @classmethod
@@ -33,7 +35,7 @@ class CountryUpdate(BaseSchema):
         "extra": "forbid"
     }
 
-class CountryResponse(CountryBase, TimestampSchema):
+class BrokerResponse(BrokerBase, TimestampSchema):
     id: int
 
     model_config = {
