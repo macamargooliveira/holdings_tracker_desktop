@@ -1,0 +1,65 @@
+from pydantic import Field, field_validator, model_validator
+from typing import Optional
+from .base import BaseSchema, TimestampSchema
+
+class CurrencyBase(BaseSchema):
+    code: str = Field(..., min_length=3, max_length=3)
+    name: str = Field(..., min_length=2, max_length=80)
+    symbol: str = Field(..., min_length=1, max_length=3)
+
+    @field_validator("code", mode="before")
+    @classmethod
+    def uppercase_code(cls, v: str) -> str:
+        return v.strip().upper()
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def strip_name(cls, v: str) -> str:
+        return v.strip()
+
+    @field_validator("symbol", mode="before")
+    @classmethod
+    def strip_symbol(cls, v: str) -> str:
+        return v.strip()
+
+class CurrencyCreate(CurrencyBase):
+    model_config = {
+        "extra": "forbid"
+    }
+
+class CurrencyUpdate(BaseSchema):
+    code: Optional[str] = Field(None, min_length=3, max_length=3)
+    name: Optional[str] = Field(None, min_length=2, max_length=80)
+    symbol: Optional[str] = Field(None, min_length=1, max_length=3)
+
+    @field_validator("code", mode="before")
+    @classmethod
+    def uppercase_code(cls, v: str) -> str:
+        return v.strip().upper()
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def strip_name(cls, v: str) -> str:
+        return v.strip()
+
+    @field_validator("symbol", mode="before")
+    @classmethod
+    def strip_symbol(cls, v: str) -> str:
+        return v.strip()
+
+    @model_validator(mode="after")
+    def validate_at_least_one_field(self):
+        if not self.model_fields_set:
+            raise ValueError("At least one field must be provided for update")
+        return self
+
+    model_config = {
+        "extra": "forbid"
+    }
+
+class CurrencyResponse(CurrencyBase, TimestampSchema):
+    id: int
+
+    model_config = {
+        "from_attributes": True
+    }
