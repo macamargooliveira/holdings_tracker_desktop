@@ -34,5 +34,5 @@ class AssetTickerHistory(BaseModel):
     )
 
     asset: Mapped[Asset] = relationship(
-        back_populates="ticker_history"
+        back_populates="ticker_histories"
     )

@@ -1,0 +1,43 @@
+from pydantic import Field, field_validator, model_validator
+from typing import Optional
+from .base import BaseSchema, TimestampSchema
+
+class AssetSectorBase(BaseSchema):
+    name: str = Field(..., min_length=2, max_length=80)
+    asset_type_id: int = Field(..., gt=0)
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def strip_name(cls, v: str) -> str:
+        return v.strip()
+
+class AssetSectorCreate(AssetSectorBase):
+    model_config = {
+        "extra": "forbid"
+    }
+
+class AssetSectorUpdate(BaseSchema):
+    name: Optional[str] = Field(None, min_length=2, max_length=80)
+    asset_type_id: Optional[int] = Field(None, gt=0)
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def strip_name(cls, v: Optional[str]) -> Optional[str]:
+        return v.strip() if v is not None else v
+
+    @model_validator(mode="after")
+    def validate_at_least_one_field(self):
+        if not self.model_fields_set:
+            raise ValueError("At least one field must be provided for update")
+        return self
+
+    model_config = {
+        "extra": "forbid"
+    }
+
+class AssetSectorResponse(AssetSectorBase, TimestampSchema):
+    id: int
+
+    model_config = {
+        "from_attributes": True
+    }

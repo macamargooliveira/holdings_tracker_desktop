@@ -2,7 +2,7 @@ from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenuBar, QSizePolicy
 from holdings_tracker_desktop.ui.translations import t
 from holdings_tracker_desktop.ui.operations.assets_widget import AssetsWidget
-from holdings_tracker_desktop.ui.operations.asset_events_widget import AssetEventsWidget
+from holdings_tracker_desktop.ui.operations.asset_sectors_widget import AssetSectorsWidget
 from holdings_tracker_desktop.ui.operations.asset_types_widget import AssetTypesWidget
 from holdings_tracker_desktop.ui.operations.brokers_widget import BrokersWidget
 from holdings_tracker_desktop.ui.operations.broker_notes_widget import BrokerNotesWidget
@@ -13,14 +13,14 @@ import importlib.resources as res
 MENU_CONFIG = {
     "bar": [
         ("broker_notes", BrokerNotesWidget),
-        ("asset_events", AssetEventsWidget),
         ("assets", AssetsWidget),
     ],
     "basics": [
         ("asset_types", AssetTypesWidget),
+        ("asset_sectors", AssetSectorsWidget),
         ("brokers", BrokersWidget),
-        ("countries", CountriesWidget),
         ("currencies", CurrenciesWidget),
+        ("countries", CountriesWidget),
     ],
     "languages": [
         ("English", "en", "us.svg"),

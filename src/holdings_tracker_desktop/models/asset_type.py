@@ -38,7 +38,7 @@ class AssetType(BaseModel):
 
     sectors: Mapped[list[AssetSector]] = relationship(
         back_populates="asset_type",
-        cascade="save-update",
+        cascade="all, delete-orphan",
         lazy="dynamic"
     )
 
@@ -67,6 +67,10 @@ class AssetType(BaseModel):
     def assets_count(self) -> int:
         return self.assets.count()
 
+    @property
+    def sectors_count(self) -> int:
+        return self.sectors.count()
+
     def validate_for_deletion(self) -> tuple[bool, str]:
         """
         Validate if asset type can be deleted.
@@ -90,6 +94,7 @@ class AssetType(BaseModel):
             'name': self.name,
             'country_name': self.country.name if self.country else '',
             'assets_count': self.assets_count,
+            'sectors_count': self.sectors_count,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

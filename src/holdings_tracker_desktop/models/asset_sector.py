@@ -23,9 +23,68 @@ class AssetSector(BaseModel):
     )
 
     asset_type: Mapped[AssetType] = relationship(
-        back_populates="sectors"
+        back_populates="sectors",
+        cascade="save-update",
+        lazy="selectin"
     )
 
     assets: Mapped[list[Asset]] = relationship(
-        back_populates="sector"
+        back_populates="sector",
+        cascade="save-update",
+        lazy="dynamic"
     )
+
+    def to_response(self) -> dict:
+        """Convert to dictionary compatible with AssetSectorResponse"""
+        from holdings_tracker_desktop.schemas.asset_sector import AssetSectorResponse
+        return AssetSectorResponse.model_validate(self).model_dump()
+
+    @classmethod
+    def from_create_schema(cls, schema_data: dict) -> AssetSector:
+        """Create instance from creation schema"""
+        from holdings_tracker_desktop.schemas.asset_sector import AssetSectorCreate
+
+        validated_data = AssetSectorCreate(**schema_data).model_dump()
+        return cls(**validated_data)
+
+    def update_from_schema(self, schema_data: dict):
+        """Update instance from update schema"""
+        from holdings_tracker_desktop.schemas.asset_sector import AssetSectorUpdate
+
+        update_data = AssetSectorUpdate(**schema_data).model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(self, key, value)
+
+    @property
+    def assets_count(self) -> int:
+        return self.assets.count()
+
+    def validate_for_deletion(self) -> tuple[bool, str]:
+        """
+        Validate if asset sector can be deleted.
+
+        Returns:
+            Tuple of (can_delete: bool, reason: str)
+        """
+        count = self.assets_count
+        if count > 0:
+            return (
+                False, 
+                f"Cannot delete '{self.name}' because it has {count} associated assets"
+            )
+
+        return True, ""
+
+    def to_ui_dict(self) -> dict:
+        """Optimized for PySide6 table widgets"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'asset_type_name': self.asset_type.name if self.asset_type else '',
+            'assets_count': self.assets_count,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self) -> str:
+        return f"<AssetSector(id={self.id}, name={self.name}, asset_type_id={self.asset_type_id})>"

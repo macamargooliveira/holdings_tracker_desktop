@@ -1,11 +1,11 @@
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QTableWidgetItem, QDialog
 from holdings_tracker_desktop.database import get_db
-from holdings_tracker_desktop.services.asset_type_service import AssetTypeService
+from holdings_tracker_desktop.services.asset_sector_service import AssetSectorService
 from holdings_tracker_desktop.ui.translations import t
 from holdings_tracker_desktop.ui.operations.entity_manager_widget import EntityManagerWidget
 
-class AssetTypesWidget(EntityManagerWidget):
+class AssetSectorsWidget(EntityManagerWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.window().widgets_with_translation.append(self)
@@ -14,42 +14,42 @@ class AssetTypesWidget(EntityManagerWidget):
     def load_data(self):
         try:
             with get_db() as db:
-                service = AssetTypeService(db)
+                service = AssetSectorService(db)
                 ui_data = service.list_all_for_ui()
                 self._populate_table(ui_data)
 
         except Exception as e:
-            self.show_error(f"Error loading asset types: {str(e)}")
+            self.show_error(f"Error loading asset sectors: {str(e)}")
             self.table.setRowCount(0)
 
         self.translate_ui()
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_label.setText(t("asset_types"))
-        self.table.setHorizontalHeaderLabels([t("name"), t("country"), t("assets"), t("asset_sectors")])
+        self.title_label.setText(t("asset_sectors"))
+        self.table.setHorizontalHeaderLabels([t("name"), t("asset_type"), t("assets")])
 
     def open_new_form(self):
-        from holdings_tracker_desktop.ui.forms.asset_type_form import AssetTypeForm
+        from holdings_tracker_desktop.ui.forms.asset_sector_form import AssetSectorForm
 
-        form = AssetTypeForm(parent=self)
+        form = AssetSectorForm(parent=self)
 
         if form.exec() == QDialog.Accepted:
             self.load_data()
 
     def open_edit_form(self, selected_id):
-        from holdings_tracker_desktop.ui.forms.asset_type_form import AssetTypeForm
+        from holdings_tracker_desktop.ui.forms.asset_sector_form import AssetSectorForm
 
         try:
             with get_db() as db:
-                service = AssetTypeService(db)
-                asset_type = service.get(selected_id)
+                service = AssetSectorService(db)
+                asset_sector = service.get(selected_id)
 
-                form = AssetTypeForm(
-                    asset_type_id=selected_id,
+                form = AssetSectorForm(
+                    asset_sector_id=selected_id,
                     initial_data={
-                        'name': asset_type.name,
-                        'country_id': asset_type.country_id
+                        'name': asset_sector.name,
+                        'asset_type_id': asset_sector.asset_type_id
                     },
                     parent=self
                 )
@@ -63,9 +63,9 @@ class AssetTypesWidget(EntityManagerWidget):
     def delete_record(self, selected_id):
         try:
             with get_db() as db:
-                service = AssetTypeService(db)
+                service = AssetSectorService(db)
 
-                if not self.ask_confirmation(title=t('delete_asset_type'), message=t('confirm_delete')):
+                if not self.ask_confirmation(title=t('delete_asset_sector'), message=t('confirm_delete')):
                     return
 
                 deleted = service.delete(selected_id)
@@ -76,11 +76,11 @@ class AssetTypesWidget(EntityManagerWidget):
                     self.show_error(f"Delete failed")
 
         except Exception as e:
-            self.show_error(f"Error deleting asset type: {str(e)}")
+            self.show_error(f"Error deleting asset sector: {str(e)}")
 
     def _populate_table(self, items):
         self.table.clear()
-        self.table.setColumnCount(4)
+        self.table.setColumnCount(3)
         self.table.setRowCount(len(items))
 
         for row, item in enumerate(items):
@@ -88,12 +88,8 @@ class AssetTypesWidget(EntityManagerWidget):
             name_item.setData(Qt.UserRole, item['id'])
             self.table.setItem(row, 0, name_item)
 
-            self.table.setItem(row, 1, QTableWidgetItem(item['country_name']))
+            self.table.setItem(row, 1, QTableWidgetItem(item['asset_type_name']))
 
             count_assets_item = QTableWidgetItem(str(item['assets_count']))
             count_assets_item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row, 2, count_assets_item)
-
-            count_sectors_item = QTableWidgetItem(str(item['sectors_count']))
-            count_sectors_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 3, count_sectors_item)

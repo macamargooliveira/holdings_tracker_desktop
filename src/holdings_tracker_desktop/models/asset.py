@@ -18,7 +18,7 @@ class Asset(BaseModel):
     __tablename__ = "assets"
 
     ticker: Mapped[str] = mapped_column(
-        String(5), 
+        String(12),
         unique=True, 
         nullable=False
     )
@@ -39,30 +39,120 @@ class Asset(BaseModel):
     )
 
     asset_type: Mapped[AssetType] = relationship(
-        back_populates="assets"
+        back_populates="assets",
+        cascade="save-update",
+        lazy="selectin"
     )
 
     currency: Mapped[Currency] = relationship(
-        back_populates="assets"
+        back_populates="assets",
+        cascade="save-update",
+        lazy="selectin"
     )
 
     sector: Mapped[AssetSector] = relationship(
-        back_populates="assets"
+        back_populates="assets",
+        cascade="save-update",
+        lazy="selectin"
     )
 
     broker_notes: Mapped[list[BrokerNote]] = relationship(
-        back_populates="asset"
+        back_populates="asset",
+        cascade="save-update",
+        lazy="dynamic"
     )
 
     snapshots: Mapped[list[PositionSnapshot]] = relationship(
-        back_populates="asset"
+        back_populates="asset",
+        cascade="all, delete-orphan",
+        lazy="dynamic"
     )
 
     events: Mapped[list[AssetEvent]] = relationship(
         back_populates="asset",
-        foreign_keys="[AssetEvent.asset_id]"
+        foreign_keys="[AssetEvent.asset_id]",
+        cascade="all, delete-orphan",
+        lazy="dynamic"
     )
 
-    ticker_history: Mapped[list[AssetTickerHistory]] = relationship(
-        back_populates="asset"
+    ticker_histories: Mapped[list[AssetTickerHistory]] = relationship(
+        back_populates="asset",
+        cascade="all, delete-orphan",
+        lazy="dynamic"
     )
+
+    def to_response(self) -> dict:
+        """Convert to dictionary compatible with AssetResponse"""
+        from holdings_tracker_desktop.schemas.asset import AssetResponse
+        return AssetResponse.model_validate(self).model_dump()
+
+    @classmethod
+    def from_create_schema(cls, schema_data: dict) -> Asset:
+        """Create instance from creation schema"""
+        from holdings_tracker_desktop.schemas.asset import AssetCreate
+
+        validated_data = AssetCreate(**schema_data).model_dump()
+        return cls(**validated_data)
+
+    def update_from_schema(self, schema_data: dict):
+        """Update instance from update schema"""
+        from holdings_tracker_desktop.schemas.asset import AssetUpdate
+
+        update_data = AssetUpdate(**schema_data).model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(self, key, value)
+
+    @property
+    def broker_notes_count(self) -> int:
+        return self.broker_notes.count()
+
+    @property
+    def snapshots_count(self) -> int:
+        return self.snapshots.count()
+
+    @property
+    def events_count(self) -> int:
+        return self.events.count()
+    
+    @property
+    def events_count(self) -> int:
+        return self.events.count()
+    
+    @property
+    def ticker_histories_count(self) -> int:
+        return self.ticker_histories.count()
+
+    def validate_for_deletion(self) -> tuple[bool, str]:
+        """
+        Validate if asset can be deleted.
+        
+        Returns:
+            Tuple of (can_delete: bool, reason: str)
+        """
+        count = self.broker_notes_count
+        if count > 0:
+            return (
+                False, 
+                f"Cannot delete '{self.name}' because it has {count} associated broker notes"
+            )
+
+        return True, ""
+
+    def to_ui_dict(self) -> dict:
+        """Optimized for PySide6 table widgets"""
+        return {
+            'id': self.id,
+            'ticker': self.ticker,
+            'type_name': self.asset_type.name if self.asset_type else '',
+            'currency_code': self.currency.code if self.currency else '',
+            'sector_name': self.sector.name if self.sector else '',
+            'broker_notes_count': self.broker_notes_count,
+            'snapshots_count': self.snapshots_count,
+            'events_count': self.events_count,
+            'ticker_histories_count': self.ticker_histories_count,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self) -> str:
+        return f"<Asset(id={self.id}, ticker={self.ticker}, type_id={self.type_id})>"
