@@ -1,6 +1,5 @@
 from typing import List
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 from holdings_tracker_desktop.models.asset_sector import AssetSector
 from holdings_tracker_desktop.schemas.asset_sector import (
   AssetSectorCreate, AssetSectorUpdate, AssetSectorResponse

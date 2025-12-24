@@ -27,8 +27,9 @@ class AssetsWidget(EntityManagerWidget):
     def translate_ui(self):
         super().translate_ui()
         self.title_label.setText(t("assets"))
-        self.table.setHorizontalHeaderLabels([t("ticker"), t("type"), t("currency"), t("sector"),
-                                              t("notes"), t("events")])
+        self.table.setHorizontalHeaderLabels(
+            [t("ticker"), t("type"), t("currency"), t("sector"), t("notes"), t("events")]
+        )
 
     def open_new_form(self):
         from holdings_tracker_desktop.ui.forms.asset_form import AssetForm

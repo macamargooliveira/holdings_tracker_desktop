@@ -23,7 +23,7 @@ MENU_CONFIG = {
         ("countries", CountriesWidget),
     ],
     "languages": [
-        ("English", "en", "us.svg"),
+        ("English", "en_US", "us.svg"),
         ("Português", "pt_BR", "br.svg"),
     ]
 }

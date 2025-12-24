@@ -29,7 +29,6 @@ class AssetService:
 
     def update(self, asset_id: int, data: AssetUpdate) -> AssetResponse:
         """Update Asset"""
-
         updated = self.repository.update_from_schema(asset_id, data)
         return AssetResponse.model_validate(updated)
 

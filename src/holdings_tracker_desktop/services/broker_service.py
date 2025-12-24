@@ -56,6 +56,10 @@ class BrokerService:
         brokers = self.repository.get_all(skip, limit, order_by, descending)
         return [BrokerResponse.model_validate(at) for at in brokers]
 
+    def list_all_models(self, order_by: int = "id") -> List[Broker]:
+        """Get all Countries as SQLAlchemy models"""
+        return self.repository.get_all(order_by=order_by)
+
     def list_all_for_ui(
         self, 
         skip: int = 0, 

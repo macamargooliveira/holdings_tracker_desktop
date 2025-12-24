@@ -1,7 +1,24 @@
 current_lang = "pt_BR"
 
+DATE_FORMAT = {
+    "pt_BR": "%d/%m/%Y",
+    "en_US": "%m/%d/%Y",
+    "iso": "%Y-%m-%d",
+}
+
+NUMBER_FORMAT = {
+    "pt_BR": {
+        "decimal": ",",
+        "thousands": ".",
+    },
+    "en_US": {
+        "decimal": ".",
+        "thousands": ",",
+    },
+}
+
 TRANSLATIONS = {
-    "en": {
+    "en_US": {
         "actions": "Actions",
         "add": "Add",
         "asset_events": "Asset Events",
@@ -15,6 +32,7 @@ TRANSLATIONS = {
         "broker_notes": "Broker Notes",
         "broker": "Broker",
         "brokers": "Brokers",
+        "buy": "Buy",
         "code": "Code",
         "confirm_delete": "Confirm deletion?",
         "countries": "Countries",
@@ -27,6 +45,7 @@ TRANSLATIONS = {
         "delete_asset_sector": "Delete Sector",
         "delete_asset_type": "Delete Asset Type",
         "delete_broker": "Delete Broker",
+        "delete_broker_note": "Delete Broker Note",
         "delete_country": "Delete Country",
         "delete_currency": "Delete Currency",
         "edit": "Edit",
@@ -34,6 +53,7 @@ TRANSLATIONS = {
         "edit_asset_sector": "Edit Sector",
         "edit_asset_type": "Edit Asset Type",
         "edit_broker": "Edit Broker",
+        "edit_broker_note": "Edit Broker Note",
         "edit_country": "Edit Country",
         "edit_currency": "Edit Currency",
         "events": "Events",
@@ -45,18 +65,24 @@ TRANSLATIONS = {
         "new_asset_sector": "New Sector",
         "new_asset_type": "New Asset Type",
         "new_broker": "New Broker",
+        "new_broker_note": "New Broker Note",
         "new_country": "New Country",
         "new_currency": "New Currency",
         "no": "No",
         "notes": "Notes",
-        "operation": "Op.",
+        "operation_abbr": "Op.",
+        "operation": "Operation",
         "price": "Price",
-        "quantity": "Qty.",
+        "quantity_abbr": "Qty.",
+        "quantity": "Quantity",
         "sector": "Sector",
-        "select_asset_type": "Select asset type",
-        "select_country": "Select country",
-        "select_currency": "Select currency",
-        "select_sector": "Select sector",
+        "select_asset": "Select an asset",
+        "select_asset_type": "Select an asset type",
+        "select_broker": "Select a broker",
+        "select_country": "Select a country",
+        "select_currency": "Select a currency",
+        "select_sector": "Select a sector",
+        "sell": "Sell",
         "snapshots": "Snapshots",
         "symbol": "Symbol",
         "taxes": "Taxes",
@@ -81,6 +107,7 @@ TRANSLATIONS = {
         "broker_notes": "Notas de Corretagem",
         "broker": "Corretora",
         "brokers": "Corretoras",
+        "buy": "Compra",
         "code": "Código",
         "confirm_delete": "Confirma exclusão?",
         "countries": "Países",
@@ -93,6 +120,7 @@ TRANSLATIONS = {
         "delete_asset_sector": "Excluir Setor",
         "delete_asset_type": "Excluir Tipo de Ativo",
         "delete_broker": "Excluir Corretora",
+        "delete_broker_note": "Excluir Nota de Corretagem",
         "delete_country": "Excluir País",
         "delete_currency": "Excluir Moeda",
         "edit": "Editar",
@@ -100,6 +128,7 @@ TRANSLATIONS = {
         "edit_asset_sector": "Editar Setor",
         "edit_asset_type": "Editar Tipo de Ativo",
         "edit_broker": "Editar Corretora",
+        "edit_broker_note": "Editar Nota de Corretagem",
         "edit_country": "Editar País",
         "edit_currency": "Editar Moeda",
         "events": "Eventos",
@@ -111,22 +140,28 @@ TRANSLATIONS = {
         "new_asset_sector": "Novo Setor",
         "new_asset_type": "Novo Tipo de Ativo",
         "new_broker": "Nova Corretora",
+        "new_broker_note": "Nova Nota de Corretagem",
         "new_country": "Novo País",
         "new_currency": "Nova Moeda",
         "no": "Não",
         "notes": "Notas",
-        "operation": "Op.",
+        "operation_abbr": "Op.",
+        "operation": "Operação",
         "price": "Preço",
-        "quantity": "Qtde.",
+        "quantity_abbr": "Qtde.",
+        "quantity": "Quantidade",
         "sector": "Setor",
+        "select_asset": "Selecione um ativo",
         "select_asset_type": "Selecione um tipo de ativo",
+        "select_broker": "Selecione uma corretora",
         "select_country": "Selecione um país",
         "select_currency": "Selecione uma moeda",
         "select_sector": "Selecione um setor",
+        "sell": "Venda",
         "snapshots": "Resumos",
         "symbol": "Símbolo",
         "taxes": "IR",
-        "ticker": "Ticker",
+        "ticker": "Papel",
         "total_value": "Total",
         "type": "Tipo",
         "year": "Ano",
@@ -138,3 +173,9 @@ def t(key: str) -> str:
     """Simple translation helper."""
     lang = TRANSLATIONS.get(current_lang, {})
     return lang.get(key, key)
+
+def get_date_format():
+    return DATE_FORMAT.get(current_lang, DATE_FORMAT["iso"])
+
+def get_number_format():
+    return NUMBER_FORMAT.get(current_lang, NUMBER_FORMAT["en_US"])

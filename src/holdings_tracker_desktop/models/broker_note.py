@@ -64,13 +64,59 @@ class BrokerNote(BaseModel):
     )
 
     broker: Mapped[Broker] = relationship(
-        back_populates="broker_notes"
+        back_populates="broker_notes",
+        cascade="save-update",
+        lazy="selectin"
     )
 
     asset: Mapped[Asset] = relationship(
-        back_populates="broker_notes"
+        back_populates="broker_notes",
+        cascade="save-update",
+        lazy="selectin"
     )
+
+    def to_response(self) -> dict:
+        """Convert to dictionary compatible with BrokerNoteResponse"""
+        from holdings_tracker_desktop.schemas.broker_note import BrokerNoteResponse
+        return BrokerNoteResponse.model_validate(self).model_dump()
+
+    @classmethod
+    def from_create_schema(cls, schema_data: dict) -> BrokerNote:
+        """Create instance from creation schema"""
+        from holdings_tracker_desktop.schemas.broker_note import BrokerNoteCreate
+
+        validated_data = BrokerNoteCreate(**schema_data).model_dump()
+        return cls(**validated_data)
+
+    def update_from_schema(self, schema_data: dict):
+        """Update instance from update schema"""
+        from holdings_tracker_desktop.schemas.broker_note import BrokerNoteUpdate
+
+        update_data = BrokerNoteUpdate(**schema_data).model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(self, key, value)
 
     @property
     def total_value(self):
         return (self.quantity * self.price) + self.fees + self.taxes
+
+    def to_ui_dict(self) -> dict:
+        """Optimized for PySide6 table widgets"""
+        return {
+            'id': self.id,
+            'date': self.date,
+            'operation': self.operation,
+            'broker_name': self.broker.name if self.broker else '',
+            'asset_ticker': self.asset.ticker if self.asset else '',
+            'quantity': self.quantity,
+            'price': self.price,
+            'fees': self.fees,
+            'taxes': self.taxes,
+            'note_number': self.note_number if self.note_number else '',
+            'total_value': self.total_value,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self) -> str:
+        return f"<BrokerNote(id={self.id}, date={self.date}, operation={self.operation}, asset_id={self.asset_id})>"

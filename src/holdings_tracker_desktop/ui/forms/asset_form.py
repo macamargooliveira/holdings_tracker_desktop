@@ -29,6 +29,8 @@ class AssetForm(QDialog):
         form_layout = QFormLayout()
 
         self.ticker_input = QLineEdit()
+        if self.is_edit_mode:
+            self.ticker_input.setEnabled(False)
         form_layout.addRow(f"{t('ticker')}:", self.ticker_input)
 
         self._setup_type_combo(form_layout)
