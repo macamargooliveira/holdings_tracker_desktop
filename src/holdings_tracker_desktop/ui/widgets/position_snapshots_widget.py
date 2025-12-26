@@ -1,9 +1,8 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTableWidgetItem
-from decimal import Decimal
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
-from holdings_tracker_desktop.ui.formatters import format_date, format_decimal
+from holdings_tracker_desktop.ui.formatters import format_date
 from holdings_tracker_desktop.ui.translations import t
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
@@ -61,15 +60,3 @@ class PositionSnapshotsWidget(EntityManagerWidget):
             self.table.setItem(row, 2, self._decimal_item(item['quantity'], 0))
             self.table.setItem(row, 3, self._decimal_item(item['avg_price'], 2, currency))
             self.table.setItem(row, 4, self._decimal_item(item['total_cost'], 2, currency))
-
-    def _decimal_item(
-            self, 
-            value: Decimal, 
-            decimals: int = 2,
-            currency: str = ""
-        ) -> QTableWidgetItem:
-        text = format_decimal(value, decimals)
-        text = f"{currency} {text}"
-        item = QTableWidgetItem(text)
-        item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        return item

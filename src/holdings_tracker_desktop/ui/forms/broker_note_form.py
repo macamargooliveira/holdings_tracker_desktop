@@ -178,7 +178,6 @@ class BrokerNoteForm(BaseFormDialog):
                     date=date, 
                     operation=operation, 
                     broker_id=broker_id,
-                    asset_id=asset_id,
                     quantity=quantity,
                     price=price,
                     fees=fees,
