@@ -7,11 +7,13 @@ from holdings_tracker_desktop.ui.translations import t
 from holdings_tracker_desktop.ui.confirm_dialog import ConfirmDialog
 import qtawesome as qta
 
-BUTTONS_CONFIG = [
-    ("add", "fa5s.plus"),
-    ("edit", "fa5s.edit"),
-    ("delete", "fa5s.trash")
-]
+DEFAULT_ACTIONS = ("add", "edit", "delete")
+
+BUTTONS_CONFIG = {
+    "add": "fa5s.plus",
+    "edit": "fa5s.edit",
+    "delete": "fa5s.trash"
+}
 
 class EntityManagerWidget(QWidget):
     def __init__(self, parent=None):
@@ -20,7 +22,10 @@ class EntityManagerWidget(QWidget):
         self._setup_ui()
 
     def translate_ui(self):
-        for name, _ in BUTTONS_CONFIG:
+        for action in self.get_enabled_actions():
+            self.buttons[action].setText(t(action))
+
+        for name, _, _ in self.get_extra_buttons():
             self.buttons[name].setText(t(name))
 
     def load_data(self): raise NotImplementedError
@@ -64,6 +69,28 @@ class EntityManagerWidget(QWidget):
         )
         return dialog.exec() == QDialog.Accepted
 
+    def get_operations_widget(self):
+        parent = self.parent()
+        while parent is not None:
+            if parent.__class__.__name__ == "OperationsWidget":
+                return parent
+            parent = parent.parent()
+        return None
+
+    def navigate_to(self, widget_cls, *args, **kwargs):
+        operations = self.get_operations_widget()
+        if operations:
+            operations.show_widget(widget_cls, *args, **kwargs)
+
+    def get_enabled_actions(self) -> tuple[str, ...]:
+        """
+        Override in subclasses to enable/disable default CRUD actions.
+        """
+        return DEFAULT_ACTIONS
+
+    def get_extra_buttons(self):
+        return []
+
     def _init_state(self):
         self.window().widgets_with_translation.append(self)
         self.buttons = {}
@@ -102,14 +129,24 @@ class EntityManagerWidget(QWidget):
         toolbar = QHBoxLayout()
         toolbar.addStretch()
 
-        for name, icon in BUTTONS_CONFIG:
+        for action in self.get_enabled_actions():
+            icon = BUTTONS_CONFIG[action]
+
+            button = QPushButton("")
+            button.setIcon(qta.icon(icon))
+            self.buttons[action] = button
+            toolbar.addWidget(button)
+
+            handler = getattr(self, f"on_{action}_clicked", None)
+            if handler:
+                button.clicked.connect(handler)
+
+        for name, icon, handler in self.get_extra_buttons():
             button = QPushButton("")
             button.setIcon(qta.icon(icon))
             self.buttons[name] = button
             toolbar.addWidget(button)
-
-            handler_name = f"on_{name}_clicked"
-            button.clicked.connect(getattr(self, handler_name))
+            button.clicked.connect(handler)
 
         body_layout.addLayout(toolbar)
 

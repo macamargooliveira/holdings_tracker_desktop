@@ -49,11 +49,13 @@ class OperationsWidget(QWidget):
             for action_name, _ in entries:
                 self.actions[action_name].setText(t(action_name))
 
-    def show_widget(self, widget_cls):
-        if widget_cls not in self.widget_cache:
-            self.widget_cache[widget_cls] = widget_cls(self)
+    def show_widget(self, widget_cls, *args, **kwargs):
+        key = (widget_cls, *args, *kwargs.values())
 
-        widget = self.widget_cache[widget_cls]
+        if key not in self.widget_cache:
+            self.widget_cache[key] = widget_cls(*args, parent=self, **kwargs)
+
+        widget = self.widget_cache[key]
         self._set_content_widget(widget)
 
     def _init_state(self, parent):

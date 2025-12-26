@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, Numeric
+from sqlalchemy import ForeignKey, Numeric, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from decimal import Decimal
 from .base import BaseModel
@@ -15,6 +15,10 @@ class PositionSnapshot(BaseModel):
     asset_id: Mapped[int] = mapped_column(
         ForeignKey("assets.id"), 
         nullable=False
+    )
+
+    snapshot_date: Mapped[Date] = mapped_column(
+        Date, nullable=False
     )
 
     quantity: Mapped[Decimal] = mapped_column(
@@ -55,7 +59,7 @@ class PositionSnapshot(BaseModel):
             setattr(self, key, value)
 
     @property
-    def total_invested(self):
+    def total_cost(self):
         return self.quantity * self.avg_price
 
     def to_ui_dict(self) -> dict:
@@ -63,12 +67,14 @@ class PositionSnapshot(BaseModel):
         return {
             'id': self.id,
             'asset_ticker': self.asset.ticker if self.asset else '',
+            'snapshot_date': self.snapshot_date,
+            'asset_currency': self.asset.currency.symbol if self.asset else '',
             'quantity': self.quantity,
             'avg_price': self.avg_price,
-            'total_invested': self.total_invested,
+            'total_cost': self.total_cost,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
     def __repr__(self) -> str:
-        return f"<PositionSnapshot(id={self.id}, asset_id={self.asset_id}, created_at={self.created_at})>"
+        return f"<PositionSnapshot(id={self.id}, asset_id={self.asset_id}, snapshot_date={self.snapshot_date})>"

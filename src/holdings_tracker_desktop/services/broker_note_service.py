@@ -6,6 +6,7 @@ from holdings_tracker_desktop.schemas.broker_note import (
   BrokerNoteCreate, BrokerNoteUpdate, BrokerNoteResponse
 )
 from holdings_tracker_desktop.repositories.base import BaseRepository
+from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
 
 class BrokerNoteService:
     def __init__(self, db: Session):
@@ -13,10 +14,17 @@ class BrokerNoteService:
             model=BrokerNote,
             db=db
         )
+        self.position_snapshot_service = PositionSnapshotService(db)
 
     def create(self, data: BrokerNoteCreate) -> BrokerNoteResponse:
         """Create new BrokerNote with validation"""
         broker_note = self.repository.create_from_schema(data)
+
+        self.position_snapshot_service.rebuild_from(
+            asset_id=broker_note.asset_id,
+            from_date=broker_note.date
+        )
+
         return BrokerNoteResponse.model_validate(broker_note)
 
     def get(self, broker_note_id: int) -> BrokerNoteResponse:
@@ -26,12 +34,38 @@ class BrokerNoteService:
 
     def update(self, broker_note_id: int, data: BrokerNoteUpdate) -> BrokerNoteResponse:
         """Update BrokerNote"""
+        existing = self.repository.get_or_raise(broker_note_id)
+
+        old_date = existing.date
+        asset_id = existing.asset_id
+
         updated = self.repository.update_from_schema(broker_note_id, data)
+
+        rebuild_from_date = min(old_date, updated.date)
+
+        self.position_snapshot_service.rebuild_from(
+            asset_id=asset_id,
+            from_date=rebuild_from_date
+        )
+
         return BrokerNoteResponse.model_validate(updated)
 
     def delete(self, broker_note_id: int) -> bool:
         """Delete BrokerNote"""
-        return self.repository.delete(broker_note_id)
+        broker_note = self.repository.get_or_raise(broker_note_id)
+
+        asset_id = broker_note.asset_id
+        from_date = broker_note.date
+
+        deleted = self.repository.delete(broker_note_id)
+
+        if deleted:
+            self.position_snapshot_service.rebuild_from(
+                asset_id=asset_id,
+                from_date=from_date
+            )
+
+        return deleted
 
     def list_all(
         self,

@@ -67,6 +67,7 @@ class BrokerNoteForm(BaseFormDialog):
         index = self.asset_combo.findData(asset_id)
         if index >= 0:
             self.asset_combo.setCurrentIndex(index)
+            self.asset_combo.setEnabled(False)
 
     def _load_financial_fields(self, data: dict):
         if data.get("quantity") is not None:

@@ -40,7 +40,6 @@ class BrokerNoteUpdate(BaseSchema):
     date: Optional[Date] = None
     operation: Optional[OperationType] = None
     broker_id: Optional[int] = Field(None, gt=0)
-    asset_id: Optional[int] = Field(None, gt=0)
 
     quantity: Optional[Decimal] = Field(None, gt=0)
     price: Optional[Decimal] = Field(None, gt=0)
