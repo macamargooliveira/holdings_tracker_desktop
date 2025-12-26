@@ -1,14 +1,12 @@
-from PySide6.QtCore import QDate
-from PySide6.QtGui import Qt
-from PySide6.QtWidgets import (
-  QWidget, QDateEdit, QButtonGroup, QRadioButton, QComboBox, QHBoxLayout, QDoubleSpinBox
-)
+from PySide6.QtCore import Qt, QDate
+from PySide6.QtWidgets import QWidget, QDateEdit, QButtonGroup, QRadioButton, QHBoxLayout, QDoubleSpinBox
 from decimal import Decimal
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.models.broker_note import OperationType
 from holdings_tracker_desktop.services.broker_note_service import BrokerNoteService
 from holdings_tracker_desktop.schemas.broker_note import BrokerNoteCreate, BrokerNoteUpdate
 from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
+from holdings_tracker_desktop.ui.comboboxes import AssetComboBox, BrokerComboBox
 from holdings_tracker_desktop.ui.translations import t
 
 class BrokerNoteForm(BaseFormDialog):
@@ -123,54 +121,14 @@ class BrokerNoteForm(BaseFormDialog):
         form_layout.addRow(f"{t('operation')}:", container)
 
     def _setup_broker_combo(self, form_layout):
-        self.broker_combo = QComboBox()
-        self.broker_combo.setEditable(False)
-        self.broker_combo.setInsertPolicy(QComboBox.NoInsert)
-        self.broker_combo.setFocusPolicy(Qt.StrongFocus)
-        self._load_brokers()
-
+        self.broker_combo = BrokerComboBox()
         if self.broker_combo.count() > 1:
           self.broker_combo.setCurrentIndex(1)
-
         form_layout.addRow(f"{t('broker')}:", self.broker_combo)
 
-    def _load_brokers(self):
-        try:
-            with get_db() as db:
-                from holdings_tracker_desktop.services.broker_service import BrokerService
-
-                service = BrokerService(db)
-                brokers = service.list_all_models()
-
-                self.broker_combo.addItem(t("select_broker"), None)
-                for broker in brokers:
-                    self.broker_combo.addItem(broker.name, broker.id)
-
-        except Exception as e:
-            self.handle_generic_error(e)
-
     def _setup_asset_combo(self, form_layout):
-        self.asset_combo = QComboBox()
-        self.asset_combo.setEditable(False)
-        self.asset_combo.setInsertPolicy(QComboBox.NoInsert)
-        self.asset_combo.setFocusPolicy(Qt.StrongFocus)
-        self._load_assets()
+        self.asset_combo = AssetComboBox()
         form_layout.addRow(f"{t('asset')}:", self.asset_combo)
-
-    def _load_assets(self):
-        try:
-            with get_db() as db:
-                from holdings_tracker_desktop.services.asset_service import AssetService
-
-                service = AssetService(db)
-                assets = service.list_all_models()
-
-                self.asset_combo.addItem(t("select_asset"), None)
-                for asset in assets:
-                    self.asset_combo.addItem(asset.ticker, asset.id)
-
-        except Exception as e:
-            self.handle_generic_error(e)
 
     def _setup_financial_fields(self, form_layout):
         self.quantity_input = self._create_decimal_spinbox(decimals=0, step=1)

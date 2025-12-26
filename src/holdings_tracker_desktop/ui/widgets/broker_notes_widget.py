@@ -1,4 +1,4 @@
-from PySide6.QtGui import Qt
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTableWidgetItem, QDialog
 from decimal import Decimal
 from holdings_tracker_desktop.database import get_db
@@ -6,7 +6,7 @@ from holdings_tracker_desktop.models.broker_note import OperationType
 from holdings_tracker_desktop.services.broker_note_service import BrokerNoteService
 from holdings_tracker_desktop.ui.formatters import format_date, format_decimal
 from holdings_tracker_desktop.ui.translations import t
-from holdings_tracker_desktop.ui.operations.entity_manager_widget import EntityManagerWidget
+from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class BrokerNotesWidget(EntityManagerWidget):
     def __init__(self, parent=None):

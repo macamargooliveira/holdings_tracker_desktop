@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
-from holdings_tracker_desktop.ui.charts.charts_widget import ChartsWidget
-from holdings_tracker_desktop.ui.operations.operations_widget import OperationsWidget
+from holdings_tracker_desktop.ui.widgets.charts_widget import ChartsWidget
+from holdings_tracker_desktop.ui.widgets.operations_widget import OperationsWidget
 from holdings_tracker_desktop.ui import translations
 
 class MainWindow(QMainWindow):

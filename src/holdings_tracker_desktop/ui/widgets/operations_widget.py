@@ -1,13 +1,13 @@
 from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenuBar, QSizePolicy
 from holdings_tracker_desktop.ui.translations import t
-from holdings_tracker_desktop.ui.operations.assets_widget import AssetsWidget
-from holdings_tracker_desktop.ui.operations.asset_sectors_widget import AssetSectorsWidget
-from holdings_tracker_desktop.ui.operations.asset_types_widget import AssetTypesWidget
-from holdings_tracker_desktop.ui.operations.brokers_widget import BrokersWidget
-from holdings_tracker_desktop.ui.operations.broker_notes_widget import BrokerNotesWidget
-from holdings_tracker_desktop.ui.operations.countries_widget import CountriesWidget
-from holdings_tracker_desktop.ui.operations.currencies_widget import CurrenciesWidget
+from holdings_tracker_desktop.ui.widgets.assets_widget import AssetsWidget
+from holdings_tracker_desktop.ui.widgets.asset_sectors_widget import AssetSectorsWidget
+from holdings_tracker_desktop.ui.widgets.asset_types_widget import AssetTypesWidget
+from holdings_tracker_desktop.ui.widgets.brokers_widget import BrokersWidget
+from holdings_tracker_desktop.ui.widgets.broker_notes_widget import BrokerNotesWidget
+from holdings_tracker_desktop.ui.widgets.countries_widget import CountriesWidget
+from holdings_tracker_desktop.ui.widgets.currencies_widget import CurrenciesWidget
 import importlib.resources as res
 
 MENU_CONFIG = {

@@ -37,11 +37,9 @@ class BaseFormDialog(QDialog):
         self._build_form(self._form_layout)
         self._build_buttons()
 
-    def _build_form(self, form_layout: QFormLayout):
-        raise NotImplementedError
+    def _build_form(self, form_layout: QFormLayout): raise NotImplementedError
 
-    def _save(self):
-        raise NotImplementedError
+    def _save(self): raise NotImplementedError
 
     def _build_buttons(self):
         buttons = QDialogButtonBox(
