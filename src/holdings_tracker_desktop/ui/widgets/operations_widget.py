@@ -56,6 +56,10 @@ class OperationsWidget(QWidget):
             self.widget_cache[key] = widget_cls(*args, parent=self, **kwargs)
 
         widget = self.widget_cache[key]
+
+        if hasattr(widget, "on_show"):
+            widget.on_show()
+
         self._set_content_widget(widget)
 
     def _init_state(self, parent):

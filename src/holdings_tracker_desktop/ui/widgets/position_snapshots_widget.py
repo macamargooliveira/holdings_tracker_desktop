@@ -12,7 +12,6 @@ class PositionSnapshotsWidget(EntityManagerWidget):
         super().__init__(parent)
         self.asset_id = asset_id
         self.window().widgets_with_translation.append(self)
-        self.load_data()
 
     def load_data(self):
         try:

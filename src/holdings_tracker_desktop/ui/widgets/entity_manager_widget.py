@@ -29,7 +29,13 @@ class EntityManagerWidget(QWidget):
             self.buttons[name].setText(t(name))
 
     def load_data(self): raise NotImplementedError
-    
+
+    def on_show(self):
+        """
+        Called whenever the widget is displayed by OperationsWidget.
+        """
+        self.load_data()
+
     def open_new_form(self): raise NotImplementedError
     
     def open_edit_form(self): raise NotImplementedError

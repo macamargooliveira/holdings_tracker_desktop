@@ -9,7 +9,6 @@ class AssetSectorsWidget(EntityManagerWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.window().widgets_with_translation.append(self)
-        self.load_data()
 
     def load_data(self):
         try:
