@@ -108,6 +108,7 @@ class BrokerNote(BaseModel):
             'operation': self.operation,
             'broker_name': self.broker.name if self.broker else '',
             'asset_ticker': self.asset.ticker if self.asset else '',
+            'asset_currency': self.asset.currency.symbol if self.asset else '',
             'quantity': self.quantity,
             'price': self.price,
             'fees': self.fees,

@@ -107,11 +107,12 @@ class BrokerNotesWidget(EntityManagerWidget):
             ticker_item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row, 2, ticker_item)
 
+            currency = item.get("asset_currency", "")
             self.table.setItem(row, 3, self._decimal_item(item['quantity'], 0))
-            self.table.setItem(row, 4, self._decimal_item(item['price'], 2))
-            self.table.setItem(row, 5, self._decimal_item(item['fees'], 2))
-            self.table.setItem(row, 6, self._decimal_item(item['taxes'], 2))
-            self.table.setItem(row, 7, self._decimal_item(item['total_value'], 2))
+            self.table.setItem(row, 4, self._decimal_item(item['price'], 2, currency))
+            self.table.setItem(row, 5, self._decimal_item(item['fees'], 2, currency))
+            self.table.setItem(row, 6, self._decimal_item(item['taxes'], 2, currency))
+            self.table.setItem(row, 7, self._decimal_item(item['total_value'], 2, currency))
 
     def _operation_item(self, operation: OperationType) -> QTableWidgetItem:
         label_map = {
@@ -124,8 +125,14 @@ class BrokerNotesWidget(EntityManagerWidget):
         item.setTextAlignment(Qt.AlignCenter)
         return item
 
-    def _decimal_item(self, value: Decimal, decimals: int = 2) -> QTableWidgetItem:
+    def _decimal_item(
+            self, 
+            value: Decimal, 
+            decimals: int = 2,
+            currency: str = ""
+        ) -> QTableWidgetItem:
         text = format_decimal(value, decimals)
+        text = f"{currency} {text}"
         item = QTableWidgetItem(text)
         item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
         return item
