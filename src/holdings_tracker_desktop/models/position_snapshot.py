@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, Numeric, DateTime, func
+from sqlalchemy import ForeignKey, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime
 from decimal import Decimal
 from .base import BaseModel
 
@@ -18,12 +17,6 @@ class PositionSnapshot(BaseModel):
         nullable=False
     )
 
-    timestamp: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False
-    )
-
     quantity: Mapped[Decimal] = mapped_column(
         Numeric(20, 6), 
         nullable=False
@@ -34,11 +27,48 @@ class PositionSnapshot(BaseModel):
         nullable=False
     )
 
-    total_invested: Mapped[Decimal] = mapped_column(
-        Numeric(20, 6), 
-        nullable=False
+    asset: Mapped[Asset] = relationship(
+        back_populates="snapshots",
+        cascade="save-update",
+        lazy="selectin"
     )
 
-    asset: Mapped[Asset] = relationship(
-        back_populates="snapshots"
-    )
+    def to_response(self) -> dict:
+        """Convert to dictionary compatible with PositionSnapshotResponse"""
+        from holdings_tracker_desktop.schemas.position_snapshot import PositionSnapshotResponse
+        return PositionSnapshotResponse.model_validate(self).model_dump()
+
+    @classmethod
+    def from_create_schema(cls, schema_data: dict) -> PositionSnapshot:
+        """Create instance from creation schema"""
+        from holdings_tracker_desktop.schemas.position_snapshot import PositionSnapshotCreate
+
+        validated_data = PositionSnapshotCreate(**schema_data).model_dump()
+        return cls(**validated_data)
+
+    def update_from_schema(self, schema_data: dict):
+        """Update instance from update schema"""
+        from holdings_tracker_desktop.schemas.position_snapshot import PositionSnapshotUpdate
+
+        update_data = PositionSnapshotUpdate(**schema_data).model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(self, key, value)
+
+    @property
+    def total_invested(self):
+        return self.quantity * self.avg_price
+
+    def to_ui_dict(self) -> dict:
+        """Optimized for PySide6 table widgets"""
+        return {
+            'id': self.id,
+            'asset_ticker': self.asset.ticker if self.asset else '',
+            'quantity': self.quantity,
+            'avg_price': self.avg_price,
+            'total_invested': self.total_invested,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self) -> str:
+        return f"<PositionSnapshot(id={self.id}, asset_id={self.asset_id}, created_at={self.created_at})>"
