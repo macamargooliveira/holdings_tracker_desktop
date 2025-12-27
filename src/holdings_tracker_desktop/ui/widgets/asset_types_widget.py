@@ -2,6 +2,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTableWidgetItem, QDialog
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.asset_type_service import AssetTypeService
+from holdings_tracker_desktop.ui.global_signals import global_signals
 from holdings_tracker_desktop.ui.translations import t
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
@@ -35,6 +36,7 @@ class AssetTypesWidget(EntityManagerWidget):
 
         if form.exec() == QDialog.Accepted:
             self.load_data()
+            global_signals.asset_types_updated.emit()
 
     def open_edit_form(self, selected_id):
         from holdings_tracker_desktop.ui.forms.asset_type_form import AssetTypeForm
@@ -55,6 +57,7 @@ class AssetTypesWidget(EntityManagerWidget):
 
                 if form.exec() == QDialog.Accepted:
                     self.load_data()
+                    global_signals.asset_types_updated.emit()
 
         except Exception as e:
             self.show_error(f"Error opening edit form: {str(e)}")
@@ -71,6 +74,7 @@ class AssetTypesWidget(EntityManagerWidget):
 
                 if deleted:
                     self.load_data()
+                    global_signals.asset_types_updated.emit()
                 else:
                     self.show_error(f"Delete failed")
 

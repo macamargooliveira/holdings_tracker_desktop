@@ -1,6 +1,7 @@
 from datetime import date as Date
 from decimal import Decimal
 from typing import List
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from holdings_tracker_desktop.models.position_snapshot import PositionSnapshot
 from holdings_tracker_desktop.models.broker_note import BrokerNote, OperationType
@@ -59,6 +60,10 @@ class PositionSnapshotService:
     def count_all(self) -> int:
         """Count all PositionSnapshots"""
         return self.repository.count()
+
+    def get_earliest_snapshot_date(self) -> Date | None:
+        min_date: Date | None = self.db.query(func.min(PositionSnapshot.snapshot_date)).scalar()
+        return min_date
 
     def rebuild_from(self, asset_id: int, from_date: Date) -> None:
         """

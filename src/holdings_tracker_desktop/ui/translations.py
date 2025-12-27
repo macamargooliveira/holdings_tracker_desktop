@@ -21,6 +21,7 @@ TRANSLATIONS = {
     "en_US": {
         "actions": "Actions",
         "add": "Add",
+        "all": "All",
         "asset_events": "Asset Events",
         "asset_sectors": "Sectors",
         "asset_ticker_history": "Ticker Changes",
@@ -100,6 +101,7 @@ TRANSLATIONS = {
     "pt_BR": {
         "actions": "Ações",
         "add": "Incluir",
+        "all": "Todos",
         "asset_events": "Eventos de Ativo",
         "asset_sectors": "Setores",
         "asset_ticker_history": "Alterações de Ticker",
