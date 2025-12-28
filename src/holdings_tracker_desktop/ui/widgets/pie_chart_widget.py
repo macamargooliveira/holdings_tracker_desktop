@@ -83,7 +83,9 @@ class PieChartWidget(QWidget):
             values,
             labels=labels,
             autopct="%1.1f%%",
-            startangle=90
+            startangle=90,
+            wedgeprops=dict(width=0.5),
+            pctdistance=0.75
         )
 
         self.ax.set_aspect("equal", adjustable="box")
