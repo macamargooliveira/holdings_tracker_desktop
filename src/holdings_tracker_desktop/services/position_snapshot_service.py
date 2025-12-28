@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import List
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from holdings_tracker_desktop.models.asset import Asset
 from holdings_tracker_desktop.models.position_snapshot import PositionSnapshot
 from holdings_tracker_desktop.models.broker_note import BrokerNote, OperationType
 from holdings_tracker_desktop.schemas.position_snapshot import (
@@ -64,6 +65,45 @@ class PositionSnapshotService:
     def get_earliest_snapshot_date(self) -> Date | None:
         min_date: Date | None = self.db.query(func.min(PositionSnapshot.snapshot_date)).scalar()
         return min_date
+
+    def get_allocation_by_asset(self, year: int, asset_type_id: int | None = None) -> list[dict]:
+        subquery = (
+            self.db.query(
+                PositionSnapshot.asset_id,
+                func.max(PositionSnapshot.snapshot_date).label("max_date")
+            )
+            .filter(func.extract("year", PositionSnapshot.snapshot_date) == year)
+            .group_by(PositionSnapshot.asset_id)
+            .subquery()
+        )
+
+        total_cost = func.sum(PositionSnapshot.quantity * PositionSnapshot.avg_price).label("total_cost")
+
+        query = (
+            self.db.query(Asset.ticker, total_cost)
+            .join(PositionSnapshot, PositionSnapshot.asset_id == Asset.id)
+            .join(
+                subquery,
+                (PositionSnapshot.asset_id == subquery.c.asset_id) &
+                (PositionSnapshot.snapshot_date == subquery.c.max_date)
+            )
+        )
+
+        if asset_type_id is not None:
+            query = query.filter(Asset.type_id == asset_type_id)
+
+        rows = (
+            query
+            .group_by(Asset.ticker)
+            .order_by(total_cost.desc())
+            .all()
+        )
+
+        return [
+            {"label": ticker, "value": float(total)}
+            for ticker, total in rows
+            if total > 0
+        ]
 
     def rebuild_from(self, asset_id: int, from_date: Date) -> None:
         """

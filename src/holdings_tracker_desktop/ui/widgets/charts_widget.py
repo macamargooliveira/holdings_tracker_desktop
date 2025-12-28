@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenuBar, QFrame
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenuBar
 from datetime import date as Date
 from holdings_tracker_desktop.ui.global_signals import global_signals
 from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.widgets.pie_chart_widget import PieChartWidget
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.asset_type_service import AssetTypeService
 from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
@@ -28,22 +29,28 @@ class ChartsWidget(QWidget):
         if self.all_asset_types_action:
             self.all_asset_types_action.setText(t('all'))
 
+        self._refresh_chart()
+
     def refresh_asset_types_menu(self):
         menu = self.menus.get("asset_type")
         if menu:
             menu.clear()
             self._load_asset_types(menu)
+            self._refresh_chart()
 
     def refresh_years_menu(self):
         menu = self.menus.get("year")
         if menu:
             menu.clear()
             self._load_years(menu)
+            self._refresh_chart()
 
     def _init_state(self):
         self.window().widgets_with_translation.append(self)
         self.menus = {}
         self.all_asset_types_action = None
+        self.selected_asset_type_id = None
+        self.selected_year = Date.today().year
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -51,7 +58,7 @@ class ChartsWidget(QWidget):
         layout.setSpacing(5)
 
         self._setup_menu(layout)
-        self._setup_body_frame(layout)
+        self._setup_pie_chart(layout)
 
     def _setup_menu(self, layout):
         menu_bar = QMenuBar(self)
@@ -66,11 +73,9 @@ class ChartsWidget(QWidget):
 
         layout.addWidget(menu_bar, stretch=0)
 
-    def _setup_body_frame(self, layout):
-        body_frame = QFrame()
-        body_frame.setObjectName("BodyFrame")
-
-        layout.addWidget(body_frame, stretch=1)
+    def _setup_pie_chart(self, layout):
+        self.pie_chart = PieChartWidget()
+        layout.addWidget(self.pie_chart, stretch=1)
 
     def _load_asset_types(self, menu):
         self.all_asset_types_action = menu.addAction(t('all'))
@@ -89,7 +94,8 @@ class ChartsWidget(QWidget):
                 )
 
     def _on_asset_type_selected(self, asset_type_id: int):
-        print(f"Asset type selected: {asset_type_id}")
+        self.selected_asset_type_id = None if asset_type_id == 0 else asset_type_id
+        self._refresh_chart()
 
     def _load_years(self, menu):
         with get_db() as db:
@@ -106,4 +112,39 @@ class ChartsWidget(QWidget):
                 )
 
     def _on_year_selected(self, year: int):
-        print(f"Year selected: {year}")
+        self.selected_year = year
+        self._refresh_chart()
+
+    def _refresh_chart(self):
+        if not self.selected_year:
+            return
+
+        asset_type_label = (
+            t("all")
+            if self.selected_asset_type_id is None
+            else self._get_asset_type_name(self.selected_asset_type_id)
+        )
+
+        title = t("allocation_title").format(
+            asset_type=asset_type_label,
+            year=self.selected_year
+        )
+
+        with get_db() as db:
+            service = PositionSnapshotService(db)
+            data = service.get_allocation_by_asset(
+                year=self.selected_year,
+                asset_type_id=self.selected_asset_type_id
+            )
+
+        self.pie_chart.render_chart(
+            data,
+            title=title,
+            no_data_text=t("no_data_available")
+        )
+
+    def _get_asset_type_name(self, asset_type_id: int) -> str:
+        with get_db() as db:
+            service = AssetTypeService(db)
+            asset_type = service.get(asset_type_id)
+            return asset_type.name
