@@ -1,8 +1,8 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTableWidgetItem, QDialog
+from PySide6.QtWidgets import QDialog
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.country_service import CountryService
 from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.ui_helpers import prepare_table, table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class CountriesWidget(EntityManagerWidget):
@@ -77,19 +77,9 @@ class CountriesWidget(EntityManagerWidget):
             self.show_error(f"Error deleting country: {str(e)}")
 
     def _populate_table(self, items):
-        self.table.clear()
-        self.table.setColumnCount(3)
-        self.table.setRowCount(len(items))
+        prepare_table(self.table, 3, len(items))
 
         for row, item in enumerate(items):
-            name_item = QTableWidgetItem(item['name'])
-            name_item.setData(Qt.UserRole, item['id'])
-            self.table.setItem(row, 0, name_item)
-
-            count_asset_types_item = QTableWidgetItem(str(item['asset_types_count']))
-            count_asset_types_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 1, count_asset_types_item)
-
-            count_brokers_item = QTableWidgetItem(str(item['brokers_count']))
-            count_brokers_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 2, count_brokers_item)
+            self.table.setItem(row, 0, table_item(item['name'], item['id']))
+            self.table.setItem(row, 1, table_item(str(item['asset_types_count'])))
+            self.table.setItem(row, 2, table_item(str(item['brokers_count'])))

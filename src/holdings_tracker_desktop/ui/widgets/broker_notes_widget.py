@@ -1,4 +1,3 @@
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTableWidgetItem, QDialog
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.models.broker_note import OperationType
@@ -6,6 +5,7 @@ from holdings_tracker_desktop.services.broker_note_service import BrokerNoteServ
 from holdings_tracker_desktop.ui.formatters import format_date
 from holdings_tracker_desktop.ui.global_signals import global_signals
 from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.ui_helpers import prepare_table, table_item, decimal_table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class BrokerNotesWidget(EntityManagerWidget):
@@ -89,32 +89,23 @@ class BrokerNotesWidget(EntityManagerWidget):
             self.show_error(f"Error deleting broker note: {str(e)}")
 
     def _populate_table(self, items):
-        self.table.clear()
-        self.table.setColumnCount(8)
+        prepare_table(self.table, 8, len(items))
+
         self.table.setHorizontalHeaderLabels(
             [t("date"), t("operation_abbr"), t("asset"), t("quantity_abbr"), 
              t("price"), t("fees"), t("taxes"), t("total_value")]
         )
-        self.table.setRowCount(len(items))
 
         for row, item in enumerate(items):
-            item_date = QTableWidgetItem(format_date(item['date']))
-            item_date.setData(Qt.UserRole, item['id'])
-            item_date.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 0, item_date)
-
+            self.table.setItem(row, 0, table_item(format_date(item['date']), item['id']))
             self.table.setItem(row, 1, self._operation_item(item['operation']))
-
-            ticker_item = QTableWidgetItem(item['asset_ticker'])
-            ticker_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 2, ticker_item)
-
+            self.table.setItem(row, 2, table_item(item['asset_ticker']))
+            self.table.setItem(row, 3, decimal_table_item(item['quantity'], 0))
             currency = item.get("asset_currency", "")
-            self.table.setItem(row, 3, self._decimal_item(item['quantity'], 0))
-            self.table.setItem(row, 4, self._decimal_item(item['price'], 2, currency))
-            self.table.setItem(row, 5, self._decimal_item(item['fees'], 2, currency))
-            self.table.setItem(row, 6, self._decimal_item(item['taxes'], 2, currency))
-            self.table.setItem(row, 7, self._decimal_item(item['total_value'], 2, currency))
+            self.table.setItem(row, 4, decimal_table_item(item['price'], 2, currency))
+            self.table.setItem(row, 5, decimal_table_item(item['fees'], 2, currency))
+            self.table.setItem(row, 6, decimal_table_item(item['taxes'], 2, currency))
+            self.table.setItem(row, 7, decimal_table_item(item['total_value'], 2, currency))
 
     def _operation_item(self, operation: OperationType) -> QTableWidgetItem:
         label_map = {
@@ -123,6 +114,4 @@ class BrokerNotesWidget(EntityManagerWidget):
         }
 
         text = label_map.get(operation, str(operation))
-        item = QTableWidgetItem(text)
-        item.setTextAlignment(Qt.AlignCenter)
-        return item
+        return table_item(text)

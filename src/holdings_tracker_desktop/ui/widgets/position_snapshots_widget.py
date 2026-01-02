@@ -1,9 +1,8 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTableWidgetItem
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
 from holdings_tracker_desktop.ui.formatters import format_date
 from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.ui_helpers import prepare_table, table_item, decimal_table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class PositionSnapshotsWidget(EntityManagerWidget):
@@ -39,24 +38,16 @@ class PositionSnapshotsWidget(EntityManagerWidget):
         self.navigate_to(AssetsWidget)
 
     def _populate_table(self, items):
-        self.table.clear()
-        self.table.setColumnCount(5)
+        prepare_table(self.table, 5, len(items))
+
         self.table.setHorizontalHeaderLabels(
             [t("asset"), t("date"), t("quantity_abbr"), t("avg_price"), t("total_cost")]
         )
-        self.table.setRowCount(len(items))
 
         for row, item in enumerate(items):
-            ticker_item = QTableWidgetItem(item['asset_ticker'])
-            ticker_item.setData(Qt.UserRole, item['id'])
-            ticker_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 0, ticker_item)
-
-            item_date = QTableWidgetItem(format_date(item['snapshot_date']))
-            item_date.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 1, item_date)
-
+            self.table.setItem(row, 0, table_item(item['asset_ticker'], item['id']))
+            self.table.setItem(row, 1, table_item(format_date(item['snapshot_date'])))
+            self.table.setItem(row, 2, decimal_table_item(item['quantity'], 0))
             currency = item.get("asset_currency", "")
-            self.table.setItem(row, 2, self._decimal_item(item['quantity'], 0))
-            self.table.setItem(row, 3, self._decimal_item(item['avg_price'], 2, currency))
-            self.table.setItem(row, 4, self._decimal_item(item['total_cost'], 2, currency))
+            self.table.setItem(row, 3, decimal_table_item(item['avg_price'], 2, currency))
+            self.table.setItem(row, 4, decimal_table_item(item['total_cost'], 2, currency))

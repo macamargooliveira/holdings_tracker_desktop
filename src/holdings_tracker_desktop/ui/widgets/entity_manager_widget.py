@@ -1,10 +1,8 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, 
+    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, 
     QLabel, QFrame, QHeaderView, QMessageBox, QDialog
 )
-from decimal import Decimal
-from holdings_tracker_desktop.ui.formatters import format_decimal
 from holdings_tracker_desktop.ui.translations import t
 from holdings_tracker_desktop.ui.confirm_dialog import ConfirmDialog
 import qtawesome as qta
@@ -172,10 +170,3 @@ class EntityManagerWidget(QWidget):
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
 
         body_layout.addWidget(self.table)
-
-    def _decimal_item(self, value: Decimal, decimals: int = 2, currency: str = "") -> QTableWidgetItem:
-        text = format_decimal(value, decimals)
-        text = f"{currency} {text}"
-        item = QTableWidgetItem(text)
-        item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        return item

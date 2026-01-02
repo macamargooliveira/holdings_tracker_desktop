@@ -1,9 +1,9 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTableWidgetItem, QDialog
+from PySide6.QtWidgets import QDialog
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.asset_ticker_history_service import AssetTickerHistoryService
 from holdings_tracker_desktop.ui.formatters import format_date
 from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.ui_helpers import prepare_table, table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class AssetTickerHistoriesWidget(EntityManagerWidget):
@@ -69,23 +69,14 @@ class AssetTickerHistoriesWidget(EntityManagerWidget):
             self.show_error(f"Error deleting asset ticker history: {str(e)}")
 
     def _populate_table(self, items):
-        self.table.clear()
-        self.table.setColumnCount(4)
+        prepare_table(self.table, 4, len(items))
+
         self.table.setHorizontalHeaderLabels(
             [t("asset"), t("change_date"), t("old_ticker"), t("new_ticker")]
         )
-        self.table.setRowCount(len(items))
 
         for row, item in enumerate(items):
-            ticker_item = QTableWidgetItem(item['asset_ticker'])
-            ticker_item.setData(Qt.UserRole, item['id'])
-            ticker_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 0, ticker_item)
-
-            item_date = QTableWidgetItem(format_date(item['change_date']))
-            item_date.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 1, item_date)
-
-            self.table.setItem(row, 2, QTableWidgetItem(item['old_ticker']))
-
-            self.table.setItem(row, 3, QTableWidgetItem(item['new_ticker']))
+            self.table.setItem(row, 0, table_item(item['asset_ticker'], item['id']))
+            self.table.setItem(row, 1, table_item(format_date(item['change_date'])))
+            self.table.setItem(row, 2, table_item(item['old_ticker']))
+            self.table.setItem(row, 3, table_item(item['new_ticker']))

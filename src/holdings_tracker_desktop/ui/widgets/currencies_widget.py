@@ -1,8 +1,8 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTableWidgetItem, QDialog
+from PySide6.QtWidgets import QDialog
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.currency_service import CurrencyService
 from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.ui_helpers import prepare_table, table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class CurrenciesWidget(EntityManagerWidget):
@@ -79,22 +79,10 @@ class CurrenciesWidget(EntityManagerWidget):
             self.show_error(f"Error deleting currency: {str(e)}")
 
     def _populate_table(self, items):
-        self.table.clear()
-        self.table.setColumnCount(4)
-        self.table.setRowCount(len(items))
+        prepare_table(self.table, 4, len(items))
 
         for row, item in enumerate(items):
-            code_item = QTableWidgetItem(item['code'])
-            code_item.setData(Qt.UserRole, item['id'])
-            code_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 0, code_item)
-
-            self.table.setItem(row, 1, QTableWidgetItem(item['name']))
-
-            symbol_item = QTableWidgetItem(item['symbol'])
-            symbol_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 2, symbol_item)
-
-            count_item = QTableWidgetItem(str(item['assets_count']))
-            count_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 3, count_item)
+            self.table.setItem(row, 0, table_item(item['code'], item['id']))
+            self.table.setItem(row, 1, table_item(item['name']))
+            self.table.setItem(row, 2, table_item(item['symbol']))
+            self.table.setItem(row, 3, table_item(str(item['assets_count'])))

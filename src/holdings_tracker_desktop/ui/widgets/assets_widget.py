@@ -1,8 +1,8 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTableWidgetItem, QDialog
+from PySide6.QtWidgets import QDialog
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.asset_service import AssetService
 from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.ui_helpers import prepare_table, table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class AssetsWidget(EntityManagerWidget):
@@ -104,30 +104,12 @@ class AssetsWidget(EntityManagerWidget):
         self.navigate_to(AssetTickerHistoriesWidget, asset_id)
 
     def _populate_table(self, items):
-        self.table.clear()
-        self.table.setColumnCount(6)
-        self.table.setRowCount(len(items))
+        prepare_table(self.table, 6, len(items))
 
         for row, item in enumerate(items):
-            ticker_item = QTableWidgetItem(item['ticker'])
-            ticker_item.setData(Qt.UserRole, item['id'])
-            ticker_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 0, ticker_item)
-
-            type_item = QTableWidgetItem(item['type_name'])
-            type_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 1, type_item)
-
-            currency_item = QTableWidgetItem(item['currency_code'])
-            currency_item.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 2, currency_item)
-
-            self.table.setItem(row, 3, QTableWidgetItem(item['sector_name']))
-
-            broker_notes_count = QTableWidgetItem(str(item['broker_notes_count']))
-            broker_notes_count.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 4, broker_notes_count)
-
-            events_count = QTableWidgetItem(str(item['events_count']))
-            events_count.setTextAlignment(Qt.AlignCenter)
-            self.table.setItem(row, 5, events_count)
+            self.table.setItem(row, 0, table_item(item['ticker'], item['id']))
+            self.table.setItem(row, 1, table_item(item['type_name']))
+            self.table.setItem(row, 2, table_item(item['currency_code']))
+            self.table.setItem(row, 3, table_item(item['sector_name']))
+            self.table.setItem(row, 4, table_item(str(item['broker_notes_count'])))
+            self.table.setItem(row, 5, table_item(str(item['events_count'])))
