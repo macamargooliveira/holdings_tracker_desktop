@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from sqlalchemy import String, ForeignKey, DateTime, func
+from sqlalchemy import String, ForeignKey, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime
 from .base import BaseModel
 
 if TYPE_CHECKING:
@@ -18,21 +17,42 @@ class AssetTickerHistory(BaseModel):
     )
 
     old_ticker: Mapped[str] = mapped_column(
-        String(5), 
+        String(12), 
         nullable=False
     )
 
     new_ticker: Mapped[str] = mapped_column(
-        String(5), 
+        String(12), 
         nullable=False
     )
 
-    change_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
+    change_date: Mapped[Date] = mapped_column(
+        Date, 
         nullable=False
     )
 
     asset: Mapped[Asset] = relationship(
-        back_populates="ticker_histories"
+        back_populates="ticker_histories",
+        cascade="save-update",
+        lazy="selectin"
     )
+
+    def to_response(self) -> dict:
+        """Convert to dictionary compatible with AssetTickerHistoryResponse"""
+        from holdings_tracker_desktop.schemas.asset_ticker_history import AssetTickerHistoryResponse
+        return AssetTickerHistoryResponse.model_validate(self).model_dump()
+
+    def to_ui_dict(self) -> dict:
+        """Optimized for PySide6 table widgets"""
+        return {
+            'id': self.id,
+            'change_date': self.change_date,
+            'asset_ticker': self.asset.ticker if self.asset else '',
+            'old_ticker': self.old_ticker,
+            'new_ticker': self.new_ticker,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self) -> str:
+        return f"<AssetTickerHistory(id={self.id}, change_date={self.date}, asset_id={self.asset_id})>"

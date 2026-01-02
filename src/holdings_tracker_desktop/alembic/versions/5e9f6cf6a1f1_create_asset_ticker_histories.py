@@ -24,7 +24,7 @@ def upgrade() -> None:
     sa.Column('asset_id', sa.Integer(), nullable=False),
     sa.Column('old_ticker', sa.String(length=5), nullable=False),
     sa.Column('new_ticker', sa.String(length=5), nullable=False),
-    sa.Column('change_date', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
+    sa.Column('change_date', sa.Date(), nullable=False),
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),

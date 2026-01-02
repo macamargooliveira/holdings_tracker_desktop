@@ -82,7 +82,10 @@ class AssetsWidget(EntityManagerWidget):
             self.show_error(f"Error deleting asset: {str(e)}")
 
     def get_extra_buttons(self):
-        return [("position", "fa5s.chart-line", self.on_position_clicked)]
+        return [
+            ("position", "fa5s.chart-line", self.on_position_clicked),
+            ("ticker_change", "fa5s.history", self.on_ticker_change_clicked)
+        ]
 
     def on_position_clicked(self):
         asset_id = self.get_selected_id()
@@ -91,6 +94,14 @@ class AssetsWidget(EntityManagerWidget):
 
         from holdings_tracker_desktop.ui.widgets.position_snapshots_widget import PositionSnapshotsWidget
         self.navigate_to(PositionSnapshotsWidget, asset_id)
+
+    def on_ticker_change_clicked(self):
+        asset_id = self.get_selected_id()
+        if not asset_id:
+            return
+
+        from holdings_tracker_desktop.ui.widgets.asset_ticker_histories_widget import AssetTickerHistoriesWidget
+        self.navigate_to(AssetTickerHistoriesWidget, asset_id)
 
     def _populate_table(self, items):
         self.table.clear()
