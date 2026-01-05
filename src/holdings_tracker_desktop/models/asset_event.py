@@ -54,5 +54,48 @@ class AssetEvent(BaseModel):
 
     asset: Mapped[Asset] = relationship(
         back_populates="events",
-        foreign_keys=[asset_id]
+        foreign_keys=[asset_id],
+        cascade="save-update",
+        lazy="selectin"
     )
+
+    def to_response(self) -> dict:
+        """Convert to dictionary compatible with AssetEventResponse"""
+        from holdings_tracker_desktop.schemas.asset_event import AssetEventResponse
+        return AssetEventResponse.model_validate(self).model_dump()
+
+    @classmethod
+    def from_create_schema(cls, schema_data: dict) -> Asset:
+        """Create instance from creation schema"""
+        from holdings_tracker_desktop.schemas.asset_event import AssetEventCreate
+
+        validated_data = AssetEventCreate(**schema_data).model_dump()
+        return cls(**validated_data)
+
+    def update_from_schema(self, schema_data: dict):
+        """Update instance from update schema"""
+        from holdings_tracker_desktop.schemas.asset_event import AssetEventUpdate
+
+        update_data = AssetEventUpdate(**schema_data).model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(self, key, value)
+
+    def to_ui_dict(self) -> dict:
+        """Optimized for PySide6 table widgets"""
+        return {
+            'id': self.id,
+            'asset_ticker': self.asset.ticker if self.asset else '',
+            'event_type': self.event_type,
+            'date': self.date,
+            'factor': self.factor,
+            'quantity': self.quantity,
+            'price': self.price,
+            'converted_to_asset_id': self.converted_to_asset_id,
+            'conversion_quantity': self.conversion_quantity,
+            'residual_value': self.residual_value,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self) -> str:
+        return f"<AssetEventType(id={self.id}, asset_id={self.asset_id}, event_type={self.event_type})>"

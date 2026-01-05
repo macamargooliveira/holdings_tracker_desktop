@@ -3,9 +3,9 @@ from decimal import Decimal
 from typing import List
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from holdings_tracker_desktop.models.asset import Asset
-from holdings_tracker_desktop.models.position_snapshot import PositionSnapshot
-from holdings_tracker_desktop.models.broker_note import BrokerNote, OperationType
+from holdings_tracker_desktop.models import Asset, AssetEvent, BrokerNote, PositionSnapshot
+from holdings_tracker_desktop.models.asset_event import AssetEventType
+from holdings_tracker_desktop.models.broker_note import OperationType
 from holdings_tracker_desktop.schemas.position_snapshot import (
   PositionSnapshotCreate, PositionSnapshotUpdate, PositionSnapshotResponse
 )
@@ -113,7 +113,8 @@ class PositionSnapshotService:
         try:
             self._delete_snapshots_from(asset_id, from_date)
             qty, cost = self._load_state_before(asset_id, from_date)
-            self._build_from_notes(asset_id, from_date, qty, cost)
+            timeline = self._load_timeline(asset_id, from_date)
+            self._build_from_timeline(asset_id, timeline, qty, cost)
             self.repository.save_changes()
         except Exception:
             self.repository.rollback()
@@ -139,38 +140,51 @@ class PositionSnapshotService:
         if not snapshot:
             return Decimal("0"), Decimal("0")
 
-        quantity = snapshot.quantity
-        total_cost = snapshot.total_cost
+        return snapshot.quantity, snapshot.total_cost
 
-        return quantity, total_cost
+    def _load_timeline(self, asset_id: int, from_date: Date) -> list:
+        notes = (
+            self.db.query(BrokerNote)
+            .filter(
+                BrokerNote.asset_id == asset_id,
+                BrokerNote.date >= from_date,
+            )
+            .all()
+        )
 
-    def _build_from_notes(self, asset_id: int, from_date: Date, quantity: Decimal, total_cost: Decimal) -> None:
-        notes = self._load_notes(asset_id, from_date)
+        events = (
+            self.db.query(AssetEvent)
+            .filter(
+                AssetEvent.asset_id == asset_id,
+                AssetEvent.date >= from_date,
+            )
+            .all()
+        )
 
+        timeline = notes + events
+        timeline.sort(key=lambda x: x.date)
+
+        return timeline
+
+    def _build_from_timeline(self, asset_id: int, timeline: list, quantity: Decimal, total_cost: Decimal) -> None:
         last_date: Date | None = None
 
-        for note in notes:
-            if last_date and note.date != last_date:
+        for item in timeline:
+            if last_date and item.date != last_date:
                 self._add_snapshot(asset_id, last_date, quantity, total_cost)
 
-            quantity, total_cost = self._apply_note(note, quantity, total_cost)
-            last_date = note.date
+            if isinstance(item, BrokerNote):
+                quantity, total_cost = self._apply_broker_note(item, quantity, total_cost)
+            
+            elif isinstance(item, AssetEvent):
+                quantity, total_cost = self._apply_asset_event(item, quantity, total_cost)
+
+            last_date = item.date
 
         if last_date:
             self._add_snapshot(asset_id, last_date, quantity, total_cost)
 
-    def _load_notes(self, asset_id: int, from_date: Date) -> list[BrokerNote]:
-        return (
-            self.db.query(BrokerNote)
-            .filter(
-                BrokerNote.asset_id == asset_id,
-                BrokerNote.date >= from_date
-            )
-            .order_by(BrokerNote.date)
-            .all()
-        )
-
-    def _apply_note(self, note: BrokerNote, quantity: Decimal, total_cost: Decimal) -> tuple[Decimal, Decimal]:
+    def _apply_broker_note(self, note: BrokerNote, quantity: Decimal, total_cost: Decimal) -> tuple[Decimal, Decimal]:
         if note.operation == OperationType.BUY:
             return (
                 quantity + note.quantity,
@@ -188,6 +202,48 @@ class PositionSnapshotService:
             return new_quantity, new_cost
 
         return quantity, total_cost
+
+    def _apply_asset_event(self, event: AssetEvent, quantity: Decimal, total_cost: Decimal) -> tuple[Decimal, Decimal]:
+        if quantity <= 0:
+            return quantity, total_cost
+
+        match event.type:
+            case AssetEventType.SPLIT | AssetEventType.REVERSE_SPLIT:
+                if not event.factor or event.factor <= 0:
+                    return quantity, total_cost
+
+                new_quantity = quantity / event.factor
+
+                if new_quantity <= 0:
+                    return Decimal("0"), Decimal("0")
+
+                return new_quantity, total_cost
+
+            case AssetEventType.AMORTIZATION:
+                event_quantity = event.quantity or quantity
+                event_price = event.price or Decimal("0")
+
+                amortized_value = event_quantity * event_price
+                new_total_cost = total_cost - amortized_value
+
+                if new_total_cost <= 0:
+                    return quantity, Decimal("0")
+
+                return quantity, new_total_cost
+
+            case AssetEventType.SUBSCRIPTION:
+                event_quantity = event.quantity or Decimal("0")
+                event_price = event.price or Decimal("0")
+
+                added_cost = event_quantity * event_price
+
+                return (
+                    quantity + event_quantity,
+                    total_cost + added_cost,
+                )
+
+            case _:
+                return quantity, total_cost
 
     def _add_snapshot(self, asset_id: int, snapshot_date: Date, quantity: Decimal, total_cost: Decimal) -> None:
         avg_price = (
