@@ -83,22 +83,22 @@ class AssetsWidget(EntityManagerWidget):
 
     def get_extra_buttons(self):
         return [
-            ("position", "fa5s.chart-line", self.on_position_clicked),
+            ("ticker_change", "fa5s.history", self.on_ticker_change_clicked),
             ("events", "fa5s.exchange-alt", self.on_event_clicked),
-            ("ticker_change", "fa5s.history", self.on_ticker_change_clicked)
+            ("position", "fa5s.chart-line", self.on_position_clicked)
         ]
 
-    def on_position_clicked(self):
-        from holdings_tracker_desktop.ui.widgets.position_snapshots_widget import PositionSnapshotsWidget
-        self._navigate_from_selected_asset(PositionSnapshotsWidget)
+    def on_ticker_change_clicked(self):
+        from holdings_tracker_desktop.ui.widgets.asset_ticker_histories_widget import AssetTickerHistoriesWidget
+        self._navigate_from_selected_asset(AssetTickerHistoriesWidget)
 
     def on_event_clicked(self):
         from holdings_tracker_desktop.ui.widgets.asset_events_widget import AssetEventsWidget
         self._navigate_from_selected_asset(AssetEventsWidget)
 
-    def on_ticker_change_clicked(self):
-        from holdings_tracker_desktop.ui.widgets.asset_ticker_histories_widget import AssetTickerHistoriesWidget
-        self._navigate_from_selected_asset(AssetTickerHistoriesWidget)
+    def on_position_clicked(self):
+        from holdings_tracker_desktop.ui.widgets.position_snapshots_widget import PositionSnapshotsWidget
+        self._navigate_from_selected_asset(PositionSnapshotsWidget)
 
     def _navigate_from_selected_asset(self, widget_cls):
         asset_id = self.get_selected_id()

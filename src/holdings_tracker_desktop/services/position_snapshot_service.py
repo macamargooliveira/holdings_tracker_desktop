@@ -53,7 +53,7 @@ class PositionSnapshotService:
         """Get PositionSnapshots already formatted for UI"""
         snapshots = sorted(
             self.repository.find_all_by(asset_id=asset_id, skip=skip, limit=limit),
-            key=lambda s: s.snapshot_date,
+            key=lambda s: (s.snapshot_date, s.id),
             reverse=True
         )
         return [s.to_ui_dict() for s in snapshots]
@@ -162,46 +162,26 @@ class PositionSnapshotService:
         )
 
         timeline = notes + events
-        timeline.sort(key=lambda x: x.date)
+
+        # AssetEvent takes precedence over BrokerNote
+        timeline.sort(
+            key=lambda x: (
+                x.date,
+                0 if isinstance(x, AssetEvent) else 1
+            )
+        )
 
         return timeline
 
     def _build_from_timeline(self, asset_id: int, timeline: list, quantity: Decimal, total_cost: Decimal) -> None:
-        last_date: Date | None = None
-
         for item in timeline:
-            if last_date and item.date != last_date:
-                self._add_snapshot(asset_id, last_date, quantity, total_cost)
-
-            if isinstance(item, BrokerNote):
-                quantity, total_cost = self._apply_broker_note(item, quantity, total_cost)
-            
-            elif isinstance(item, AssetEvent):
+            if isinstance(item, AssetEvent):
                 quantity, total_cost = self._apply_asset_event(item, quantity, total_cost)
 
-            last_date = item.date
+            elif isinstance(item, BrokerNote):
+                quantity, total_cost = self._apply_broker_note(item, quantity, total_cost)
 
-        if last_date:
-            self._add_snapshot(asset_id, last_date, quantity, total_cost)
-
-    def _apply_broker_note(self, note: BrokerNote, quantity: Decimal, total_cost: Decimal) -> tuple[Decimal, Decimal]:
-        if note.operation == OperationType.BUY:
-            return (
-                quantity + note.quantity,
-                total_cost + note.total_value
-            )
-
-        if note.operation == OperationType.SELL and quantity > 0:
-            avg_price = total_cost / quantity
-            new_quantity = quantity - note.quantity
-            new_cost = total_cost - (avg_price * note.quantity)
-
-            if new_quantity <= 0:
-                return Decimal("0"), Decimal("0")
-
-            return new_quantity, new_cost
-
-        return quantity, total_cost
+            self._add_snapshot(asset_id, item.date, quantity, total_cost)
 
     def _apply_asset_event(self, event: AssetEvent, quantity: Decimal, total_cost: Decimal) -> tuple[Decimal, Decimal]:
         if quantity <= 0:
@@ -245,12 +225,27 @@ class PositionSnapshotService:
             case _:
                 return quantity, total_cost
 
+    def _apply_broker_note(self, note: BrokerNote, quantity: Decimal, total_cost: Decimal) -> tuple[Decimal, Decimal]:
+        if note.operation == OperationType.BUY:
+            return (
+                quantity + note.quantity,
+                total_cost + note.total_value
+            )
+
+        if note.operation == OperationType.SELL and quantity > 0:
+            avg_price = total_cost / quantity
+            new_quantity = quantity - note.quantity
+            new_cost = total_cost - (avg_price * note.quantity)
+
+            if new_quantity <= 0:
+                return Decimal("0"), Decimal("0")
+
+            return new_quantity, new_cost
+
+        return quantity, total_cost
+
     def _add_snapshot(self, asset_id: int, snapshot_date: Date, quantity: Decimal, total_cost: Decimal) -> None:
-        avg_price = (
-            total_cost / quantity
-            if quantity > 0
-            else Decimal("0")
-        )
+        avg_price = total_cost / quantity if quantity > 0 else Decimal("0")
 
         self.db.add(
             PositionSnapshot(

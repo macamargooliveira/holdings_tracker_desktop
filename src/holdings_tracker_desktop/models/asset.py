@@ -133,7 +133,7 @@ class Asset(AuditableModel):
         if count > 0:
             return (
                 False, 
-                f"Cannot delete '{self.name}' because it has {count} associated broker notes"
+                f"Cannot delete '{self.ticker}' because it has {count} associated broker notes"
             )
 
         return True, ""
