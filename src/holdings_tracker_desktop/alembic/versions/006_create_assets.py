@@ -1,8 +1,8 @@
 """create assets
 
-Revision ID: 84fc8bf13efc
-Revises: c08d1e9fb28f
-Create Date: 2025-12-26 14:28:00.732847
+Revision ID: 006
+Revises: 005
+Create Date: 2026-01-10
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '84fc8bf13efc'
-down_revision: Union[str, Sequence[str], None] = 'c08d1e9fb28f'
+revision: str = '006'
+down_revision: Union[str, Sequence[str], None] = '005'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

@@ -1,8 +1,8 @@
 """create asset events
 
-Revision ID: b5dc34cb1199
-Revises: 84fc8bf13efc
-Create Date: 2025-12-26 14:28:56.399239
+Revision ID: 007
+Revises: 006
+Create Date: 2026-01-10
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'b5dc34cb1199'
-down_revision: Union[str, Sequence[str], None] = '84fc8bf13efc'
+revision: str = '007'
+down_revision: Union[str, Sequence[str], None] = '006'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

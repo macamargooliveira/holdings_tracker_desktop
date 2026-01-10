@@ -1,8 +1,8 @@
 """create broker notes
 
-Revision ID: 83f0e1f51f34
-Revises: 5e9f6cf6a1f1
-Create Date: 2025-12-26 14:30:25.026143
+Revision ID: 009
+Revises: 008
+Create Date: 2026-01-10
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '83f0e1f51f34'
-down_revision: Union[str, Sequence[str], None] = '5e9f6cf6a1f1'
+revision: str = '009'
+down_revision: Union[str, Sequence[str], None] = '008'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
