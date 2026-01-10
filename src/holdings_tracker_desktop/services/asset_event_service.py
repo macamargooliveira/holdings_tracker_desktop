@@ -5,7 +5,7 @@ from holdings_tracker_desktop.models.asset_event import AssetEvent
 from holdings_tracker_desktop.schemas.asset_event import (
   AssetEventCreate, AssetEventUpdate, AssetEventResponse
 )
-from holdings_tracker_desktop.repositories.base import BaseRepository
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
 
 class AssetEventService:

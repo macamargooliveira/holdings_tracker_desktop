@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from sqlalchemy import String, ForeignKey, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import BaseModel
+from .base import AuditableModel
 
 if TYPE_CHECKING:
     from .asset import Asset
 
-class AssetTickerHistory(BaseModel):
+class AssetTickerHistory(AuditableModel):
     __tablename__ = "asset_ticker_histories"
 
     asset_id: Mapped[int] = mapped_column(

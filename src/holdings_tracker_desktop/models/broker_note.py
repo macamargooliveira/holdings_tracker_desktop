@@ -5,7 +5,7 @@ from sqlalchemy import String, ForeignKey, Enum, Numeric, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from enum import Enum as PyEnum
 from decimal import Decimal
-from .base import BaseModel
+from .base import AuditableModel
 
 if TYPE_CHECKING:
     from .asset import Asset
@@ -15,7 +15,7 @@ class OperationType(PyEnum):
     BUY = "BUY"
     SELL = "SELL"
 
-class BrokerNote(BaseModel):
+class BrokerNote(AuditableModel):
     __tablename__ = "broker_notes"
 
     date: Mapped[Date] = mapped_column(

@@ -2,7 +2,7 @@ from datetime import date as Date
 from decimal import Decimal
 from typing import Optional
 from pydantic import Field, field_validator, model_validator
-from .base import BaseSchema, TimestampSchema
+from .base import BaseSchema, AuditableSchema
 from holdings_tracker_desktop.models.broker_note import OperationType
 
 class BrokerNoteBase(BaseSchema):
@@ -61,8 +61,7 @@ class BrokerNoteUpdate(BaseSchema):
         "extra": "forbid"
     }
 
-class BrokerNoteResponse(BrokerNoteBase, TimestampSchema):
-    id: int
+class BrokerNoteResponse(BrokerNoteBase, AuditableSchema):
     total_value: Decimal
 
     model_config = {

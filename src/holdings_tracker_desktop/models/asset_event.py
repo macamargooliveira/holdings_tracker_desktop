@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, Enum, Numeric, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from enum import Enum as PyEnum
 from decimal import Decimal
-from .base import BaseModel
+from .base import AuditableModel
 
 if TYPE_CHECKING:
     from .asset import Asset
@@ -22,7 +22,7 @@ class AssetEventType(PyEnum):
     # Conversion Event
     CONVERSION = "CONVERSION"
 
-class AssetEvent(BaseModel):
+class AssetEvent(AuditableModel):
     __tablename__ = "asset_events"
 
     asset_id: Mapped[int] = mapped_column(

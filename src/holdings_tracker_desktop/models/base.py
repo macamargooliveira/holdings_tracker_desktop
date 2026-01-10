@@ -6,8 +6,7 @@ class Base(DeclarativeBase):
     """Base SQLAlchemy declarative class"""
     pass
 
-class BaseModel(Base):
-    """Base model with columns common to all models"""
+class IdentifiedModel(Base):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(
@@ -16,6 +15,9 @@ class BaseModel(Base):
         autoincrement=True,
         index=True
     )
+
+class AuditableModel(IdentifiedModel):
+    __abstract__ = True
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

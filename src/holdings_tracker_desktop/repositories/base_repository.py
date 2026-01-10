@@ -4,7 +4,7 @@ from sqlalchemy import asc, desc, func
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from pydantic import BaseModel as PydanticBaseModel
 
-from holdings_tracker_desktop.models.base import BaseModel as SQLAlchemyBaseModel
+from holdings_tracker_desktop.models.base import IdentifiedModel as SQLAlchemyBaseModel
 from holdings_tracker_desktop.utils.exceptions import (
     NotFoundException,
     DatabaseException,

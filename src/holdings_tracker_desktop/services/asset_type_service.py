@@ -5,7 +5,7 @@ from holdings_tracker_desktop.models.asset_type import AssetType
 from holdings_tracker_desktop.schemas.asset_type import (
   AssetTypeCreate, AssetTypeUpdate, AssetTypeResponse
 )
-from holdings_tracker_desktop.repositories.base import BaseRepository
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.utils.exceptions import ConflictException
 
 class AssetTypeService:

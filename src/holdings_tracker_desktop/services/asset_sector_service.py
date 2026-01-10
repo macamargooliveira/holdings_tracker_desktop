@@ -4,7 +4,7 @@ from holdings_tracker_desktop.models.asset_sector import AssetSector
 from holdings_tracker_desktop.schemas.asset_sector import (
   AssetSectorCreate, AssetSectorUpdate, AssetSectorResponse
 )
-from holdings_tracker_desktop.repositories.base import BaseRepository
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.utils.exceptions import ConflictException
 
 class AssetSectorService:

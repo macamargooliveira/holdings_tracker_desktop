@@ -1,6 +1,6 @@
 from pydantic import Field, field_validator, model_validator
 from typing import Optional
-from .base import BaseSchema, TimestampSchema
+from .base import BaseSchema, AuditableSchema
 
 class CurrencyBase(BaseSchema):
     code: str = Field(..., min_length=3, max_length=3)
@@ -57,9 +57,7 @@ class CurrencyUpdate(BaseSchema):
         "extra": "forbid"
     }
 
-class CurrencyResponse(CurrencyBase, TimestampSchema):
-    id: int
-
+class CurrencyResponse(CurrencyBase, AuditableSchema):
     model_config = {
         "from_attributes": True
     }

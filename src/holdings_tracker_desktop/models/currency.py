@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import BaseModel
+from .base import AuditableModel
 
 if TYPE_CHECKING:
     from .asset import Asset
 
-class Currency(BaseModel):
+class Currency(AuditableModel):
     __tablename__ = "currencies"
 
     code: Mapped[str] = mapped_column(

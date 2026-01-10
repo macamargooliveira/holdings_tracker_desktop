@@ -5,7 +5,7 @@ from holdings_tracker_desktop.models.asset_ticker_history import AssetTickerHist
 from holdings_tracker_desktop.schemas.asset_ticker_history import (
   AssetTickerHistoryCreate, AssetTickerHistoryUpdate, AssetTickerHistoryResponse
 )
-from holdings_tracker_desktop.repositories.base import BaseRepository
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 
 class AssetTickerHistoryService:
     def __init__(self, db: Session):

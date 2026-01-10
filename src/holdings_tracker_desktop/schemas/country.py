@@ -1,6 +1,6 @@
 from pydantic import Field, field_validator, model_validator
 from typing import Optional
-from .base import BaseSchema, TimestampSchema
+from .base import BaseSchema, AuditableSchema
 
 class CountryBase(BaseSchema):
     name: str = Field(..., min_length=2, max_length=80)
@@ -33,9 +33,7 @@ class CountryUpdate(BaseSchema):
         "extra": "forbid"
     }
 
-class CountryResponse(CountryBase, TimestampSchema):
-    id: int
-
+class CountryResponse(CountryBase, AuditableSchema):
     model_config = {
         "from_attributes": True
     }

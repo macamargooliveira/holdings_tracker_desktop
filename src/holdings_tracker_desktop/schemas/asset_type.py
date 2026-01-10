@@ -1,6 +1,6 @@
 from pydantic import Field, field_validator, model_validator
 from typing import Optional
-from .base import BaseSchema, TimestampSchema
+from .base import BaseSchema, AuditableSchema
 
 class AssetTypeBase(BaseSchema):
     name: str = Field(..., min_length=2, max_length=20)
@@ -35,9 +35,7 @@ class AssetTypeUpdate(BaseSchema):
         "extra": "forbid"
     }
 
-class AssetTypeResponse(AssetTypeBase, TimestampSchema):
-    id: int
-
+class AssetTypeResponse(AssetTypeBase, AuditableSchema):
     model_config = {
         "from_attributes": True
     }

@@ -9,6 +9,9 @@ class BaseSchema(BaseModel):
         str_strip_whitespace=True
     )
 
-class TimestampSchema(BaseSchema):
+class IdentifiedSchema(BaseSchema):
+    id: int
+
+class AuditableSchema(IdentifiedSchema):
     created_at: datetime
     updated_at: datetime

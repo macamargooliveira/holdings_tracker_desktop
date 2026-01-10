@@ -1,7 +1,7 @@
 from datetime import date as Date
 from typing import Optional
 from pydantic import Field, field_validator
-from .base import BaseSchema, TimestampSchema
+from .base import BaseSchema, AuditableSchema
 
 class AssetTickerHistoryBase(BaseSchema):
     asset_id: int = Field(..., gt=0)
@@ -22,9 +22,7 @@ class AssetTickerHistoryCreate(AssetTickerHistoryBase):
 class AssetTickerHistoryUpdate(BaseSchema):
     pass
 
-class AssetTickerHistoryResponse(AssetTickerHistoryBase, TimestampSchema):
-    id: int
-
+class AssetTickerHistoryResponse(AssetTickerHistoryBase, AuditableSchema):
     model_config = {
         "from_attributes": True
     }

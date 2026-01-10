@@ -1,7 +1,7 @@
 from datetime import date as Date
 from decimal import Decimal
 from pydantic import Field
-from .base import BaseSchema, TimestampSchema
+from .base import BaseSchema, IdentifiedSchema
 
 class PositionSnapshotBase(BaseSchema):
     asset_id: int = Field(..., gt=0)
@@ -17,8 +17,7 @@ class PositionSnapshotCreate(PositionSnapshotBase):
 class PositionSnapshotUpdate(PositionSnapshotBase):
     pass
 
-class PositionSnapshotResponse(PositionSnapshotBase, TimestampSchema):
-    id: int
+class PositionSnapshotResponse(PositionSnapshotBase, IdentifiedSchema):
     total_cost: Decimal
 
     model_config = {

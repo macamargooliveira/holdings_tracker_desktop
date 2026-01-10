@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Optional
 
 from pydantic import Field, model_validator
-from .base import BaseSchema, TimestampSchema
+from .base import BaseSchema, AuditableSchema
 from ..models.asset_event import AssetEventType
 
 REQUIRED_FIELDS_BY_EVENT_TYPE: dict[str, set[str]] = {
@@ -85,9 +85,7 @@ class AssetEventUpdate(AssetEventBase):
       "extra": "forbid"
   }
 
-class AssetEventResponse(AssetEventBase, TimestampSchema):
-    id: int
-
+class AssetEventResponse(AssetEventBase, AuditableSchema):
     model_config = {
         "from_attributes": True
     }

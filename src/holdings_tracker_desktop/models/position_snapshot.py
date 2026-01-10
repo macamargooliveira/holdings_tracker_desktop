@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Numeric, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from decimal import Decimal
-from .base import BaseModel
+from .base import IdentifiedModel
 
 if TYPE_CHECKING:
     from .asset import Asset
 
-class PositionSnapshot(BaseModel):
+class PositionSnapshot(IdentifiedModel):
     __tablename__ = "position_snapshots"
 
     asset_id: Mapped[int] = mapped_column(
@@ -71,9 +71,7 @@ class PositionSnapshot(BaseModel):
             'asset_currency': self.asset.currency.symbol if self.asset else '',
             'quantity': self.quantity,
             'avg_price': self.avg_price,
-            'total_cost': self.total_cost,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'total_cost': self.total_cost
         }
 
     def __repr__(self) -> str:

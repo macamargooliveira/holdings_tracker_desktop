@@ -9,7 +9,7 @@ from holdings_tracker_desktop.models.broker_note import OperationType
 from holdings_tracker_desktop.schemas.position_snapshot import (
   PositionSnapshotCreate, PositionSnapshotUpdate, PositionSnapshotResponse
 )
-from holdings_tracker_desktop.repositories.base import BaseRepository
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 
 class PositionSnapshotService:
     def __init__(self, db: Session):

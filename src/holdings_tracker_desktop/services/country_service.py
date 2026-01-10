@@ -5,7 +5,7 @@ from holdings_tracker_desktop.models.country import Country
 from holdings_tracker_desktop.schemas.country import ( 
   CountryCreate, CountryUpdate, CountryResponse
 )
-from holdings_tracker_desktop.repositories.base import BaseRepository
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.utils.exceptions import ConflictException
 
 class CountryService:

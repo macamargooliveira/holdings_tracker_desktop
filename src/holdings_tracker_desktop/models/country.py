@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import BaseModel
+from .base import AuditableModel
 
 if TYPE_CHECKING:
     from .broker import Broker
     from .asset_type import AssetType
 
-class Country(BaseModel):
+class Country(AuditableModel):
     __tablename__ = "countries"
 
     name: Mapped[str] = mapped_column(

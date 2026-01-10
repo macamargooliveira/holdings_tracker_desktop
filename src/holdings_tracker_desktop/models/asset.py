@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import BaseModel
+from .base import AuditableModel
 
 if TYPE_CHECKING:
     from .asset_event import AssetEvent
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .position_snapshot import PositionSnapshot
     from .asset_ticker_history import AssetTickerHistory
 
-class Asset(BaseModel):
+class Asset(AuditableModel):
     __tablename__ = "assets"
 
     ticker: Mapped[str] = mapped_column(

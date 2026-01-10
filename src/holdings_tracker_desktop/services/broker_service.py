@@ -5,7 +5,7 @@ from holdings_tracker_desktop.models.broker import Broker
 from holdings_tracker_desktop.schemas.broker import (
   BrokerCreate, BrokerUpdate, BrokerResponse
 )
-from holdings_tracker_desktop.repositories.base import BaseRepository
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.utils.exceptions import ConflictException
 
 class BrokerService:

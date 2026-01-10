@@ -5,7 +5,7 @@ from holdings_tracker_desktop.models.broker_note import BrokerNote
 from holdings_tracker_desktop.schemas.broker_note import (
   BrokerNoteCreate, BrokerNoteUpdate, BrokerNoteResponse
 )
-from holdings_tracker_desktop.repositories.base import BaseRepository
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
 
 class BrokerNoteService:
