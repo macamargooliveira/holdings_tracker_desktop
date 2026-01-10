@@ -1,9 +1,9 @@
-from PySide6.QtCore import QDate
-from PySide6.QtWidgets import QDateEdit, QLineEdit
+from PySide6.QtWidgets import QLineEdit
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.asset_ticker_history_service import AssetTickerHistoryService
 from holdings_tracker_desktop.schemas.asset_ticker_history import AssetTickerHistoryCreate
 from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
+from holdings_tracker_desktop.ui.forms.date_input import DateInput
 from holdings_tracker_desktop.ui.comboboxes import AssetComboBox
 from holdings_tracker_desktop.ui.translations import t
 
@@ -29,11 +29,7 @@ class AssetTickerHistoryForm(BaseFormDialog):
         self._setup_new_ticker(form_layout)
 
     def _setup_change_date_input(self, form_layout):
-        self.change_date_input = QDateEdit()
-        self.change_date_input.setCalendarPopup(True)
-        self.change_date_input.setDisplayFormat("dd/MM/yyyy")
-        self.change_date_input.setDate(QDate.currentDate())
-        self.change_date_input.setMaximumDate(QDate.currentDate())
+        self.change_date_input = DateInput()
         form_layout.addRow(f"{t('change_date')}:", self.change_date_input)
 
     def _setup_asset_combo(self, form_layout):

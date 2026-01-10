@@ -1,11 +1,11 @@
 from PySide6.QtCore import QDate
-from PySide6.QtWidgets import QDateEdit
 from decimal import Decimal
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.models.asset_event import AssetEventType
 from holdings_tracker_desktop.services.asset_event_service import AssetEventService
 from holdings_tracker_desktop.schemas.asset_event import AssetEventCreate, AssetEventUpdate
 from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
+from holdings_tracker_desktop.ui.forms.date_input import DateInput
 from holdings_tracker_desktop.ui.comboboxes import AssetComboBox, EventTypeComboBox
 from holdings_tracker_desktop.ui.translations import t
 
@@ -77,11 +77,7 @@ class AssetEventForm(BaseFormDialog):
         self._setup_financial_fields(form_layout)
 
     def _setup_date_input(self, form_layout):
-        self.date_input = QDateEdit()
-        self.date_input.setCalendarPopup(True)
-        self.date_input.setDisplayFormat("dd/MM/yyyy")
-        self.date_input.setDate(QDate.currentDate())
-        self.date_input.setMaximumDate(QDate.currentDate())
+        self.date_input = DateInput()
         form_layout.addRow(f"{t('date')}:", self.date_input)
 
     def _setup_asset_combo(self, form_layout):
