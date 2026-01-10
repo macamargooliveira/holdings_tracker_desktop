@@ -29,7 +29,7 @@ class AssetEventsWidget(EntityManagerWidget):
     def translate_ui(self):
         super().translate_ui()
         self.title_label.setText(t("events"))
-        self.table.setHorizontalHeaderLabels([t("ticker"), t("date"), t("type")])
+        self.table.setHorizontalHeaderLabels([t("asset"), t("date"), t("type")])
 
     def get_extra_buttons(self):
         return [("back", "fa5s.arrow-left", self.on_back_clicked)]

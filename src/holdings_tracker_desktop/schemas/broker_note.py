@@ -38,12 +38,9 @@ class BrokerNoteCreate(BrokerNoteBase):
 
 class BrokerNoteUpdate(BaseSchema):
     date: Optional[Date] = None
-    operation: Optional[OperationType] = None
     broker_id: Optional[int] = Field(None, gt=0)
-
     quantity: Optional[Decimal] = Field(None, gt=0)
     price: Optional[Decimal] = Field(None, gt=0)
-
     fees: Optional[Decimal] = Field(None, ge=0)
     taxes: Optional[Decimal] = Field(None, ge=0)
 

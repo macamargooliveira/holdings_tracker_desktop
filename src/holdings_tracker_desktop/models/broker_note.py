@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from sqlalchemy import String, ForeignKey, Enum, Numeric, Date
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from enum import Enum as PyEnum
 from decimal import Decimal
 from .base import BaseModel
@@ -74,6 +74,12 @@ class BrokerNote(BaseModel):
         cascade="save-update",
         lazy="selectin"
     )
+
+    @validates("operation")
+    def _validate_operation(self, key, value):
+        if self.id is not None and value != self.operation:
+            raise ValueError("Operation cannot be changed")
+        return value
 
     def to_response(self) -> dict:
         """Convert to dictionary compatible with BrokerNoteResponse"""

@@ -48,6 +48,9 @@ class BrokerNoteForm(BaseFormDialog):
         elif operation == OperationType.SELL:
             self.sell_radio.setChecked(True)
 
+        self.buy_radio.setEnabled(False)
+        self.sell_radio.setEnabled(False)
+
     def _load_broker(self, data: dict):
         broker_id = data.get("broker_id")
 

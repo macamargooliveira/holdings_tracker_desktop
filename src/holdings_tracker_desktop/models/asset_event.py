@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Enum, Numeric, Date
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from enum import Enum as PyEnum
 from decimal import Decimal
 from .base import BaseModel
@@ -58,6 +58,12 @@ class AssetEvent(BaseModel):
         cascade="save-update",
         lazy="selectin"
     )
+
+    @validates("event_type")
+    def _validate_event_type(self, key, value):
+        if self.id is not None and value != self.event_type:
+            raise ValueError("Type cannot be changed")
+        return value
 
     def to_response(self) -> dict:
         """Convert to dictionary compatible with AssetEventResponse"""
