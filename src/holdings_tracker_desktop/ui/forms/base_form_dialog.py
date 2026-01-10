@@ -1,5 +1,8 @@
 from typing import Optional
-from PySide6.QtWidgets import QWidget, QDialog, QMessageBox, QVBoxLayout, QFormLayout, QDialogButtonBox
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+  QWidget, QDialog, QMessageBox, QVBoxLayout, QFormLayout, QDialogButtonBox, QDoubleSpinBox
+)
 from pydantic import ValidationError
 
 class BaseFormDialog(QDialog):
@@ -27,6 +30,24 @@ class BaseFormDialog(QDialog):
             "Error",
             str(error)
         )
+
+    def create_decimal_spinbox(
+            self, 
+            decimals: int = 2, 
+            minimum: float = 0.0, 
+            maximum: float = 10**12,
+            step: float = 0.01,
+            default: float = 0.0
+        ) -> QDoubleSpinBox:
+        spin = QDoubleSpinBox()
+        spin.setDecimals(decimals)
+        spin.setMinimum(minimum)
+        spin.setMaximum(maximum)
+        spin.setSingleStep(step)
+        spin.setValue(default)
+        spin.setAlignment(Qt.AlignRight)
+        spin.setButtonSymbols(QDoubleSpinBox.NoButtons)
+        return spin
 
     def _setup_ui(self):
         self.setMinimumWidth(350)

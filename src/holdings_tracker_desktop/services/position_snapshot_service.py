@@ -72,7 +72,7 @@ class PositionSnapshotService:
                 PositionSnapshot.asset_id,
                 func.max(PositionSnapshot.snapshot_date).label("max_date")
             )
-            .filter(func.extract("year", PositionSnapshot.snapshot_date) == year)
+            .filter(func.extract("year", PositionSnapshot.snapshot_date) <= year)
             .group_by(PositionSnapshot.asset_id)
             .subquery()
         )
@@ -207,7 +207,7 @@ class PositionSnapshotService:
         if quantity <= 0:
             return quantity, total_cost
 
-        match event.type:
+        match event.event_type:
             case AssetEventType.SPLIT | AssetEventType.REVERSE_SPLIT:
                 if not event.factor or event.factor <= 0:
                     return quantity, total_cost

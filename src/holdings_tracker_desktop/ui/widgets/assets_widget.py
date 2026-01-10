@@ -84,24 +84,28 @@ class AssetsWidget(EntityManagerWidget):
     def get_extra_buttons(self):
         return [
             ("position", "fa5s.chart-line", self.on_position_clicked),
+            ("events", "fa5s.exchange-alt", self.on_event_clicked),
             ("ticker_change", "fa5s.history", self.on_ticker_change_clicked)
         ]
 
     def on_position_clicked(self):
-        asset_id = self.get_selected_id()
-        if not asset_id:
-            return
-
         from holdings_tracker_desktop.ui.widgets.position_snapshots_widget import PositionSnapshotsWidget
-        self.navigate_to(PositionSnapshotsWidget, asset_id)
+        self._navigate_from_selected_asset(PositionSnapshotsWidget)
+
+    def on_event_clicked(self):
+        from holdings_tracker_desktop.ui.widgets.asset_events_widget import AssetEventsWidget
+        self._navigate_from_selected_asset(AssetEventsWidget)
 
     def on_ticker_change_clicked(self):
+        from holdings_tracker_desktop.ui.widgets.asset_ticker_histories_widget import AssetTickerHistoriesWidget
+        self._navigate_from_selected_asset(AssetTickerHistoriesWidget)
+
+    def _navigate_from_selected_asset(self, widget_cls):
         asset_id = self.get_selected_id()
         if not asset_id:
             return
 
-        from holdings_tracker_desktop.ui.widgets.asset_ticker_histories_widget import AssetTickerHistoriesWidget
-        self.navigate_to(AssetTickerHistoriesWidget, asset_id)
+        self.navigate_to(widget_cls, asset_id)
 
     def _populate_table(self, items):
         prepare_table(self.table, 6, len(items))

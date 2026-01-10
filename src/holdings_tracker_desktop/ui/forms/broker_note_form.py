@@ -1,5 +1,5 @@
-from PySide6.QtCore import Qt, QDate
-from PySide6.QtWidgets import QWidget, QDateEdit, QButtonGroup, QRadioButton, QHBoxLayout, QDoubleSpinBox
+from PySide6.QtCore import QDate
+from PySide6.QtWidgets import QWidget, QDateEdit, QButtonGroup, QRadioButton, QHBoxLayout
 from decimal import Decimal
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.models.broker_note import OperationType
@@ -132,33 +132,15 @@ class BrokerNoteForm(BaseFormDialog):
         form_layout.addRow(f"{t('asset')}:", self.asset_combo)
 
     def _setup_financial_fields(self, form_layout):
-        self.quantity_input = self._create_decimal_spinbox(decimals=0, step=1)
-        self.price_input = self._create_decimal_spinbox()
-        self.fees_input = self._create_decimal_spinbox()
-        self.taxes_input = self._create_decimal_spinbox()
+        self.quantity_input = self.create_decimal_spinbox(decimals=0, step=1)
+        self.price_input = self.create_decimal_spinbox()
+        self.fees_input = self.create_decimal_spinbox()
+        self.taxes_input = self.create_decimal_spinbox()
 
         form_layout.addRow(f"{t('quantity')}:", self.quantity_input)
-        form_layout.addRow(f"{t('price')}:", self.price_input)
+        form_layout.addRow(f"{t('unit_price')}:", self.price_input)
         form_layout.addRow(f"{t('fees')}:", self.fees_input)
         form_layout.addRow(f"{t('taxes')}:", self.taxes_input)
-
-    def _create_decimal_spinbox(
-            self, 
-            decimals: int = 2, 
-            minimum: float = 0.0, 
-            maximum: float = 10**12,
-            step: float = 0.01,
-            default: float = 0.0
-        ) -> QDoubleSpinBox:
-        spin = QDoubleSpinBox()
-        spin.setDecimals(decimals)
-        spin.setMinimum(minimum)
-        spin.setMaximum(maximum)
-        spin.setSingleStep(step)
-        spin.setValue(default)
-        spin.setAlignment(Qt.AlignRight)
-        spin.setButtonSymbols(QDoubleSpinBox.NoButtons)
-        return spin
 
     def _save(self):
         date = self.date_input.date().toPython()
