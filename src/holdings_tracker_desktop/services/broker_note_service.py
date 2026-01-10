@@ -67,21 +67,6 @@ class BrokerNoteService:
 
         return deleted
 
-    def list_all(
-        self,
-        skip: int = 0, 
-        limit: int = 100,
-        order_by: Date = "date",
-        descending: bool = True
-    ) -> List[BrokerNoteResponse]:
-        """List all BrokerNotes"""
-        broker_notes = self.repository.get_all(skip, limit, order_by, descending)
-        return [BrokerNoteResponse.model_validate(bn) for bn in broker_notes]
-
-    def list_all_models(self, order_by: Date = "date") -> List[BrokerNote]:
-        """Get all BrokerNotes as SQLAlchemy models"""
-        return self.repository.get_all(order_by=order_by)
-
     def list_all_for_ui(
         self, 
         skip: int = 0, 

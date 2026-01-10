@@ -45,17 +45,6 @@ class CurrencyService:
 
         return self.repository.delete(currency_id)
 
-    def list_all(
-        self, 
-        skip: int = 0, 
-        limit: int = 100,
-        order_by: str = "code",
-        descending: bool = False
-    ) -> List[CurrencyResponse]:
-        """List all Currencies"""
-        currencies = self.repository.get_all(skip, limit, order_by, descending)
-        return [CurrencyResponse.model_validate(c) for c in currencies]
-
     def list_all_models(self, order_by: str = "code") -> List[Currency]:
         """Get all Currencies as SQLAlchemy models"""
         return self.repository.get_all(order_by=order_by)

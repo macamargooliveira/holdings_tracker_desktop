@@ -1,4 +1,3 @@
-from datetime import date as Date
 from typing import List
 from sqlalchemy.orm import Session
 from holdings_tracker_desktop.models.asset_event import AssetEvent
@@ -66,21 +65,6 @@ class AssetEventService:
             )
 
         return deleted
-
-    def list_all(
-        self,
-        skip: int = 0, 
-        limit: int = 100,
-        order_by: Date = "date",
-        descending: bool = True
-    ) -> List[AssetEventResponse]:
-        """List all AssetEvents"""
-        asset_events = self.repository.get_all(skip, limit, order_by, descending)
-        return [AssetEventResponse.model_validate(ae) for ae in asset_events]
-
-    def list_all_models(self, order_by: Date = "date") -> List[AssetEvent]:
-        """Get all AssetEvents as SQLAlchemy models"""
-        return self.repository.get_all(order_by=order_by)
 
     def list_all_for_ui(
         self,

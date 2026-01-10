@@ -39,17 +39,6 @@ class AssetSectorService:
 
         return self.repository.delete(asset_sector_id)
 
-    def list_all(
-        self, 
-        skip: int = 0, 
-        limit: int = 100,
-        order_by: str = "name",
-        descending: bool = False
-    ) -> List[AssetSectorResponse]:
-        """List all AssetSectors"""
-        asset_sectors = self.repository.get_all(skip, limit, order_by, descending)
-        return [AssetSectorResponse.model_validate(at) for at in asset_sectors]
-
     def list_all_models(self, order_by: str = "name") -> List[AssetSector]:
         """Get all AssetSectors as SQLAlchemy models"""
         return self.repository.get_all(order_by=order_by)

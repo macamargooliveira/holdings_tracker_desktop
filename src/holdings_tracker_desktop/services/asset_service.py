@@ -42,17 +42,6 @@ class AssetService:
 
         return self.repository.delete(asset_id)
 
-    def list_all(
-        self, 
-        skip: int = 0, 
-        limit: int = 100,
-        order_by: str = "ticker",
-        descending: bool = False
-    ) -> List[AssetResponse]:
-        """List all Assets"""
-        assets = self.repository.get_all(skip, limit, order_by, descending)
-        return [AssetResponse.model_validate(a) for a in assets]
-
     def list_all_models(self, order_by: str = "ticker") -> List[Asset]:
         """Get all Assets as SQLAlchemy models"""
         return self.repository.get_all(order_by=order_by)

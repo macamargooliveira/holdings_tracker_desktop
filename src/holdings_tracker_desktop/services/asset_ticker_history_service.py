@@ -1,4 +1,3 @@
-from datetime import date as Date
 from typing import List
 from sqlalchemy.orm import Session
 from holdings_tracker_desktop.models.asset_ticker_history import AssetTickerHistory
@@ -54,21 +53,6 @@ class AssetTickerHistoryService:
     def delete(self, asset_id: int) -> bool:
         """Delete AssetTickerHistory"""
         return self.repository.delete(asset_id)
-
-    def list_all(
-        self, 
-        skip: int = 0,
-        limit: int = 100,
-        order_by: Date = "change_date",
-        descending: bool = True
-    ) -> List[AssetTickerHistoryResponse]:
-        """List all AssetTickerHistories"""
-        asset_ticker_histories = self.repository.get_all(skip, limit, order_by, descending)
-        return [AssetTickerHistoryResponse.model_validate(ath) for ath in asset_ticker_histories]
-
-    def list_all_models(self, order_by: Date = "change_date") -> List[AssetTickerHistory]:
-        """Get all AssetTickerHistories as SQLAlchemy models"""
-        return self.repository.get_all(order_by=order_by)
 
     def list_all_for_ui(
         self,

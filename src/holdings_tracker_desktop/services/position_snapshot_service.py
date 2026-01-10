@@ -29,21 +29,6 @@ class PositionSnapshotService:
         position_snapshot = self.repository.get_or_raise(position_snapshot_id)
         return PositionSnapshotResponse.model_validate(position_snapshot)
 
-    def list_all(
-        self,
-        skip: int = 0, 
-        limit: int = 100,
-        order_by: Date = "snapshot_date",
-        descending: bool = True
-    ) -> List[PositionSnapshotResponse]:
-        """List all PositionSnapshots"""
-        position_snapshots = self.repository.get_all(skip, limit, order_by, descending)
-        return [PositionSnapshotResponse.model_validate(ps) for ps in position_snapshots]
-
-    def list_all_models(self, order_by: Date = "snapshot_date") -> List[PositionSnapshot]:
-        """Get all PositionSnapshots as SQLAlchemy models"""
-        return self.repository.get_all(order_by=order_by)
-
     def list_all_for_ui(
         self, 
         asset_id: int,

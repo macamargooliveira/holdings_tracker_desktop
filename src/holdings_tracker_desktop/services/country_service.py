@@ -45,17 +45,6 @@ class CountryService:
 
         return self.repository.delete(country_id)
 
-    def list_all(
-        self, 
-        skip: int = 0, 
-        limit: int = 100,
-        order_by: str = "name",
-        descending: bool = False
-    ) -> List[CountryResponse]:
-        """List all Countries"""
-        countries = self.repository.get_all(skip, limit, order_by, descending)
-        return [CountryResponse.model_validate(c) for c in countries]
-
     def list_all_models(self, order_by: str = "name") -> List[Country]:
         """Get all Countries as SQLAlchemy models"""
         return self.repository.get_all(order_by=order_by)
