@@ -162,11 +162,13 @@ class PositionSnapshotService:
         for item in timeline:
             if isinstance(item, AssetEvent):
                 quantity, total_cost = self._apply_asset_event(item, quantity, total_cost)
+                action = item.event_type.value.lower()
 
             elif isinstance(item, BrokerNote):
                 quantity, total_cost = self._apply_broker_note(item, quantity, total_cost)
+                action = item.operation.value.lower()
 
-            self._add_snapshot(asset_id, item.date, quantity, total_cost)
+            self._add_snapshot(asset_id, item.date, quantity, total_cost, action)
 
     def _apply_asset_event(self, event: AssetEvent, quantity: Decimal, total_cost: Decimal) -> tuple[Decimal, Decimal]:
         if quantity <= 0:
@@ -229,7 +231,15 @@ class PositionSnapshotService:
 
         return quantity, total_cost
 
-    def _add_snapshot(self, asset_id: int, snapshot_date: Date, quantity: Decimal, total_cost: Decimal) -> None:
+    def _add_snapshot(
+            self, 
+            asset_id: int, 
+            snapshot_date: Date, 
+            quantity: Decimal, 
+            total_cost: Decimal, 
+            origin_action: str
+        ) -> None:
+
         avg_price = total_cost / quantity if quantity > 0 else Decimal("0")
 
         self.db.add(
@@ -237,6 +247,7 @@ class PositionSnapshotService:
                 asset_id=asset_id,
                 snapshot_date=snapshot_date,
                 quantity=quantity,
-                avg_price=avg_price
+                avg_price=avg_price,
+                origin_action=origin_action
             )
         )

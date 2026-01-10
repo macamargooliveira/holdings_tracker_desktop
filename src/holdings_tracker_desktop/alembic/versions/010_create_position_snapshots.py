@@ -25,9 +25,8 @@ def upgrade() -> None:
     sa.Column('snapshot_date', sa.Date(), nullable=False),
     sa.Column('quantity', sa.Numeric(precision=20, scale=6), nullable=False),
     sa.Column('avg_price', sa.Numeric(precision=20, scale=6), nullable=False),
+    sa.Column('origin_action', sa.String(length=30), nullable=False),
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
     sa.ForeignKeyConstraint(['asset_id'], ['assets.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

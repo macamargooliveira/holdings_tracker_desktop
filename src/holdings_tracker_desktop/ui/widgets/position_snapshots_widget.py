@@ -38,10 +38,10 @@ class PositionSnapshotsWidget(EntityManagerWidget):
         self.navigate_to(AssetsWidget)
 
     def _populate_table(self, items):
-        prepare_table(self.table, 5, len(items))
+        prepare_table(self.table, 6, len(items))
 
         self.table.setHorizontalHeaderLabels(
-            [t("asset"), t("date"), t("quantity_abbr"), t("avg_price"), t("total_cost")]
+            [t("asset"), t("date"), t("quantity_abbr"), t("avg_price"), t("total_cost"), t("origin")]
         )
 
         for row, item in enumerate(items):
@@ -51,3 +51,4 @@ class PositionSnapshotsWidget(EntityManagerWidget):
             currency = item.get("asset_currency", "")
             self.table.setItem(row, 3, decimal_table_item(item['avg_price'], 2, currency))
             self.table.setItem(row, 4, decimal_table_item(item['total_cost'], 2, currency))
+            self.table.setItem(row, 5, table_item(t(item['origin_action'])))

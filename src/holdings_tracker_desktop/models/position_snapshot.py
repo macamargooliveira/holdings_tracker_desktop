@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, Numeric, Date
+from sqlalchemy import ForeignKey, Numeric, Date, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from decimal import Decimal
 from .base import IdentifiedModel
@@ -28,6 +28,11 @@ class PositionSnapshot(IdentifiedModel):
 
     avg_price: Mapped[Decimal] = mapped_column(
         Numeric(20, 6), 
+        nullable=False
+    )
+
+    origin_action: Mapped[str] = mapped_column(
+        String(30),
         nullable=False
     )
 
@@ -71,6 +76,7 @@ class PositionSnapshot(IdentifiedModel):
             'asset_currency': self.asset.currency.symbol if self.asset else '',
             'quantity': self.quantity,
             'avg_price': self.avg_price,
+            'origin_action': self.origin_action,
             'total_cost': self.total_cost
         }
 

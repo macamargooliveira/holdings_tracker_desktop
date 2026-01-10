@@ -16,8 +16,8 @@ MENU_CONFIG = {
         ("assets", AssetsWidget),
     ],
     "basics": [
-        ("asset_types", AssetTypesWidget),
         ("asset_sectors", AssetSectorsWidget),
+        ("asset_types", AssetTypesWidget),
         ("brokers", BrokersWidget),
         ("currencies", CurrenciesWidget),
         ("countries", CountriesWidget),

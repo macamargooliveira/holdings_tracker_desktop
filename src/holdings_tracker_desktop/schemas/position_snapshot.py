@@ -8,6 +8,7 @@ class PositionSnapshotBase(BaseSchema):
     snapshot_date: Date
     quantity: Decimal = Field(..., gt=0)
     avg_price: Decimal = Field(..., gt=0)
+    origin_action: str = Field(..., min_length=2, max_length=30)
 
 class PositionSnapshotCreate(PositionSnapshotBase):
     model_config = {
