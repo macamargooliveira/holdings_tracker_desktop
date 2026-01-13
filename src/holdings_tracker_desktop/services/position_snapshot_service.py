@@ -80,7 +80,7 @@ class PositionSnapshotService:
         rows = (
             query
             .group_by(Asset.ticker)
-            .order_by(total_cost.desc())
+            .order_by(total_cost)
             .all()
         )
 

@@ -20,6 +20,8 @@ class ChartsWidget(QWidget):
         self.translate_ui()
 
         global_signals.asset_types_updated.connect(self.refresh_asset_types_menu)
+
+        global_signals.asset_events_updated.connect(self.refresh_years_menu)
         global_signals.broker_notes_updated.connect(self.refresh_years_menu)
 
     def translate_ui(self):
