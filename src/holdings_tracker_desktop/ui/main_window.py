@@ -117,4 +117,14 @@ class MainWindow(QMainWindow):
             QHeaderView::section:pressed {
                 background-color: #dddddd;
             }
+
+            QScrollArea {
+                background: transparent;
+                border: none;
+            }
+
+            QScrollArea > QWidget > QWidget {
+                background-color: white;
+                border-radius: 8px;
+            }
         """)

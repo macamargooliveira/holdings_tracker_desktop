@@ -1,24 +1,47 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QSizePolicy
+from PySide6.QtCore import Qt, QEvent
+from PySide6.QtWidgets import ( 
+  QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QSizePolicy, QScrollArea, QGridLayout
+)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from holdings_tracker_desktop.ui.formatters import format_decimal
+from itertools import cycle
+
+COLOR_PALETTE = [ "#4E79A7", "#59A14F", "#F28E2B", "#B07AA1", 
+    "#76B7B2", "#EDC948", "#9C755F", "#BAB0AC" ]
+
+START_ANGLE = 90
+DONUT_WIDTH = 0.6
+ITEM_LEGEND_WIDTH = 140
 
 class PieChartWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.legend_data: list[dict] | None = None
+        self.legend_columns: int | None = None
         self._setup_ui()
 
     def render_chart(self, data: list[dict], title: str, no_data_text: str):
+        self.legend_data = data
+        self.legend_columns = None
         self.title_label.setText(title)
-        self.ax.clear()
-        self.ax.set_axis_off()
 
         if not data:
             self._render_no_data(no_data_text)
         else: 
             self._render_pie(data)
+            self._render_legend()
 
         self.canvas.draw_idle()
+
+    def eventFilter(self, obj, event):
+        if (
+            obj is self.legend_scroll.viewport()
+            and event.type() == QEvent.Type.Resize
+            and self.legend_data is not None
+        ):
+            self._render_legend()
+        return super().eventFilter(obj, event)
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
@@ -45,26 +68,48 @@ class PieChartWidget(QWidget):
         body_frame.setObjectName("BodyFrame")
         body_layout = QVBoxLayout(body_frame)
 
-        self.figure = Figure(dpi=100)
-        self.canvas = FigureCanvas(self.figure)
+        self._setup_pie(body_layout)
+        self._setup_legend(body_layout)
+
+        main_layout.addWidget(body_frame, stretch=1)  
+
+    def _setup_pie(self, body_layout):
+        figure = Figure(dpi=100)
+        self.canvas = FigureCanvas(figure)
         self.canvas.setSizePolicy(
             QSizePolicy.Expanding,
             QSizePolicy.Expanding
         )
 
-        self.ax = self.figure.add_subplot(111)
+        self.ax = figure.add_subplot(111)
 
-        self.figure.subplots_adjust(
+        figure.subplots_adjust(
             left=0.05,
             right=0.95,
             top=0.95,
             bottom=0.05
         )
 
-        body_layout.addWidget(self.canvas)
-        main_layout.addWidget(body_frame, stretch=1)  
+        body_layout.addWidget(self.canvas, stretch=3)
+
+    def _setup_legend(self, body_layout):
+        self.legend_scroll = QScrollArea()
+        self.legend_scroll.setWidgetResizable(True)
+        self.legend_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        legend_container = QWidget()
+        self.legend_layout = QGridLayout(legend_container)
+        self.legend_layout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self.legend_scroll.setWidget(legend_container)
+
+        body_layout.addWidget(self.legend_scroll, stretch=1)
+
+        self.legend_scroll.viewport().installEventFilter(self)
 
     def _render_no_data(self, no_data_text: str):
+        self._clear_pie_chart()
+        self._clear_legend()
+
         self.ax.text(
             0.5,
             0.5,
@@ -75,17 +120,77 @@ class PieChartWidget(QWidget):
             transform=self.ax.transAxes
         )
 
+    def _clear_pie_chart(self):
+        self.ax.clear()
+        self.ax.set_axis_off()
+
+    def _clear_legend(self):
+        while self.legend_layout.count():
+            item = self.legend_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
     def _render_pie(self, data: list[dict]):
-        labels = [item["label"] for item in data]
+        self._clear_pie_chart()
+
         values = [item["value"] for item in data]
+        colors = COLOR_PALETTE[:len(values)]
 
         self.ax.pie(
             values,
-            labels=labels,
-            autopct="%1.1f%%",
-            startangle=90,
-            wedgeprops=dict(width=0.5),
-            pctdistance=0.75
+            colors=colors,
+            startangle=START_ANGLE,
+            counterclock=False,
+            wedgeprops={"width": DONUT_WIDTH}
         )
 
-        self.ax.set_aspect("equal", adjustable="box")
+        self.ax.set_aspect("equal")
+
+    def _render_legend(self):
+        columns = self._calculate_legend_columns()
+
+        if columns == self.legend_columns:
+            return
+
+        self.legend_columns = columns
+        self._clear_legend()
+
+        total = sum(item["value"] for item in self.legend_data)
+        colors = cycle(COLOR_PALETTE)
+
+        for index, item in enumerate(self.legend_data):
+            percent = format_decimal(item["value"] / total * 100)
+            text = f'{item["label"]} — {percent}%'
+
+            widget = self._create_legend_item(
+                next(colors),
+                text
+            )
+
+            row = index // columns
+            col = index % columns
+            self.legend_layout.addWidget(widget, row, col)
+
+    def _calculate_legend_columns(self) -> int:
+        available_width = self.legend_scroll.viewport().width()
+        return max(1, available_width // ITEM_LEGEND_WIDTH)
+
+    def _create_legend_item(self, color: str, text: str) -> QWidget:
+        layout = QHBoxLayout()
+
+        color_box = QLabel()
+        color_box.setFixedSize(12, 12)
+        color_box.setStyleSheet(
+            f"background-color: {color}; border-radius: 2px;"
+        )
+
+        label = QLabel(text)
+        label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        label.setWordWrap(False)
+
+        layout.addWidget(color_box)
+        layout.addWidget(label)
+
+        container = QWidget()
+        container.setLayout(layout)
+        return container
