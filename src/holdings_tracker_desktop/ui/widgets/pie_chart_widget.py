@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from holdings_tracker_desktop.ui.formatters import format_decimal
+from holdings_tracker_desktop.ui.widgets.legend_item_widget import LegendItemWidget
 from itertools import cycle
 
 COLOR_PALETTE = [ "#4E79A7", "#59A14F", "#F28E2B", "#B07AA1", 
@@ -169,7 +170,9 @@ class PieChartWidget(QWidget):
             percent = format_decimal(item["value"] / total * 100)
             text = f'{item["label"]} — {percent}%'
 
-            widget = self._create_legend_item(next(colors), text, index)
+            widget = LegendItemWidget(next(colors), text, index)
+
+            widget.hovered.connect(self._set_hover_index)
 
             row = index // columns
             col = index % columns
@@ -178,31 +181,6 @@ class PieChartWidget(QWidget):
     def _calculate_legend_columns(self) -> int:
         available_width = self.legend_scroll.viewport().width()
         return max(1, available_width // ITEM_LEGEND_WIDTH)
-
-    def _create_legend_item(self, color: str, text: str, index: int) -> QWidget:
-        layout = QHBoxLayout()
-
-        color_box = QLabel()
-        color_box.setFixedSize(12, 12)
-        color_box.setStyleSheet(
-            f"background-color: {color}; border-radius: 2px;"
-        )
-
-        label = QLabel(text)
-        label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        label.setWordWrap(False)
-
-        layout.addWidget(color_box)
-        layout.addWidget(label)
-
-        container = QWidget()
-        container.setLayout(layout)
-        container.setCursor(Qt.PointingHandCursor)
-
-        container.enterEvent = lambda _, i=index: self._set_hover_index(i)
-        container.leaveEvent = lambda _: self._set_hover_index(None)
-
-        return container
 
     def _set_hover_index(self, index: int | None):
         if self.hover_index == index:
