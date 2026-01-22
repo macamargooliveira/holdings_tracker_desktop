@@ -13,12 +13,14 @@ COLOR_PALETTE = [ "#4E79A7", "#59A14F", "#F28E2B", "#B07AA1",
 START_ANGLE = 90
 DONUT_WIDTH = 0.6
 ITEM_LEGEND_WIDTH = 140
+EXPLODE_OFFSET = 0.08
 
 class PieChartWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.legend_data: list[dict] | None = None
         self.legend_columns: int | None = None
+        self.hover_index: int | None = None
         self._setup_ui()
 
     def render_chart(self, data: list[dict], title: str, no_data_text: str):
@@ -136,12 +138,17 @@ class PieChartWidget(QWidget):
         values = [item["value"] for item in data]
         colors = COLOR_PALETTE[:len(values)]
 
-        self.ax.pie(
+        explode = [0.0] * len(values)
+        if self.hover_index is not None:
+            explode[self.hover_index] = EXPLODE_OFFSET
+
+        self.wedges, _ = self.ax.pie(
             values,
             colors=colors,
             startangle=START_ANGLE,
             counterclock=False,
-            wedgeprops={"width": DONUT_WIDTH}
+            wedgeprops={"width": DONUT_WIDTH},
+            explode=explode
         )
 
         self.ax.set_aspect("equal")
@@ -162,10 +169,7 @@ class PieChartWidget(QWidget):
             percent = format_decimal(item["value"] / total * 100)
             text = f'{item["label"]} — {percent}%'
 
-            widget = self._create_legend_item(
-                next(colors),
-                text
-            )
+            widget = self._create_legend_item(next(colors), text, index)
 
             row = index // columns
             col = index % columns
@@ -175,7 +179,7 @@ class PieChartWidget(QWidget):
         available_width = self.legend_scroll.viewport().width()
         return max(1, available_width // ITEM_LEGEND_WIDTH)
 
-    def _create_legend_item(self, color: str, text: str) -> QWidget:
+    def _create_legend_item(self, color: str, text: str, index: int) -> QWidget:
         layout = QHBoxLayout()
 
         color_box = QLabel()
@@ -193,4 +197,17 @@ class PieChartWidget(QWidget):
 
         container = QWidget()
         container.setLayout(layout)
+        container.setCursor(Qt.PointingHandCursor)
+
+        container.enterEvent = lambda _, i=index: self._set_hover_index(i)
+        container.leaveEvent = lambda _: self._set_hover_index(None)
+
         return container
+
+    def _set_hover_index(self, index: int | None):
+        if self.hover_index == index:
+            return
+
+        self.hover_index = index
+        self._render_pie(self.legend_data)
+        self.canvas.draw_idle()
