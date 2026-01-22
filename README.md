@@ -3,9 +3,8 @@
 [![Python Version](https://img.shields.io/badge/python-3.12+-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Holdings Tracker Desktop is a **personal Python project** created for learning and practicing Python development.<br>
+Holdings Tracker Desktop is a **personal Python project created for learning and practicing Python development**.<br>
 It allows you to manage and track financial holdings in a simple desktop interface.<br>
-This application was created for study purposes and personal use.
 
 ## Features
 
