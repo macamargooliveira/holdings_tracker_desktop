@@ -26,7 +26,7 @@ class BrokerNotesWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_label.setText(t("broker_notes"))
+        self.title_widget.setText(t("broker_notes"))
         self._populate_table(self.ui_data)
 
     def open_new_form(self):

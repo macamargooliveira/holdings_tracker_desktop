@@ -25,7 +25,7 @@ class CountriesWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_label.setText(t("countries"))
+        self.title_widget.setText(t("countries"))
         self.table.setHorizontalHeaderLabels([t("name"), t("asset_types"), t("brokers")])
 
     def open_new_form(self):

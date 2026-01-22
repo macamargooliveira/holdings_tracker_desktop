@@ -29,7 +29,7 @@ class AssetEventsWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_label.setText(t("events"))
+        self.title_widget.setText(t("events"))
         self.table.setHorizontalHeaderLabels([t("asset"), t("date"), t("type")])
 
     def get_extra_buttons(self):

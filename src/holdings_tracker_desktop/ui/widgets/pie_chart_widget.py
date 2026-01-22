@@ -1,11 +1,10 @@
 from PySide6.QtCore import Qt, QEvent
-from PySide6.QtWidgets import ( 
-  QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QSizePolicy, QScrollArea, QGridLayout
-)
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QSizePolicy, QScrollArea, QGridLayout
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from holdings_tracker_desktop.ui.formatters import format_decimal
 from holdings_tracker_desktop.ui.widgets.legend_item_widget import LegendItemWidget
+from holdings_tracker_desktop.ui.widgets.title_widget import TitleWidget
 from itertools import cycle
 
 COLOR_PALETTE = [ "#4E79A7", "#59A14F", "#F28E2B", "#B07AA1", 
@@ -27,7 +26,7 @@ class PieChartWidget(QWidget):
     def render_chart(self, data: list[dict], title: str, no_data_text: str):
         self.legend_data = data
         self.legend_columns = None
-        self.title_label.setText(title)
+        self.title_widget.setText(title)
 
         if not data:
             self._render_no_data(no_data_text)
@@ -51,20 +50,10 @@ class PieChartWidget(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(5)
 
-        self._setup_title_frame(main_layout)
+        self.title_widget = TitleWidget()
+        main_layout.addWidget(self.title_widget)
+
         self._setup_body_frame(main_layout)
-
-    def _setup_title_frame(self, main_layout):
-        title_frame = QFrame()
-        title_frame.setObjectName("TitleFrame")
-        title_layout = QHBoxLayout(title_frame)
-
-        self.title_label = QLabel("")
-        self.title_label.setObjectName("TitleLabel")
-        self.title_label.setAlignment(Qt.AlignCenter)
-
-        title_layout.addWidget(self.title_label)
-        main_layout.addWidget(title_frame)
 
     def _setup_body_frame(self, main_layout):
         body_frame = QFrame()

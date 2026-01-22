@@ -1,10 +1,11 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, 
-    QLabel, QFrame, QHeaderView, QMessageBox, QDialog
+    QFrame, QHeaderView, QMessageBox, QDialog
 )
 from holdings_tracker_desktop.ui.translations import t
 from holdings_tracker_desktop.ui.confirm_dialog import ConfirmDialog
+from holdings_tracker_desktop.ui.widgets.title_widget import TitleWidget
 import qtawesome as qta
 
 DEFAULT_ACTIONS = ("add", "edit", "delete")
@@ -106,20 +107,10 @@ class EntityManagerWidget(QWidget):
         main_layout.setContentsMargins(0, 5, 0, 0)
         main_layout.setSpacing(5)
 
-        self._setup_title_frame(main_layout)
+        self.title_widget = TitleWidget()
+        main_layout.addWidget(self.title_widget)
+
         self._setup_body_frame(main_layout)
-
-    def _setup_title_frame(self, main_layout):
-        title_frame = QFrame()
-        title_frame.setObjectName("TitleFrame")
-        title_layout = QHBoxLayout(title_frame)
-
-        self.title_label = QLabel("")
-        self.title_label.setObjectName("TitleLabel")
-        self.title_label.setAlignment(Qt.AlignCenter)
-
-        title_layout.addWidget(self.title_label)
-        main_layout.addWidget(title_frame)
 
     def _setup_body_frame(self, main_layout):
         body_frame = QFrame()

@@ -25,7 +25,7 @@ class CurrenciesWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_label.setText(t("currencies"))
+        self.title_widget.setText(t("currencies"))
         self.table.setHorizontalHeaderLabels([t("code"), t("name"), t("symbol"), t("assets")])
 
     def open_new_form(self):

@@ -25,7 +25,7 @@ class AssetsWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_label.setText(t("assets"))
+        self.title_widget.setText(t("assets"))
         self.table.setHorizontalHeaderLabels(
             [t("ticker"), t("type"), t("currency"), t("sector"), t("notes"), t("events")]
         )

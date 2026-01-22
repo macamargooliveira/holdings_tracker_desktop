@@ -26,7 +26,7 @@ class AssetTickerHistoriesWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_label.setText(t("asset_ticker_history"))
+        self.title_widget.setText(t("asset_ticker_history"))
         self._populate_table(self.ui_data)
 
     def get_enabled_actions(self):

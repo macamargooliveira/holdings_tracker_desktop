@@ -25,7 +25,7 @@ class BrokersWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_label.setText(t("brokers"))
+        self.title_widget.setText(t("brokers"))
         self.table.setHorizontalHeaderLabels([t("name"), t("country"), t("broker_notes")])
 
     def open_new_form(self):

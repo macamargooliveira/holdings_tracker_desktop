@@ -24,7 +24,7 @@ class PositionSnapshotsWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_label.setText(t("position"))
+        self.title_widget.setText(t("position"))
         self._populate_table(self.ui_data)
 
     def get_enabled_actions(self):
