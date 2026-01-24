@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import List
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from holdings_tracker_desktop.models import Asset, AssetEvent, BrokerNote, PositionSnapshot
+from holdings_tracker_desktop.models import Asset, AssetEvent, AssetSector, BrokerNote, PositionSnapshot
 from holdings_tracker_desktop.models.asset_event import AssetEventType
 from holdings_tracker_desktop.models.broker_note import OperationType
 from holdings_tracker_desktop.schemas.position_snapshot import (
@@ -52,26 +52,11 @@ class PositionSnapshotService:
         return min_date
 
     def get_allocation_by_asset(self, year: int, asset_type_id: int | None = None) -> list[dict]:
-        subquery = (
-            self.db.query(
-                PositionSnapshot.asset_id,
-                func.max(PositionSnapshot.snapshot_date).label("max_date")
-            )
-            .filter(func.extract("year", PositionSnapshot.snapshot_date) <= year)
-            .group_by(PositionSnapshot.asset_id)
-            .subquery()
-        )
+        query, total_cost = self._base_allocation_query(year)
 
-        total_cost = func.sum(PositionSnapshot.quantity * PositionSnapshot.avg_price).label("total_cost")
-
-        query = (
-            self.db.query(Asset.ticker, total_cost)
-            .join(PositionSnapshot, PositionSnapshot.asset_id == Asset.id)
-            .join(
-                subquery,
-                (PositionSnapshot.asset_id == subquery.c.asset_id) &
-                (PositionSnapshot.snapshot_date == subquery.c.max_date)
-            )
+        query = query.with_entities(
+            Asset.ticker, 
+            total_cost
         )
 
         if asset_type_id is not None:
@@ -89,6 +74,63 @@ class PositionSnapshotService:
             for ticker, total in rows
             if total > 0
         ]
+
+    def get_allocation_by_sector(self, year: int, asset_type_id: int | None = None) -> list[dict]:
+        query, total_cost = self._base_allocation_query(year)
+
+        sector_label = func.coalesce(AssetSector.name, "Unclassified").label("sector_name")
+
+        query = query.with_entities(
+            sector_label,
+            total_cost
+        ).outerjoin(
+            AssetSector,
+            AssetSector.id == Asset.sector_id
+        )
+
+        if asset_type_id is not None:
+            query = query.filter(Asset.type_id == asset_type_id)
+
+        rows = (
+            query
+            .group_by(sector_label)
+            .order_by(total_cost.desc())
+            .all()
+        )
+
+        return [
+            {"label": sector, "value": float(total)}
+            for sector, total in rows
+            if total and total > 0
+        ]
+
+    def _base_allocation_query(self, year: int):
+        subquery = (
+            self.db.query(
+                PositionSnapshot.asset_id,
+                func.max(PositionSnapshot.snapshot_date).label("max_date")
+            )
+            .filter(func.extract("year", PositionSnapshot.snapshot_date) <= year)
+            .group_by(PositionSnapshot.asset_id)
+            .subquery()
+        )
+
+        total_cost = func.sum(
+            PositionSnapshot.quantity * PositionSnapshot.avg_price
+        ).label("total_cost")
+
+        query = (
+            self.db.query(total_cost)
+            .select_from(Asset)
+            .join(PositionSnapshot, PositionSnapshot.asset_id == Asset.id)
+            .join(
+                subquery,
+                (PositionSnapshot.asset_id == subquery.c.asset_id) &
+                (PositionSnapshot.snapshot_date == subquery.c.max_date)
+            )
+        )
+
+        return query, total_cost
 
     def rebuild_from(self, asset_id: int, from_date: Date) -> None:
         """

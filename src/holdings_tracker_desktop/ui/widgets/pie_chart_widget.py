@@ -1,19 +1,22 @@
+from itertools import cycle
+
 from PySide6.QtCore import Qt, QEvent
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QSizePolicy, QScrollArea, QGridLayout
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+
 from holdings_tracker_desktop.ui.formatters import format_decimal
 from holdings_tracker_desktop.ui.widgets.legend_item_widget import LegendItemWidget
 from holdings_tracker_desktop.ui.widgets.title_widget import TitleWidget
-from itertools import cycle
 
 COLOR_PALETTE = [ "#4E79A7", "#59A14F", "#F28E2B", "#B07AA1", 
     "#76B7B2", "#EDC948", "#9C755F", "#BAB0AC" ]
 
 START_ANGLE = 90
 DONUT_WIDTH = 0.6
-ITEM_LEGEND_WIDTH = 140
 EXPLODE_OFFSET = 0.08
+EXTRA_PADDING = 48
 
 class PieChartWidget(QWidget):
     def __init__(self, parent=None):
@@ -144,7 +147,8 @@ class PieChartWidget(QWidget):
         self.ax.set_aspect("equal")
 
     def _render_legend(self):
-        columns = self._calculate_legend_columns()
+        items = self._build_legend_items()
+        columns = self._calculate_legend_columns(items)
 
         if columns == self.legend_columns:
             return
@@ -152,24 +156,48 @@ class PieChartWidget(QWidget):
         self.legend_columns = columns
         self._clear_legend()
 
-        total = sum(item["value"] for item in self.legend_data)
         colors = cycle(COLOR_PALETTE)
 
+        for item in items:
+            widget = LegendItemWidget(next(colors), item["text"], item["index"])
+
+            widget.hovered.connect(self._set_hover_index)
+
+            row = item["index"] // columns
+            col = item["index"] % columns
+            self.legend_layout.addWidget(widget, row, col)
+
+    def _build_legend_items(self) -> list[dict]:
+        total = sum(item["value"] for item in self.legend_data)
+
+        items = []
         for index, item in enumerate(self.legend_data):
             percent = format_decimal(item["value"] / total * 100)
             text = f'{item["label"]} — {percent}%'
 
-            widget = LegendItemWidget(next(colors), text, index)
+            items.append({
+                "index": index,
+                "text": text,
+                "value": item["value"],
+            })
 
-            widget.hovered.connect(self._set_hover_index)
+        return items
 
-            row = index // columns
-            col = index % columns
-            self.legend_layout.addWidget(widget, row, col)
-
-    def _calculate_legend_columns(self) -> int:
+    def _calculate_legend_columns(self, items: list[dict]) -> int:
         available_width = self.legend_scroll.viewport().width()
-        return max(1, available_width // ITEM_LEGEND_WIDTH)
+        item_width = self._calculate_item_legend_width(items)
+        return max(1, available_width // item_width)
+
+    def _calculate_item_legend_width(self, items: list[dict]) -> int:
+        font = self.font()
+        metrics = QFontMetrics(font)
+
+        max_text_width = max(
+            metrics.horizontalAdvance(item["text"])
+            for item in items
+        )
+
+        return max_text_width + EXTRA_PADDING
 
     def _set_hover_index(self, index: int | None):
         if self.hover_index == index:
