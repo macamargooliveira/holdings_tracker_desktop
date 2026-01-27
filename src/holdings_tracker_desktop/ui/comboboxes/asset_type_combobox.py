@@ -2,7 +2,7 @@ from holdings_tracker_desktop.ui.comboboxes.base_combobox import BaseComboBox
 
 class AssetTypeComboBox(BaseComboBox):
     def __init__(self, parent=None):
-        super().__init__("select_asset_type", parent)
+        super().__init__("select_asset_type", parent, searchable=True)
         self.reload()
 
     def reload(self):
