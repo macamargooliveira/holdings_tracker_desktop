@@ -1,15 +1,15 @@
 from dataclasses import dataclass
-from typing import Optional
 from datetime import date as Date
+from typing import Optional
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenuBar
+from PySide6.QtWidgets import QVBoxLayout, QMenuBar
 
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.asset_type_service import AssetTypeService
 from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
-from holdings_tracker_desktop.ui.global_signals import global_signals
-from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.core import t, global_signals
 from holdings_tracker_desktop.ui.widgets.pie_chart_widget import PieChartWidget
+from holdings_tracker_desktop.ui.widgets.translatable_widget import TranslatableWidget
 
 MENU_KEYS = ("charts", "asset_type", "year")
 
@@ -21,7 +21,7 @@ class ChartState:
     asset_type_id: Optional[int] = None
     year: int = Date.today().year
 
-class ChartsWidget(QWidget):
+class ChartsWidget(TranslatableWidget):
 
     CHART_LOADERS = {
         "asset": PositionSnapshotService.get_allocation_by_asset,
@@ -68,7 +68,6 @@ class ChartsWidget(QWidget):
         self._refresh_chart()
 
     def _init_state(self):
-        self.window().widgets_with_translation.append(self)
         self.menus: dict[str, QMenuBar] = {}
         self.actions: dict[str, object] = {}
         self.state = ChartState()

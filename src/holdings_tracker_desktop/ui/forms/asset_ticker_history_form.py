@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import QLineEdit
+
 from holdings_tracker_desktop.database import get_db
-from holdings_tracker_desktop.services.asset_ticker_history_service import AssetTickerHistoryService
 from holdings_tracker_desktop.schemas.asset_ticker_history import AssetTickerHistoryCreate
+from holdings_tracker_desktop.services.asset_ticker_history_service import AssetTickerHistoryService
+from holdings_tracker_desktop.ui.comboboxes import AssetComboBox
+from holdings_tracker_desktop.ui.core import t
 from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
 from holdings_tracker_desktop.ui.forms.date_input import DateInput
-from holdings_tracker_desktop.ui.comboboxes import AssetComboBox
-from holdings_tracker_desktop.ui.translations import t
 
 class AssetTickerHistoryForm(BaseFormDialog):
     def __init__(self, asset_id: int, parent=None):

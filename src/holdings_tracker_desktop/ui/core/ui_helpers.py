@@ -1,8 +1,10 @@
 from decimal import Decimal
 from typing import Any, Optional
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTableWidget, QTableWidgetItem
-from holdings_tracker_desktop.ui.formatters import format_decimal
+
+from holdings_tracker_desktop.ui.core.formatters import format_decimal
 
 ALIGN_TEXT = Qt.AlignLeft | Qt.AlignVCenter
 ALIGN_NUMBER = Qt.AlignRight | Qt.AlignVCenter

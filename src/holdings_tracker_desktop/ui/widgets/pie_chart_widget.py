@@ -1,12 +1,12 @@
 from itertools import cycle
 
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 from PySide6.QtCore import Qt, QEvent
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QSizePolicy, QScrollArea, QGridLayout
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 
-from holdings_tracker_desktop.ui.formatters import format_decimal
+from holdings_tracker_desktop.ui.core.formatters import format_decimal
 from holdings_tracker_desktop.ui.widgets.legend_item_widget import LegendItemWidget
 from holdings_tracker_desktop.ui.widgets.title_widget import TitleWidget
 

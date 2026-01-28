@@ -1,9 +1,10 @@
+from pydantic import ValidationError
 from typing import Optional
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
   QWidget, QDialog, QMessageBox, QVBoxLayout, QFormLayout, QDialogButtonBox, QDoubleSpinBox
 )
-from pydantic import ValidationError
 
 class BaseFormDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None):
@@ -58,9 +59,11 @@ class BaseFormDialog(QDialog):
         self._build_form(self._form_layout)
         self._build_buttons()
 
-    def _build_form(self, form_layout: QFormLayout): raise NotImplementedError
+    def _build_form(self, form_layout: QFormLayout):
+        pass
 
-    def _save(self): raise NotImplementedError
+    def _save(self):
+        pass
 
     def _build_buttons(self):
         buttons = QDialogButtonBox(

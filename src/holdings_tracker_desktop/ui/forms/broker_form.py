@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import QLineEdit
+
 from holdings_tracker_desktop.database import get_db
-from holdings_tracker_desktop.services.broker_service import BrokerService
 from holdings_tracker_desktop.schemas.broker import BrokerCreate, BrokerUpdate
-from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
+from holdings_tracker_desktop.services.broker_service import BrokerService
 from holdings_tracker_desktop.ui.comboboxes import CountryComboBox
-from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.core import t
+from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
 
 class BrokerForm(BaseFormDialog):
     def __init__(self, broker_id=None, initial_data=None, parent=None):

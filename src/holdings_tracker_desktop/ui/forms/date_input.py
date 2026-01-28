@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QDateEdit
 from PySide6.QtCore import QDate, QLocale
-import holdings_tracker_desktop.ui.translations as i18n
+
+from holdings_tracker_desktop.ui.core import translations as i18n
 
 LOCALES = {
     "pt_BR": QLocale(QLocale.Portuguese, QLocale.Brazil),

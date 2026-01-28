@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import QLineEdit
+
 from holdings_tracker_desktop.database import get_db
-from holdings_tracker_desktop.services.asset_service import AssetService
 from holdings_tracker_desktop.schemas.asset import AssetCreate, AssetUpdate
-from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
+from holdings_tracker_desktop.services.asset_service import AssetService
 from holdings_tracker_desktop.ui.comboboxes import AssetTypeComboBox, CurrencyComboBox, AssetSectorComboBox
-from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.core import t
+from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
 
 class AssetForm(BaseFormDialog):
     def __init__(self, asset_id=None, initial_data=None, parent=None):

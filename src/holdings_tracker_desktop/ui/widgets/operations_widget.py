@@ -1,6 +1,9 @@
+import importlib.resources as res
+
 from PySide6.QtGui import QAction, QIcon, QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenuBar, QSizePolicy
-from holdings_tracker_desktop.ui.translations import t
+
+from holdings_tracker_desktop.ui.core import t
 from holdings_tracker_desktop.ui.widgets.assets_widget import AssetsWidget
 from holdings_tracker_desktop.ui.widgets.asset_sectors_widget import AssetSectorsWidget
 from holdings_tracker_desktop.ui.widgets.asset_types_widget import AssetTypesWidget
@@ -8,7 +11,7 @@ from holdings_tracker_desktop.ui.widgets.brokers_widget import BrokersWidget
 from holdings_tracker_desktop.ui.widgets.broker_notes_widget import BrokerNotesWidget
 from holdings_tracker_desktop.ui.widgets.countries_widget import CountriesWidget
 from holdings_tracker_desktop.ui.widgets.currencies_widget import CurrenciesWidget
-import importlib.resources as res
+from holdings_tracker_desktop.ui.widgets.translatable_widget import TranslatableWidget
 
 MENU_CONFIG = {
     "bar": [
@@ -30,7 +33,7 @@ MENU_CONFIG = {
 
 FLAGS_PACKAGE = "holdings_tracker_desktop.ui.flags"
 
-class OperationsWidget(QWidget):
+class OperationsWidget(TranslatableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._init_state(parent)
@@ -63,7 +66,6 @@ class OperationsWidget(QWidget):
         self._set_content_widget(widget)
 
     def _init_state(self, parent):
-        self.window().widgets_with_translation.append(self)
         self.parent_window = parent
         self.actions = {}
         self.menus = {}

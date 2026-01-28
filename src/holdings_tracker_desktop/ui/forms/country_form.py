@@ -1,9 +1,10 @@
 from PySide6.QtWidgets import QLineEdit
+
 from holdings_tracker_desktop.database import get_db
-from holdings_tracker_desktop.services.country_service import CountryService
 from holdings_tracker_desktop.schemas.country import CountryCreate, CountryUpdate
+from holdings_tracker_desktop.services.country_service import CountryService
+from holdings_tracker_desktop.ui.core import t
 from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
-from holdings_tracker_desktop.ui.translations import t
 
 class CountryForm(BaseFormDialog):
     def __init__(self, country_id=None, initial_data=None, parent=None):

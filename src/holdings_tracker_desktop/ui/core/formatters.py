@@ -1,6 +1,7 @@
 from datetime import date
 from decimal import Decimal
-import holdings_tracker_desktop.ui.translations as i18n
+
+from holdings_tracker_desktop.ui.core import translations as i18n
 
 def format_date(value: date) -> str:
     if not value:

@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
 
+from holdings_tracker_desktop.ui.core import translations as i18n
 from holdings_tracker_desktop.ui.styles import base
 from holdings_tracker_desktop.ui.widgets.charts_widget import ChartsWidget
 from holdings_tracker_desktop.ui.widgets.operations_widget import OperationsWidget
-from holdings_tracker_desktop.ui import translations
 
 WINDOW_MARGIN = 5
 WINDOW_SPACING = 5
@@ -16,10 +16,10 @@ class MainWindow(QMainWindow):
 
     def set_language(self, lang):
         """Change language globally and update UI text without rebuilding the window."""
-        if translations.current_lang == lang:
+        if i18n.current_lang == lang:
             return
 
-        translations.current_lang = lang
+        i18n.current_lang = lang
         self.translate_ui()
 
     def translate_ui(self):

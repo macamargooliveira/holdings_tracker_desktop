@@ -1,7 +1,6 @@
-from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QLabel, QDialogButtonBox
-)
-from holdings_tracker_desktop.ui.translations import t
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QDialogButtonBox
+
+from holdings_tracker_desktop.ui.core import t
 
 class ConfirmDialog(QDialog):
     def __init__(self, title: str, message: str, parent=None):

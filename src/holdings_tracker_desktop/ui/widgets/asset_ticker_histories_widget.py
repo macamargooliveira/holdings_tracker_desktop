@@ -1,16 +1,16 @@
 from PySide6.QtWidgets import QDialog
+
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.asset_ticker_history_service import AssetTickerHistoryService
-from holdings_tracker_desktop.ui.formatters import format_date
-from holdings_tracker_desktop.ui.translations import t
-from holdings_tracker_desktop.ui.ui_helpers import prepare_table, table_item
+from holdings_tracker_desktop.ui.core import t
+from holdings_tracker_desktop.ui.core.formatters import format_date
+from holdings_tracker_desktop.ui.core.ui_helpers import prepare_table, table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class AssetTickerHistoriesWidget(EntityManagerWidget):
     def __init__(self, asset_id: int, parent=None):
         super().__init__(parent)
         self.asset_id = asset_id
-        self.window().widgets_with_translation.append(self)
 
     def load_data(self):
         try:

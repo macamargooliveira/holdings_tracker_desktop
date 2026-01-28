@@ -1,14 +1,16 @@
+from decimal import Decimal
+
 from PySide6.QtCore import QDate
 from PySide6.QtWidgets import QWidget, QButtonGroup, QRadioButton, QHBoxLayout
-from decimal import Decimal
+
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.models.broker_note import OperationType
-from holdings_tracker_desktop.services.broker_note_service import BrokerNoteService
 from holdings_tracker_desktop.schemas.broker_note import BrokerNoteCreate, BrokerNoteUpdate
+from holdings_tracker_desktop.services.broker_note_service import BrokerNoteService
+from holdings_tracker_desktop.ui.comboboxes import AssetComboBox, BrokerComboBox
+from holdings_tracker_desktop.ui.core import t
 from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
 from holdings_tracker_desktop.ui.forms.date_input import DateInput
-from holdings_tracker_desktop.ui.comboboxes import AssetComboBox, BrokerComboBox
-from holdings_tracker_desktop.ui.translations import t
 
 class BrokerNoteForm(BaseFormDialog):
     def __init__(self, broker_note_id=None, initial_data=None, parent=None):

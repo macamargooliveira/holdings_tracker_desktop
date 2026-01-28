@@ -1,13 +1,15 @@
-from PySide6.QtCore import QDate
 from decimal import Decimal
+
+from PySide6.QtCore import QDate
+
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.models.asset_event import AssetEventType
-from holdings_tracker_desktop.services.asset_event_service import AssetEventService
 from holdings_tracker_desktop.schemas.asset_event import AssetEventCreate, AssetEventUpdate
+from holdings_tracker_desktop.services.asset_event_service import AssetEventService
+from holdings_tracker_desktop.ui.comboboxes import AssetComboBox, EventTypeComboBox
+from holdings_tracker_desktop.ui.core import t
 from holdings_tracker_desktop.ui.forms.base_form_dialog import BaseFormDialog
 from holdings_tracker_desktop.ui.forms.date_input import DateInput
-from holdings_tracker_desktop.ui.comboboxes import AssetComboBox, EventTypeComboBox
-from holdings_tracker_desktop.ui.translations import t
 
 class AssetEventForm(BaseFormDialog):
     def __init__(self, asset_event_id=None, asset_id=None, initial_data=None, parent=None):

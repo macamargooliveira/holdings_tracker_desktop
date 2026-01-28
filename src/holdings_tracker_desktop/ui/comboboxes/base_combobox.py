@@ -1,6 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QComboBox, QCompleter
-from holdings_tracker_desktop.ui.translations import t
+
+from holdings_tracker_desktop.ui.core import t
 
 class BaseComboBox(QComboBox):
     def __init__(
@@ -38,4 +39,5 @@ class BaseComboBox(QComboBox):
         self.clear()
         self.addItem(t(self.placeholder_key), None)
 
-    def reload(self): raise NotImplementedError
+    def reload(self):
+        pass

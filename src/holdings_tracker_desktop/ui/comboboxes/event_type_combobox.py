@@ -1,5 +1,5 @@
 from holdings_tracker_desktop.ui.comboboxes.base_combobox import BaseComboBox
-from holdings_tracker_desktop.ui.translations import t
+from holdings_tracker_desktop.ui.core import t
 
 class EventTypeComboBox(BaseComboBox):
     def __init__(self, parent=None):

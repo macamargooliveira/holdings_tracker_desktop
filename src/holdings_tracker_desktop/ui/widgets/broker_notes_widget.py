@@ -1,17 +1,16 @@
 from PySide6.QtWidgets import QTableWidgetItem, QDialog
+
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.models.broker_note import OperationType
 from holdings_tracker_desktop.services.broker_note_service import BrokerNoteService
-from holdings_tracker_desktop.ui.formatters import format_date
-from holdings_tracker_desktop.ui.global_signals import global_signals
-from holdings_tracker_desktop.ui.translations import t
-from holdings_tracker_desktop.ui.ui_helpers import prepare_table, table_item, decimal_table_item
+from holdings_tracker_desktop.ui.core import t, global_signals
+from holdings_tracker_desktop.ui.core.formatters import format_date
+from holdings_tracker_desktop.ui.core.ui_helpers import prepare_table, table_item, decimal_table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class BrokerNotesWidget(EntityManagerWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.window().widgets_with_translation.append(self)
 
     def load_data(self):
         try:

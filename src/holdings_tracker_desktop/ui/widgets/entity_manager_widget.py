@@ -1,12 +1,15 @@
+import qtawesome as qta
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, 
+    QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, 
     QFrame, QHeaderView, QMessageBox, QDialog
 )
-from holdings_tracker_desktop.ui.translations import t
-from holdings_tracker_desktop.ui.confirm_dialog import ConfirmDialog
+
+from holdings_tracker_desktop.ui.core import t
+from holdings_tracker_desktop.ui.dialogs.confirm_dialog import ConfirmDialog
 from holdings_tracker_desktop.ui.widgets.title_widget import TitleWidget
-import qtawesome as qta
+from holdings_tracker_desktop.ui.widgets.translatable_widget import TranslatableWidget
 
 DEFAULT_ACTIONS = ("add", "edit", "delete")
 
@@ -16,10 +19,10 @@ BUTTONS_CONFIG = {
     "delete": "fa5s.trash"
 }
 
-class EntityManagerWidget(QWidget):
+class EntityManagerWidget(TranslatableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._init_state()
+        self.buttons = {}
         self._setup_ui()
 
     def translate_ui(self):
@@ -29,7 +32,8 @@ class EntityManagerWidget(QWidget):
         for name, _, _ in self.get_extra_buttons():
             self.buttons[name].setText(t(name))
 
-    def load_data(self): raise NotImplementedError
+    def load_data(self):
+        pass
 
     def on_show(self):
         """
@@ -37,11 +41,14 @@ class EntityManagerWidget(QWidget):
         """
         self.load_data()
 
-    def open_new_form(self): raise NotImplementedError
+    def open_new_form(self):
+        pass
     
-    def open_edit_form(self): raise NotImplementedError
+    def open_edit_form(self):
+        pass
 
-    def delete_record(self): raise NotImplementedError
+    def delete_record(self):
+        pass
 
     def get_selected_id(self):
         row = self.table.currentRow()
@@ -97,10 +104,6 @@ class EntityManagerWidget(QWidget):
 
     def get_extra_buttons(self):
         return []
-
-    def _init_state(self):
-        self.window().widgets_with_translation.append(self)
-        self.buttons = {}
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
