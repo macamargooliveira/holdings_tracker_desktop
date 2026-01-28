@@ -141,14 +141,16 @@ class ChartsWidget(TranslatableWidget):
             service = PositionSnapshotService(db)
             min_date = service.get_earliest_snapshot_date()
 
-            current_year = Date.today().year
-            start_year = min_date.year if min_date else current_year
+        current_year = Date.today().year
+        start_year = min_date.year if min_date else current_year
 
-            for year in range(current_year, start_year - 1, -1):
-                self._add_action(
-                    menu, str(year), year,
-                    self._on_year_selected,
-                )
+        earliest_allowed_year = max(start_year, current_year - 19)
+
+        for year in range(current_year, earliest_allowed_year - 1, -1):
+            self._add_action(
+                menu, str(year), year,
+                self._on_year_selected,
+            )
 
     def _on_year_selected(self, year: int):
         self.state.year = year
