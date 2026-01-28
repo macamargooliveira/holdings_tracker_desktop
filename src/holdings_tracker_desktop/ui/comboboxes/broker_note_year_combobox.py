@@ -16,6 +16,7 @@ class BrokerNoteYearComboBox(BaseComboBox):
     def __init__(self, parent=None):
         super().__init__("select_year", parent, searchable=True)
         self.setFocusPolicy(Qt.NoFocus)
+        self.setObjectName("BrokerNoteYearComboBox")
         self.reload()
 
         global_signals.broker_notes_updated.connect(self.reload)

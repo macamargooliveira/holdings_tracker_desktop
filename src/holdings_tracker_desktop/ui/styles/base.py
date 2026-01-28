@@ -23,6 +23,12 @@ QPushButton:disabled {
 }
 """
 
+COMBOBOXES = """
+QComboBox#BrokerNoteYearComboBox {
+    padding: 4px 8px;
+}
+"""
+
 FRAMES = """
 QFrame#TitleFrame,
 QFrame#BodyFrame {
@@ -94,6 +100,7 @@ QScrollArea > QWidget > QWidget {
 def base_styles():
     return (
         BUTTONS +
+        COMBOBOXES +
         FRAMES +
         LABELS +
         TABLES +
