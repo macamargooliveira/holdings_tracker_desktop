@@ -105,6 +105,9 @@ class EntityManagerWidget(TranslatableWidget):
     def get_extra_buttons(self):
         return []
 
+    def get_toolbar_filters(self):
+        return []
+
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 5, 0, 0)
@@ -127,6 +130,10 @@ class EntityManagerWidget(TranslatableWidget):
 
     def _setup_toolbar(self, body_layout):
         toolbar = QHBoxLayout()
+
+        for widget in self.get_toolbar_filters():
+            toolbar.addWidget(widget)
+
         toolbar.addStretch()
 
         for action in self.get_enabled_actions():

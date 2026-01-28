@@ -3,20 +3,55 @@ from PySide6.QtWidgets import QTableWidgetItem, QDialog
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.models.broker_note import OperationType
 from holdings_tracker_desktop.services.broker_note_service import BrokerNoteService
+from holdings_tracker_desktop.ui.comboboxes import BrokerNoteYearComboBox
 from holdings_tracker_desktop.ui.core import t, global_signals
 from holdings_tracker_desktop.ui.core.formatters import format_date
 from holdings_tracker_desktop.ui.core.ui_helpers import prepare_table, table_item, decimal_table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class BrokerNotesWidget(EntityManagerWidget):
+    """
+    BrokerNotes UI update flow (by year filter):
+
+        CRUD BrokerNote
+            ↓
+        global_signals.broker_notes_updated
+            ↓
+        BrokerNoteYearComboBox.reload()
+            ↓
+        setCurrentIndex(...)
+            ↓
+        currentIndexChanged
+            ↓
+        BrokerNotesWidget.load_data()
+            ↓
+        _populate_table()
+
+    Notes:
+    - The ComboBox is the single source of truth for filtering.
+    - This widget never calls load_data() directly after CRUD.
+    - Table reloads only in response to filter changes.
+    """
+
     def __init__(self, parent=None):
+        self.year_filter = BrokerNoteYearComboBox()
+        self.year_filter.currentIndexChanged.connect(self.load_data)
+
         super().__init__(parent)
+
+    def get_toolbar_filters(self):
+        return [self.year_filter]
 
     def load_data(self):
         try:
             with get_db() as db:
                 service = BrokerNoteService(db)
-                self.ui_data = service.list_all_for_ui()
+                year = self.year_filter.currentData()
+
+                if year is None:
+                    self.ui_data = []
+                else:
+                    self.ui_data = service.list_by_year_for_ui(year)
 
         except Exception as e:
             self.show_error(f"Error loading broker notes: {str(e)}")
@@ -26,6 +61,7 @@ class BrokerNotesWidget(EntityManagerWidget):
     def translate_ui(self):
         super().translate_ui()
         self.title_widget.setText(t("broker_notes"))
+        self.year_filter.translate_placeholder()
         self._populate_table(self.ui_data)
 
     def open_new_form(self):
@@ -34,7 +70,6 @@ class BrokerNotesWidget(EntityManagerWidget):
         form = BrokerNoteForm(parent=self)
 
         if form.exec() == QDialog.Accepted:
-            self.load_data()
             global_signals.broker_notes_updated.emit()
 
     def open_edit_form(self, selected_id):
@@ -62,7 +97,6 @@ class BrokerNotesWidget(EntityManagerWidget):
                 )
 
                 if form.exec() == QDialog.Accepted:
-                    self.load_data()
                     global_signals.broker_notes_updated.emit()
 
         except Exception as e:
@@ -79,7 +113,6 @@ class BrokerNotesWidget(EntityManagerWidget):
                 deleted = service.delete(selected_id)
 
                 if deleted:
-                    self.load_data()
                     global_signals.broker_notes_updated.emit()
                 else:
                     self.show_error(f"Delete failed")

@@ -1,6 +1,9 @@
 from datetime import date as Date
 from typing import List
+
+from sqlalchemy import func
 from sqlalchemy.orm import Session
+
 from holdings_tracker_desktop.models.broker_note import BrokerNote
 from holdings_tracker_desktop.schemas.broker_note import (
   BrokerNoteCreate, BrokerNoteUpdate, BrokerNoteResponse
@@ -67,16 +70,46 @@ class BrokerNoteService:
 
         return deleted
 
-    def list_all_for_ui(
-        self, 
-        skip: int = 0, 
+    def list_by_year_for_ui(
+        self,
+        year: int,
+        skip: int = 0,
         limit: int = 100,
         order_by: Date = "date",
         descending: bool = True
     ) -> List[dict]:
-        """Get BrokerNotes already formatted for UI"""
-        broker_notes = self.repository.get_all(skip, limit, order_by, descending)
+        query = (
+            self.repository.db
+            .query(BrokerNote)
+            .filter(func.extract("year", BrokerNote.date) == year)
+        )
+
+        column = getattr(BrokerNote, order_by) if isinstance(order_by, str) else order_by
+
+        if descending:
+            query = query.order_by(column.desc())
+        else:
+            query = query.order_by(column.asc())
+
+        broker_notes = (
+            query
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
         return [bn.to_ui_dict() for bn in broker_notes]
+
+    def list_available_years(self) -> list[int]:
+        rows = (
+            self.repository.db
+            .query(func.extract("year", BrokerNote.date).label("year"))
+            .distinct()
+            .order_by(func.extract("year", BrokerNote.date).desc())
+            .all()
+        )
+
+        return [int(year) for (year,) in rows]
 
     def count_all(self) -> int:
         """Count all BrokerNotes"""
