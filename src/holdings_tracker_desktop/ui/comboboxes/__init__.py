@@ -7,6 +7,7 @@ from .broker_note_year_combobox import BrokerNoteYearComboBox
 from .country_combobox import CountryComboBox
 from .currency_combobox import CurrencyComboBox
 from .event_type_combobox import EventTypeComboBox
+from .position_snapshot_year_combobox import PositionSnapshotYearComboBox
 
 __all__ = [
     "BaseComboBox",
@@ -17,5 +18,6 @@ __all__ = [
     "BrokerNoteYearComboBox",
     "CountryComboBox",
     "CurrencyComboBox",
-    "EventTypeComboBox"
+    "EventTypeComboBox",
+    "PositionSnapshotYearComboBox"
 ]

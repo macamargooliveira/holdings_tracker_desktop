@@ -43,14 +43,14 @@ class BrokerNotesWidget(EntityManagerWidget):
         return [self.year_filter]
 
     def load_data(self):
+        self.ui_data = []
+
         try:
             with get_db() as db:
                 service = BrokerNoteService(db)
                 year = self.year_filter.currentData()
 
-                if year is None:
-                    self.ui_data = []
-                else:
+                if year is not None:
                     self.ui_data = service.list_by_year_for_ui(year)
 
         except Exception as e:

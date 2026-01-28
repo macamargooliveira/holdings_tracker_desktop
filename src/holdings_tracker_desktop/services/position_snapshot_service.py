@@ -1,15 +1,17 @@
 from datetime import date as Date
 from decimal import Decimal
 from typing import List
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+
 from holdings_tracker_desktop.models import Asset, AssetEvent, AssetSector, BrokerNote, PositionSnapshot
 from holdings_tracker_desktop.models.asset_event import AssetEventType
 from holdings_tracker_desktop.models.broker_note import OperationType
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.schemas.position_snapshot import (
   PositionSnapshotCreate, PositionSnapshotUpdate, PositionSnapshotResponse
 )
-from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 
 class PositionSnapshotService:
     def __init__(self, db: Session):
@@ -29,18 +31,59 @@ class PositionSnapshotService:
         position_snapshot = self.repository.get_or_raise(position_snapshot_id)
         return PositionSnapshotResponse.model_validate(position_snapshot)
 
-    def list_all_for_ui(
-        self, 
+    def list_all_for_ui_by_asset(
+        self,
         asset_id: int,
-        skip: int = 0, 
-        limit: int = 100
+        skip: int = 0,
+        limit: int = 150
     ) -> List[dict]:
         """Get PositionSnapshots already formatted for UI"""
-        snapshots = sorted(
-            self.repository.find_all_by(asset_id=asset_id, skip=skip, limit=limit),
-            key=lambda s: (s.snapshot_date, s.id),
-            reverse=True
+        snapshots = (
+            self.db.query(PositionSnapshot)
+            .filter(PositionSnapshot.asset_id == asset_id)
+            .order_by(
+                PositionSnapshot.snapshot_date.desc(),
+                PositionSnapshot.id.desc()
+            )
+            .offset(skip)
+            .limit(limit)
+            .all()
         )
+
+        return [s.to_ui_dict() for s in snapshots]
+
+    def list_all_for_ui_by_year(
+        self,
+        year: int,
+        skip: int = 0,
+        limit: int = 150
+    ) -> List[dict]:
+        """Get PositionSnapshots already formatted for UI"""
+        subquery = (
+            self.db.query(
+                PositionSnapshot.asset_id,
+                func.max(PositionSnapshot.snapshot_date).label("max_date"),
+                func.max(PositionSnapshot.id).label("max_id")
+            )
+            .filter(func.extract("year", PositionSnapshot.snapshot_date) <= year)
+            .group_by(PositionSnapshot.asset_id)
+            .subquery()
+        )
+
+        snapshots = (
+            self.db.query(PositionSnapshot)
+            .join(
+                subquery,
+                (PositionSnapshot.asset_id == subquery.c.asset_id) &
+                (PositionSnapshot.id == subquery.c.max_id)
+            )
+            .join(Asset, Asset.id == PositionSnapshot.asset_id)
+            .order_by(Asset.ticker.asc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
         return [s.to_ui_dict() for s in snapshots]
 
     def count_all(self) -> int:

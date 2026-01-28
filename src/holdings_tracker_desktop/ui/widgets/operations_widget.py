@@ -11,12 +11,14 @@ from holdings_tracker_desktop.ui.widgets.brokers_widget import BrokersWidget
 from holdings_tracker_desktop.ui.widgets.broker_notes_widget import BrokerNotesWidget
 from holdings_tracker_desktop.ui.widgets.countries_widget import CountriesWidget
 from holdings_tracker_desktop.ui.widgets.currencies_widget import CurrenciesWidget
+from holdings_tracker_desktop.ui.widgets.position_snapshots_widget import PositionSnapshotsWidget
 from holdings_tracker_desktop.ui.widgets.translatable_widget import TranslatableWidget
 
 MENU_CONFIG = {
     "bar": [
         ("broker_notes", BrokerNotesWidget),
         ("assets", AssetsWidget),
+        ("position", PositionSnapshotsWidget),
     ],
     "basics": [
         ("asset_sectors", AssetSectorsWidget),
