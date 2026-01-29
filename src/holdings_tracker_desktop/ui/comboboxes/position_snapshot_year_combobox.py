@@ -1,37 +1,12 @@
 from datetime import date as Date
 
-from PySide6.QtCore import Qt
+from holdings_tracker_desktop.ui.comboboxes.base_year_combobox import BaseYearComboBox
+from holdings_tracker_desktop.ui.core import global_signals
 
-from holdings_tracker_desktop.ui.comboboxes.base_combobox import BaseComboBox
-from holdings_tracker_desktop.ui.core import t, global_signals
-
-class PositionSnapshotYearComboBox(BaseComboBox):
-    def __init__(self, parent=None):
-        super().__init__("select_year", parent, searchable=True)
-        self.setFocusPolicy(Qt.NoFocus)
-        self.setObjectName("YearComboBox")
-        self.reload()
-
+class PositionSnapshotYearComboBox(BaseYearComboBox):
+    def _connect_reload_signals(self):
         global_signals.asset_events_updated.connect(self.reload)
         global_signals.broker_notes_updated.connect(self.reload)
-
-    def reload(self):
-        self.blockSignals(True)
-        self.clear()
-
-        self._setup_placeholder()
-
-        for year in self._load_years():
-            self.addItem(str(year), year)
-
-        if self.count() > 1:
-            self.setCurrentIndex(1)
-
-        self.blockSignals(False)
-        self.currentIndexChanged.emit(self.currentIndex())
-
-    def translate_placeholder(self):
-        self.setItemText(0, t(self.placeholder_key))
 
     def _load_years(self) -> list[int]:
         from holdings_tracker_desktop.database import get_db
