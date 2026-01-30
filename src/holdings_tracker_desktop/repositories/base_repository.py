@@ -1,8 +1,8 @@
-from typing import Generic, TypeVar, Optional, List, Any, Dict
-from sqlalchemy.orm import Session
+from pydantic import BaseModel as PydanticBaseModel
 from sqlalchemy import asc, desc, func
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from pydantic import BaseModel as PydanticBaseModel
+from sqlalchemy.orm import Session
+from typing import Generic, TypeVar, Optional, List, Any, Dict
 
 from holdings_tracker_desktop.models.base import IdentifiedModel as SQLAlchemyBaseModel
 from holdings_tracker_desktop.utils.exceptions import (

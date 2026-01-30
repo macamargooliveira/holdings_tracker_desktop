@@ -1,4 +1,3 @@
-from .base_combobox import BaseComboBox
 from .asset_combobox import AssetComboBox
 from .asset_sector_combobox import AssetSectorComboBox
 from .asset_type_combobox import AssetTypeComboBox
@@ -10,7 +9,6 @@ from .event_type_combobox import EventTypeComboBox
 from .position_snapshot_year_combobox import PositionSnapshotYearComboBox
 
 __all__ = [
-    "BaseComboBox",
     "AssetComboBox",
     "AssetSectorComboBox",
     "AssetTypeComboBox",

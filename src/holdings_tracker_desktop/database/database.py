@@ -1,19 +1,24 @@
+from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from contextlib import contextmanager
-from holdings_tracker_desktop.config import DATABASE_URL, SQL_ECHO
+
+from holdings_tracker_desktop.config import config
 
 # SQLite requires check_same_thread=False in GUI applications.
 engine = create_engine(
-    DATABASE_URL,
-    echo=SQL_ECHO,
-    connect_args={"check_same_thread": False}
+    config.database_url,
+    echo=config.sql_echo,
+    connect_args=(
+        {"check_same_thread": False}
+        if config.database_url.startswith("sqlite")
+        else {}
+    ),
 )
 
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
 
 @contextmanager
