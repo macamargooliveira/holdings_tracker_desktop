@@ -120,6 +120,16 @@ class BrokerNotesWidget(EntityManagerWidget):
         except Exception as e:
             self.show_error(f"Error deleting broker note: {str(e)}")
 
+    def open_details(self, selected_id):
+        from holdings_tracker_desktop.ui.dialogs.broker_note_details_dialog import (
+            BrokerNoteDetailsDialog
+        )
+
+        BrokerNoteDetailsDialog(
+            broker_note_id=selected_id,
+            parent=self
+        ).exec()
+
     def _populate_table(self, items):
         prepare_table(self.table, 8, len(items))
 

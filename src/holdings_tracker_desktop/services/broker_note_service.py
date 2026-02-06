@@ -2,7 +2,7 @@ from datetime import date as Date
 from typing import List
 
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from holdings_tracker_desktop.models.broker_note import BrokerNote
 from holdings_tracker_desktop.repositories.base_repository import BaseRepository
@@ -114,3 +114,13 @@ class BrokerNoteService:
     def count_all(self) -> int:
         """Count all BrokerNotes"""
         return self.repository.count()
+
+    def get_details(self, broker_note_id: int) -> BrokerNote:
+        return (
+            self.repository.db
+            .query(BrokerNote)
+            .options(joinedload(BrokerNote.broker))
+            .options(joinedload(BrokerNote.asset))
+            .filter(BrokerNote.id == broker_note_id)
+            .first()
+        )

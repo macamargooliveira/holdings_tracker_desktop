@@ -25,12 +25,16 @@ class EntityManagerWidget(TranslatableWidget):
         self.buttons = {}
         self._setup_ui()
 
+        self.table.cellDoubleClicked.connect(self.on_double_clicked)
+
     def translate_ui(self):
         for action in self.get_enabled_actions():
             self.buttons[action].setText(t(action))
 
         for name, _, _ in self.get_extra_buttons():
             self.buttons[name].setText(t(name))
+
+        self.table.setToolTip(t("double_click_to_view_details"))
 
     def load_data(self):
         pass
@@ -48,6 +52,9 @@ class EntityManagerWidget(TranslatableWidget):
         pass
 
     def delete_record(self):
+        pass
+
+    def open_details(self):
         pass
 
     def get_selected_id(self):
@@ -68,6 +75,12 @@ class EntityManagerWidget(TranslatableWidget):
         selected_id = self.get_selected_id()
         if selected_id:
             self.delete_record(selected_id)
+
+    def on_double_clicked(self, row: int):
+        item = self.table.item(row, 0)
+        selected_id = item.data(Qt.UserRole) if item else None
+        if selected_id:
+            self.open_details(selected_id)
 
     def show_warning(self, message: str):
         QMessageBox.warning(self, "Warning", message)

@@ -6,6 +6,12 @@ DATE_FORMAT = {
     "iso": "%Y-%m-%d",
 }
 
+TIME_FORMAT = {
+    "pt_BR": "%H:%M:%S",
+    "en_US": "%I:%M:%S %p",
+    "iso": "%H:%M:%S",
+}
+
 NUMBER_FORMAT = {
     "pt_BR": {
         "decimal": ",",
@@ -35,19 +41,23 @@ TRANSLATIONS = {
         "avg_price": "Average Price",
         "back": "Back",
         "basics": "Basic Registrations",
+        "broker_note_details": "Broker Note Details",
         "broker_notes": "Broker Notes",
         "broker": "Broker",
         "brokers": "Brokers",
         "buy": "Buy",
         "by_assets": "By Assets",
         "by_sectors": "By Sectors",
+        "cancel": "Cancel",
         "change_date": "Change Date",
         "charts": "Charts",
+        "close": "Close",
         "code": "Code",
         "confirm_delete": "Confirm deletion?",
         "conversion": "Conversion",
         "countries": "Countries",
         "country": "Country",
+        "created_at": "Created at",
         "currencies": "Currencies",
         "currency": "Currency",
         "date": "Date",
@@ -61,6 +71,7 @@ TRANSLATIONS = {
         "delete_broker_note": "Delete Broker Note",
         "delete_country": "Delete Country",
         "delete_currency": "Delete Currency",
+        "double_click_to_view_details": "Double-click to view details",
         "edit": "Edit",
         "edit_asset": "Edit Asset",
         "edit_asset_event": "Edit Event",
@@ -88,6 +99,7 @@ TRANSLATIONS = {
         "new_ticker": "New Ticker",
         "no": "No",
         "no_data_available": "No data available",
+        "note_number": "Note Number",
         "notes": "Notes",
         "old_ticker": "Old Ticker",
         "operation_abbr": "Op.",
@@ -98,6 +110,7 @@ TRANSLATIONS = {
         "quantity_abbr": "Qty.",
         "quantity": "Quantity",
         "reverse_split": "Reverse Split",
+        "save": "Save",
         "sector": "Sector",
         "select_asset": "Select an asset",
         "select_asset_type": "Select an asset type",
@@ -119,6 +132,7 @@ TRANSLATIONS = {
         "total_value": "Total",
         "type": "Type",
         "unit_price": "Unit Price",
+        "updated_at": "Updated at",
         "year": "Year",
         "yes": "Yes"
     },
@@ -140,19 +154,23 @@ TRANSLATIONS = {
         "avg_price": "Preço Médio",
         "back": "Voltar",
         "basics": "Cadastros Básicos",
+        "broker_note_details": "Detalhes da Nota de Corretagem",
         "broker_notes": "Notas de Corretagem",
         "broker": "Corretora",
         "brokers": "Corretoras",
         "buy": "Compra",
         "by_assets": "Por Ativos",
         "by_sectors": "Por Setores",
+        "cancel": "Cancelar",
         "change_date": "Data da Alteração",
         "charts": "Gráficos",
+        "close": "Fechar",
         "code": "Código",
         "confirm_delete": "Confirma exclusão?",
         "conversion": "Conversão",
         "countries": "Países",
         "country": "País",
+        "created_at": "Criado em",
         "currencies": "Moedas",
         "currency": "Moeda",
         "date": "Data",
@@ -166,6 +184,7 @@ TRANSLATIONS = {
         "delete_broker_note": "Excluir Nota de Corretagem",
         "delete_country": "Excluir País",
         "delete_currency": "Excluir Moeda",
+        "double_click_to_view_details": "Duplo clique para ver os detalhes",
         "edit": "Editar",
         "edit_asset": "Editar Ativo",
         "edit_asset_event": "Editar Evento",
@@ -193,6 +212,7 @@ TRANSLATIONS = {
         "new_ticker": "Código Novo",
         "no": "Não",
         "no_data_available": "Não há dados disponíveis",
+        "note_number": "Código da Nota",
         "notes": "Notas",
         "old_ticker": "Código Antigo",
         "operation_abbr": "Op.",
@@ -203,6 +223,7 @@ TRANSLATIONS = {
         "quantity_abbr": "Qtde.",
         "quantity": "Quantidade",
         "reverse_split": "Agrupamento",
+        "save": "Salvar",
         "sector": "Setor",
         "select_asset": "Selecione um ativo",
         "select_asset_type": "Selecione um tipo de ativo",
@@ -224,6 +245,7 @@ TRANSLATIONS = {
         "total_value": "Total",
         "type": "Tipo",
         "unit_price": "Preço Unitário",
+        "updated_at": "Atualizado em",
         "year": "Ano",
         "yes": "Sim"
     }
@@ -236,6 +258,9 @@ def t(key: str) -> str:
 
 def get_date_format():
     return DATE_FORMAT.get(current_lang, DATE_FORMAT["iso"])
+
+def get_time_format():
+    return TIME_FORMAT.get(current_lang, TIME_FORMAT["iso"])
 
 def get_number_format():
     return NUMBER_FORMAT.get(current_lang, NUMBER_FORMAT["en_US"])

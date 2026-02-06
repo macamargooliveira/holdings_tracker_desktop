@@ -6,6 +6,8 @@ from PySide6.QtWidgets import (
   QWidget, QDialog, QMessageBox, QVBoxLayout, QFormLayout, QDialogButtonBox, QDoubleSpinBox
 )
 
+from holdings_tracker_desktop.ui.core import t
+
 class BaseFormDialog(QDialog):
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -54,6 +56,7 @@ class BaseFormDialog(QDialog):
         self.setMinimumWidth(350)
         self._main_layout = QVBoxLayout(self)
         self._form_layout = QFormLayout()
+        self._form_layout.setLabelAlignment(Qt.AlignRight)
         self._main_layout.addLayout(self._form_layout)
 
         self._build_form(self._form_layout)
@@ -69,6 +72,8 @@ class BaseFormDialog(QDialog):
         buttons = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         )
+        buttons.button(QDialogButtonBox.Ok).setText(t("save"))
+        buttons.button(QDialogButtonBox.Cancel).setText(t("cancel"))
         buttons.accepted.connect(self._on_accept)
         buttons.rejected.connect(self.reject)
 

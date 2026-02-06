@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 
 from holdings_tracker_desktop.ui.core import translations as i18n
@@ -10,6 +10,15 @@ def format_date(value: date) -> str:
     fmt = i18n.get_date_format()
 
     return value.strftime(fmt)
+
+def format_datetime(value: datetime) -> str:
+    if not value:
+        return ""
+
+    date_fmt = i18n.get_date_format()
+    time_fmt = i18n.get_time_format()
+
+    return value.strftime(f"{date_fmt} {time_fmt}")
 
 def format_decimal(value: Decimal, decimals: int = 2) -> str:
     if value is None:
