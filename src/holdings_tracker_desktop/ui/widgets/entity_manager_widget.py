@@ -25,7 +25,8 @@ class EntityManagerWidget(TranslatableWidget):
         self.buttons = {}
         self._setup_ui()
 
-        self.table.cellDoubleClicked.connect(self.on_double_clicked)
+        if self.supports_details():
+            self.table.cellDoubleClicked.connect(self.on_double_clicked)
 
     def translate_ui(self):
         for action in self.get_enabled_actions():
@@ -34,7 +35,10 @@ class EntityManagerWidget(TranslatableWidget):
         for name, _, _ in self.get_extra_buttons():
             self.buttons[name].setText(t(name))
 
-        self.table.setToolTip(t("double_click_to_view_details"))
+        if self.supports_details():
+            self.table.setToolTip(t("double_click_to_view_details"))
+        else:
+            self.table.setToolTip("")
 
     def load_data(self):
         pass
@@ -77,6 +81,9 @@ class EntityManagerWidget(TranslatableWidget):
             self.delete_record(selected_id)
 
     def on_double_clicked(self, row: int):
+        if not self.supports_details():
+            return
+
         item = self.table.item(row, 0)
         selected_id = item.data(Qt.UserRole) if item else None
         if selected_id:
@@ -120,6 +127,9 @@ class EntityManagerWidget(TranslatableWidget):
 
     def get_toolbar_filters(self):
         return []
+
+    def supports_details(self) -> bool:
+        return False
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)

@@ -42,6 +42,9 @@ class BrokerNotesWidget(EntityManagerWidget):
     def get_toolbar_filters(self):
         return [self.year_filter]
 
+    def supports_details(self) -> bool:
+        return True
+
     def load_data(self):
         self.ui_data = []
 

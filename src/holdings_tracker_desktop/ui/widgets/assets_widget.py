@@ -10,6 +10,16 @@ class AssetsWidget(EntityManagerWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+    def get_extra_buttons(self):
+        return [
+            ("ticker_change", "fa5s.history", self.on_ticker_change_clicked),
+            ("events", "fa5s.exchange-alt", self.on_event_clicked),
+            ("position", "fa5s.chart-line", self.on_position_clicked)
+        ]
+
+    def supports_details(self) -> bool:
+        return True
+
     def load_data(self):
         try:
             with get_db() as db:
@@ -90,13 +100,6 @@ class AssetsWidget(EntityManagerWidget):
             asset_id=selected_id,
             parent=self
         ).exec()
-
-    def get_extra_buttons(self):
-        return [
-            ("ticker_change", "fa5s.history", self.on_ticker_change_clicked),
-            ("events", "fa5s.exchange-alt", self.on_event_clicked),
-            ("position", "fa5s.chart-line", self.on_position_clicked)
-        ]
 
     def on_ticker_change_clicked(self):
         from holdings_tracker_desktop.ui.widgets.asset_ticker_histories_widget import AssetTickerHistoriesWidget
