@@ -1,10 +1,12 @@
 from typing import List
-from sqlalchemy.orm import Session
+
+from sqlalchemy.orm import Session, joinedload
+
 from holdings_tracker_desktop.models.asset_event import AssetEvent
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.schemas.asset_event import (
   AssetEventCreate, AssetEventUpdate, AssetEventResponse
 )
-from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
 
 class AssetEventService:
@@ -83,3 +85,12 @@ class AssetEventService:
     def count_all(self) -> int:
         """Count all AssetEvents"""
         return self.repository.count()
+
+    def get_details(self, asset_event_id: int) -> AssetEvent:
+        return (
+            self.repository.db
+            .query(AssetEvent)
+            .options(joinedload(AssetEvent.asset))
+            .filter(AssetEvent.id == asset_event_id)
+            .first()
+        )

@@ -1,7 +1,6 @@
-from PySide6.QtWidgets import QTableWidgetItem, QDialog
+from PySide6.QtWidgets import QDialog
 
 from holdings_tracker_desktop.database import get_db
-from holdings_tracker_desktop.models.asset_event import AssetEventType
 from holdings_tracker_desktop.services.asset_event_service import AssetEventService
 from holdings_tracker_desktop.ui.core import t, global_signals
 from holdings_tracker_desktop.ui.core.formatters import format_date
@@ -13,26 +12,29 @@ class AssetEventsWidget(EntityManagerWidget):
         super().__init__(parent)
         self.asset_id = asset_id
 
+    def get_extra_buttons(self):
+        return [("back", "fa5s.arrow-left", self.on_back_clicked)]
+
+    def supports_details(self) -> bool:
+        return True
+
     def load_data(self):
+        self.ui_data = []
+
         try:
             with get_db() as db:
                 service = AssetEventService(db)
-                ui_data = service.list_all_for_ui(asset_id=self.asset_id)
-                self._populate_table(ui_data)
+                self.ui_data = service.list_all_for_ui(asset_id=self.asset_id)
 
         except Exception as e:
             self.show_error(f"Error loading asset events: {str(e)}")
-            self.table.setRowCount(0)
 
         self.translate_ui()
 
     def translate_ui(self):
         super().translate_ui()
         self.title_widget.setText(t("events"))
-        self.table.setHorizontalHeaderLabels([t("asset"), t("date"), t("type")])
-
-    def get_extra_buttons(self):
-        return [("back", "fa5s.arrow-left", self.on_back_clicked)]
+        self._populate_table(self.ui_data)
 
     def on_back_clicked(self):
         from holdings_tracker_desktop.ui.widgets.assets_widget import AssetsWidget
@@ -100,22 +102,22 @@ class AssetEventsWidget(EntityManagerWidget):
         except Exception as e:
             self.show_error(f"Error deleting asset event: {str(e)}")
 
+    def open_details(self, selected_id):
+        from holdings_tracker_desktop.ui.dialogs.asset_event_details_dialog import (
+            AssetEventDetailsDialog
+        )
+
+        AssetEventDetailsDialog(
+            asset_event_id=selected_id,
+            parent=self
+        ).exec()
+
     def _populate_table(self, items):
         prepare_table(self.table, 3, len(items))
+
+        self.table.setHorizontalHeaderLabels([t("asset"), t("date"), t("type")])
 
         for row, item in enumerate(items):
             self.table.setItem(row, 0, table_item(item['asset_ticker'], item['id']))
             self.table.setItem(row, 1, table_item(format_date(item['date'])))
-            self.table.setItem(row, 2, self._event_type_item(item['event_type']))
-
-    def _event_type_item(self, event_type: AssetEventType) -> QTableWidgetItem:
-        label_map = {
-            AssetEventType.SPLIT: t("split"),
-            AssetEventType.REVERSE_SPLIT: t("reverse_split"),
-            AssetEventType.AMORTIZATION: t("amortization"),
-            AssetEventType.SUBSCRIPTION: t("subscription"),
-            AssetEventType.CONVERSION: t("conversion"),
-        }
-
-        text = label_map.get(event_type, str(event_type))
-        return table_item(text)
+            self.table.setItem(row, 2, table_item(t(item['event_type'].value.lower())))

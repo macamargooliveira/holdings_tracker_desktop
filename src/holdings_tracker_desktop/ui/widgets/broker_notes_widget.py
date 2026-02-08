@@ -1,7 +1,6 @@
-from PySide6.QtWidgets import QTableWidgetItem, QDialog
+from PySide6.QtWidgets import QDialog
 
 from holdings_tracker_desktop.database import get_db
-from holdings_tracker_desktop.models.broker_note import OperationType
 from holdings_tracker_desktop.services.broker_note_service import BrokerNoteService
 from holdings_tracker_desktop.ui.comboboxes import BrokerNoteYearComboBox
 from holdings_tracker_desktop.ui.core import t, global_signals
@@ -143,7 +142,7 @@ class BrokerNotesWidget(EntityManagerWidget):
 
         for row, item in enumerate(items):
             self.table.setItem(row, 0, table_item(format_date(item['date']), item['id']))
-            self.table.setItem(row, 1, self._operation_item(item['operation']))
+            self.table.setItem(row, 1, table_item(t(item['operation'].value.lower())))
             self.table.setItem(row, 2, table_item(item['asset_ticker']))
             self.table.setItem(row, 3, decimal_table_item(item['quantity'], 0))
             currency = item.get("asset_currency", "")
@@ -151,12 +150,3 @@ class BrokerNotesWidget(EntityManagerWidget):
             self.table.setItem(row, 5, decimal_table_item(item['fees'], 2, currency))
             self.table.setItem(row, 6, decimal_table_item(item['taxes'], 2, currency))
             self.table.setItem(row, 7, decimal_table_item(item['total_value'], 2, currency))
-
-    def _operation_item(self, operation: OperationType) -> QTableWidgetItem:
-        label_map = {
-            OperationType.BUY: t("buy"),
-            OperationType.SELL: t("sell"),
-        }
-
-        text = label_map.get(operation, str(operation))
-        return table_item(text)
