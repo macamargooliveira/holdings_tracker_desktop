@@ -79,12 +79,12 @@ class Broker(AuditableModel):
     def to_ui_dict(self) -> dict:
         """Optimized for PySide6 table widgets"""
         return {
-            "id": self.id,
-            "name": self.name,
-            "country_name": self.country.name if self.country else None,
-            "broker_notes_count": self.broker_notes_count,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            'id': self.id,
+            'name': self.name,
+            'country_name': self.country.name if self.country else None,
+            'broker_notes_count': self.broker_notes_count,
+            'created_at': self.created_at_local.isoformat(),
+            'updated_at': self.updated_at_local.isoformat(),
         }
 
     def __repr__(self) -> str:

@@ -121,8 +121,8 @@ class BrokerNote(AuditableModel):
             'taxes': self.taxes,
             'note_number': self.note_number if self.note_number else '',
             'total_value': self.total_value,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'created_at': self.created_at_local.isoformat(),
+            'updated_at': self.updated_at_local.isoformat(),
         }
 
     def __repr__(self) -> str:

@@ -82,8 +82,8 @@ class AssetSector(AuditableModel):
             'name': self.name,
             'asset_type_name': self.asset_type.name if self.asset_type else '',
             'assets_count': self.assets_count,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'created_at': self.created_at_local.isoformat(),
+            'updated_at': self.updated_at_local.isoformat(),
         }
 
     def __repr__(self) -> str:

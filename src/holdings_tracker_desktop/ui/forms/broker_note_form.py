@@ -159,8 +159,7 @@ class BrokerNoteForm(BaseFormDialog):
 
             if self.is_edit_mode:
                 update_data = BrokerNoteUpdate(
-                    date=date, 
-                    operation=operation, 
+                    date=date,
                     broker_id=broker_id,
                     quantity=quantity,
                     price=price,

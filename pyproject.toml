@@ -14,7 +14,8 @@ dependencies = [
     "pyside6 (>=6.10.1,<7.0.0)",
     "python-dotenv (>=1.2.1,<2.0.0)",
     "qtawesome (>=1.4.0,<2.0.0)",
-    "sqlalchemy (>=2.0.44,<3.0.0)"
+    "sqlalchemy (>=2.0.44,<3.0.0)",
+    "tzdata (>=2025.3,<2026.0)",
 ]
 
 [tool.poetry]

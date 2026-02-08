@@ -50,8 +50,8 @@ class AssetTickerHistory(AuditableModel):
             'asset_ticker': self.asset.ticker if self.asset else '',
             'old_ticker': self.old_ticker,
             'new_ticker': self.new_ticker,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'created_at': self.created_at_local.isoformat(),
+            'updated_at': self.updated_at_local.isoformat(),
         }
 
     def __repr__(self) -> str:

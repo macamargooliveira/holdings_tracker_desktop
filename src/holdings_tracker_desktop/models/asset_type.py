@@ -95,8 +95,8 @@ class AssetType(AuditableModel):
             'country_name': self.country.name if self.country else '',
             'assets_count': self.assets_count,
             'sectors_count': self.sectors_count,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'created_at': self.created_at_local.isoformat(),
+            'updated_at': self.updated_at_local.isoformat(),
         }
 
     def __repr__(self) -> str:

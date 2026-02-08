@@ -27,8 +27,8 @@ class BrokerNoteDetailsDialog(BaseDetailsDialog):
             self.add_detail(t("fees"), format_decimal(note.fees))
             self.add_detail(t("taxes"), format_decimal(note.taxes))
             self.add_detail(t("total_value"), format_decimal(note.total_value))
-            self.add_detail(t("created_at"), format_datetime(note.created_at))
-            self.add_detail(t("updated_at"), format_datetime(note.updated_at))
+            self.add_detail(t("created_at"), format_datetime(note.created_at_local))
+            self.add_detail(t("updated_at"), format_datetime(note.updated_at_local))
 
             if note.note_number:
                 self.add_detail(t("note_number"), str(note.note_number))

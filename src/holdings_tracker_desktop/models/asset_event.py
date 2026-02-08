@@ -99,8 +99,8 @@ class AssetEvent(AuditableModel):
             'converted_to_asset_id': self.converted_to_asset_id,
             'conversion_quantity': self.conversion_quantity,
             'residual_value': self.residual_value,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'created_at': self.created_at_local.isoformat(),
+            'updated_at': self.updated_at_local.isoformat(),
         }
 
     def __repr__(self) -> str:

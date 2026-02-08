@@ -1,6 +1,10 @@
+from datetime import datetime
+
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import DateTime, func, Integer
-from datetime import datetime
+
+from holdings_tracker_desktop.utils.datetime import to_localtime
 
 class Base(DeclarativeBase):
     """Base SQLAlchemy declarative class"""
@@ -31,3 +35,11 @@ class AuditableModel(IdentifiedModel):
         onupdate=func.now(),
         nullable=False
     )
+
+    @hybrid_property
+    def created_at_local(self) -> datetime:
+        return to_localtime(self.created_at)
+    
+    @hybrid_property
+    def updated_at_local(self) -> datetime:
+        return to_localtime(self.updated_at)
