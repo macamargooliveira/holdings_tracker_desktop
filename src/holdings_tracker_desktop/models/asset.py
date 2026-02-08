@@ -115,10 +115,6 @@ class Asset(AuditableModel):
         return self.events.count()
     
     @property
-    def events_count(self) -> int:
-        return self.events.count()
-    
-    @property
     def ticker_histories_count(self) -> int:
         return self.ticker_histories.count()
 

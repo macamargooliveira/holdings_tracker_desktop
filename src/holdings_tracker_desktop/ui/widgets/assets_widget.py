@@ -81,6 +81,16 @@ class AssetsWidget(EntityManagerWidget):
         except Exception as e:
             self.show_error(f"Error deleting asset: {str(e)}")
 
+    def open_details(self, selected_id):
+        from holdings_tracker_desktop.ui.dialogs.asset_details_dialog import (
+            AssetDetailsDialog
+        )
+
+        AssetDetailsDialog(
+            asset_id=selected_id,
+            parent=self
+        ).exec()
+
     def get_extra_buttons(self):
         return [
             ("ticker_change", "fa5s.history", self.on_ticker_change_clicked),
