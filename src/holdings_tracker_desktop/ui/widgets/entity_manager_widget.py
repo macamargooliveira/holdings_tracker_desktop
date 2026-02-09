@@ -64,6 +64,7 @@ class EntityManagerWidget(TranslatableWidget):
     def get_selected_id(self):
         row = self.table.currentRow()
         if row < 0: 
+            self.show_warning(t("no_row_selected"))
             return None
         return self.table.item(row, 0).data(Qt.UserRole)
 
