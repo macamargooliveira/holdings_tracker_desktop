@@ -1,11 +1,13 @@
 from typing import List
-from sqlalchemy.orm import Session
+
 from sqlalchemy import func
+from sqlalchemy.orm import Session, joinedload
+
 from holdings_tracker_desktop.models.asset_type import AssetType
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.schemas.asset_type import (
   AssetTypeCreate, AssetTypeUpdate, AssetTypeResponse
 )
-from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.utils.exceptions import ConflictException
 
 class AssetTypeService:
@@ -89,3 +91,12 @@ class AssetTypeService:
             raise ConflictException(
                 f"Asset Type '{name}' already exists"
             )
+
+    def get_details(self, asset_type_id: int) -> AssetType:
+        return (
+            self.repository.db
+            .query(AssetType)
+            .options(joinedload(AssetType.country))
+            .filter(AssetType.id == asset_type_id)
+            .first()
+        )

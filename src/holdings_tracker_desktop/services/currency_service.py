@@ -1,11 +1,13 @@
 from typing import List
-from sqlalchemy.orm import Session
+
 from sqlalchemy import func
+from sqlalchemy.orm import Session
+
 from holdings_tracker_desktop.models.currency import Currency
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.schemas.currency import (
   CurrencyCreate, CurrencyUpdate, CurrencyResponse
 )
-from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.utils.exceptions import ConflictException
 
 class CurrencyService:
@@ -84,3 +86,11 @@ class CurrencyService:
             raise ConflictException(
                 f"Currency '{code}' already exists"
             )
+
+    def get_details(self, currency_id: int) -> Currency:
+        return (
+            self.repository.db
+            .query(Currency)
+            .filter(Currency.id == currency_id)
+            .first()
+        )

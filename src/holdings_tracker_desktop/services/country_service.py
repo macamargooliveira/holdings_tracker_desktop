@@ -1,11 +1,13 @@
 from typing import List
-from sqlalchemy.orm import Session
+
 from sqlalchemy import func
+from sqlalchemy.orm import Session
+
 from holdings_tracker_desktop.models.country import Country
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.schemas.country import ( 
   CountryCreate, CountryUpdate, CountryResponse
 )
-from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.utils.exceptions import ConflictException
 
 class CountryService:
@@ -84,3 +86,11 @@ class CountryService:
             raise ConflictException(
                 f"Country '{name}' already exists"
             )
+
+    def get_details(self, country_id: int) -> Country:
+        return (
+            self.repository.db
+            .query(Country)
+            .filter(Country.id == country_id)
+            .first()
+        )

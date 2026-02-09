@@ -1,11 +1,13 @@
 from typing import List
-from sqlalchemy.orm import Session
+
 from sqlalchemy import func
+from sqlalchemy.orm import Session, joinedload
+
 from holdings_tracker_desktop.models.broker import Broker
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.schemas.broker import (
   BrokerCreate, BrokerUpdate, BrokerResponse
 )
-from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.utils.exceptions import ConflictException
 
 class BrokerService:
@@ -89,3 +91,12 @@ class BrokerService:
             raise ConflictException(
                 f"Broker '{name}' already exists"
             )
+
+    def get_details(self, broker_id: int) -> Broker:
+        return (
+            self.repository.db
+            .query(Broker)
+            .options(joinedload(Broker.country))
+            .filter(Broker.id == broker_id)
+            .first()
+        )

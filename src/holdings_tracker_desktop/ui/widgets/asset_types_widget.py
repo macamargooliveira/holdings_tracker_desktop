@@ -10,6 +10,9 @@ class AssetTypesWidget(EntityManagerWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+    def supports_details(self) -> bool:
+        return True
+
     def load_data(self):
         try:
             with get_db() as db:
@@ -79,6 +82,16 @@ class AssetTypesWidget(EntityManagerWidget):
 
         except Exception as e:
             self.show_error(f"Error deleting asset type: {str(e)}")
+
+    def open_details(self, selected_id):
+        from holdings_tracker_desktop.ui.dialogs.asset_type_details_dialog import (
+            AssetTypeDetailsDialog
+        )
+
+        AssetTypeDetailsDialog(
+            asset_type_id=selected_id,
+            parent=self
+        ).exec()
 
     def _populate_table(self, items):
         prepare_table(self.table, 4, len(items))
