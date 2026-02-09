@@ -1,10 +1,12 @@
 from typing import List
-from sqlalchemy.orm import Session
+
+from sqlalchemy.orm import Session, joinedload
+
 from holdings_tracker_desktop.models.asset_ticker_history import AssetTickerHistory
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.schemas.asset_ticker_history import (
   AssetTickerHistoryCreate, AssetTickerHistoryUpdate, AssetTickerHistoryResponse
 )
-from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 
 class AssetTickerHistoryService:
     def __init__(self, db: Session):
@@ -71,3 +73,12 @@ class AssetTickerHistoryService:
     def count_all(self) -> int:
         """Count all AssetTickerHistories"""
         return self.repository.count()
+
+    def get_details(self, asset_ticker_history_id: int) -> AssetTickerHistory:
+        return (
+            self.repository.db
+            .query(AssetTickerHistory)
+            .options(joinedload(AssetTickerHistory.asset))
+            .filter(AssetTickerHistory.id == asset_ticker_history_id)
+            .first()
+        )

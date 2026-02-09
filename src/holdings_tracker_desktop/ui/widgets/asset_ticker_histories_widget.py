@@ -12,7 +12,18 @@ class AssetTickerHistoriesWidget(EntityManagerWidget):
         super().__init__(parent)
         self.asset_id = asset_id
 
+    def get_enabled_actions(self):
+        return ("add", "delete")
+
+    def get_extra_buttons(self):
+        return [("back", "fa5s.arrow-left", self.on_back_clicked)]
+
+    def supports_details(self) -> bool:
+        return True
+
     def load_data(self):
+        self.ui_data = []
+
         try:
             with get_db() as db:
                 service = AssetTickerHistoryService(db)
@@ -20,7 +31,6 @@ class AssetTickerHistoriesWidget(EntityManagerWidget):
 
         except Exception as e:
             self.show_error(f"Error loading asset ticker histories: {str(e)}")
-            self.table.setRowCount(0)
 
         self.translate_ui()
 
@@ -28,12 +38,6 @@ class AssetTickerHistoriesWidget(EntityManagerWidget):
         super().translate_ui()
         self.title_widget.setText(t("asset_ticker_history"))
         self._populate_table(self.ui_data)
-
-    def get_enabled_actions(self):
-        return ("add", "delete")
-
-    def get_extra_buttons(self):
-        return [("back", "fa5s.arrow-left", self.on_back_clicked)]
 
     def on_back_clicked(self):
         from holdings_tracker_desktop.ui.widgets.assets_widget import AssetsWidget
@@ -67,6 +71,16 @@ class AssetTickerHistoriesWidget(EntityManagerWidget):
 
         except Exception as e:
             self.show_error(f"Error deleting asset ticker history: {str(e)}")
+
+    def open_details(self, selected_id):
+        from holdings_tracker_desktop.ui.dialogs.ticker_history_details_dialog import (
+            TickerHistoryDetailsDialog
+        )
+
+        TickerHistoryDetailsDialog(
+            asset_ticker_history_id=selected_id,
+            parent=self
+        ).exec()
 
     def _populate_table(self, items):
         prepare_table(self.table, 4, len(items))
