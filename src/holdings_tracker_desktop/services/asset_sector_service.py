@@ -1,10 +1,12 @@
 from typing import List
-from sqlalchemy.orm import Session
+
+from sqlalchemy.orm import Session, joinedload
+
 from holdings_tracker_desktop.models.asset_sector import AssetSector
+from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.schemas.asset_sector import (
   AssetSectorCreate, AssetSectorUpdate, AssetSectorResponse
 )
-from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.utils.exceptions import ConflictException
 
 class AssetSectorService:
@@ -62,3 +64,12 @@ class AssetSectorService:
         """Get all AssetSectors for a asset type"""
         asset_sectors = self.repository.find_all_by(asset_type_id=asset_type_id)
         return [AssetSectorResponse.model_validate(at) for at in asset_sectors]
+
+    def get_details(self, asset_sector_id: int) -> AssetSector:
+        return (
+            self.repository.db
+            .query(AssetSector)
+            .options(joinedload(AssetSector.asset_type))
+            .filter(AssetSector.id == asset_sector_id)
+            .first()
+        )

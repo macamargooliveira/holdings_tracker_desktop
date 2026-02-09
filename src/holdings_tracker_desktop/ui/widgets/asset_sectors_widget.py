@@ -10,6 +10,9 @@ class AssetSectorsWidget(EntityManagerWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+    def supports_details(self) -> bool:
+        return True
+
     def load_data(self):
         try:
             with get_db() as db:
@@ -76,6 +79,16 @@ class AssetSectorsWidget(EntityManagerWidget):
 
         except Exception as e:
             self.show_error(f"Error deleting asset sector: {str(e)}")
+
+    def open_details(self, selected_id):
+        from holdings_tracker_desktop.ui.dialogs.asset_sector_details_dialog import (
+            AssetSectorDetailsDialog
+        )
+
+        AssetSectorDetailsDialog(
+            asset_sector_id=selected_id,
+            parent=self
+        ).exec()
 
     def _populate_table(self, items):
         prepare_table(self.table, 3, len(items))
