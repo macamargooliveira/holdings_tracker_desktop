@@ -71,6 +71,7 @@ class PositionSnapshot(IdentifiedModel):
         """Optimized for PySide6 table widgets"""
         return {
             'id': self.id,
+            'asset_id': self.asset.id if self.asset else 0,
             'asset_ticker': self.asset.ticker if self.asset else '',
             'snapshot_date': self.snapshot_date,
             'asset_currency': self.asset.currency.symbol if self.asset else '',
