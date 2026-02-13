@@ -2,7 +2,7 @@ from datetime import date as Date
 from decimal import Decimal
 from typing import List
 
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import Session
 
 from holdings_tracker_desktop.models import Asset, AssetEvent, AssetSector, BrokerNote, PositionSnapshot
@@ -177,8 +177,13 @@ class PositionSnapshotService:
 
     def rebuild_from(self, asset_id: int, from_date: Date) -> None:
         """
-        Rebuild incremental snapshots for an asset starting from a given date.
-        All snapshots >= from_date are deleted and rebuilt.
+        Rebuild incremental snapshots for a single asset starting from a given date.
+
+        Note:
+            This method only rebuilds snapshots for the given asset_id.
+            If there are CONVERSION events that generate snapshots for a different
+            target asset, those target assets must be rebuilt explicitly by calling
+            rebuild_from() for each affected asset.
         """
         try:
             self._delete_snapshots_from(asset_id, from_date)
@@ -225,8 +230,14 @@ class PositionSnapshotService:
         events = (
             self.db.query(AssetEvent)
             .filter(
-                AssetEvent.asset_id == asset_id,
                 AssetEvent.date >= from_date,
+                or_(
+                    AssetEvent.asset_id == asset_id,
+                    and_(
+                        AssetEvent.event_type == AssetEventType.TOTAL_CONVERSION,
+                        AssetEvent.target_asset_id == asset_id
+                    )
+                )
             )
             .all()
         )
@@ -246,7 +257,7 @@ class PositionSnapshotService:
     def _build_from_timeline(self, asset_id: int, timeline: list, quantity: Decimal, total_cost: Decimal) -> None:
         for item in timeline:
             if isinstance(item, AssetEvent):
-                quantity, total_cost = self._apply_asset_event(item, quantity, total_cost)
+                quantity, total_cost = self._apply_asset_event(asset_id, item, quantity, total_cost)
                 action = item.event_type.value.lower()
 
             elif isinstance(item, BrokerNote):
@@ -255,12 +266,19 @@ class PositionSnapshotService:
 
             self._add_snapshot(asset_id, item.date, quantity, total_cost, action)
 
-    def _apply_asset_event(self, event: AssetEvent, quantity: Decimal, total_cost: Decimal) -> tuple[Decimal, Decimal]:
-        if quantity <= 0:
-            return quantity, total_cost
+    def _apply_asset_event(
+            self, 
+            asset_id: int, 
+            event: AssetEvent, 
+            quantity: Decimal, 
+            total_cost: Decimal
+        ) -> tuple[Decimal, Decimal]:
 
         match event.event_type:
             case AssetEventType.SPLIT | AssetEventType.REVERSE_SPLIT:
+                if quantity <= 0:
+                    return quantity, total_cost
+
                 if not event.factor or event.factor <= 0:
                     return quantity, total_cost
 
@@ -272,6 +290,9 @@ class PositionSnapshotService:
                 return new_quantity, total_cost
 
             case AssetEventType.AMORTIZATION:
+                if quantity <= 0:
+                    return quantity, total_cost
+
                 event_quantity = event.quantity or quantity
                 event_price = event.price or Decimal("0")
 
@@ -284,6 +305,9 @@ class PositionSnapshotService:
                 return quantity, new_total_cost
 
             case AssetEventType.SUBSCRIPTION:
+                if quantity <= 0:
+                    return quantity, total_cost
+
                 event_quantity = event.quantity or Decimal("0")
                 event_price = event.price or Decimal("0")
 
@@ -293,6 +317,26 @@ class PositionSnapshotService:
                     quantity + event_quantity,
                     total_cost + added_cost,
                 )
+
+            case AssetEventType.TOTAL_CONVERSION:
+                if event.asset_id == asset_id:
+                    return Decimal("0"), Decimal("0")
+
+                if event.target_asset_id == asset_id:
+                    target_qty = event.target_quantity or Decimal("0")
+                    target_price = event.target_unit_price or Decimal("0")
+
+                    if target_qty <= 0 or target_price <= 0:
+                        return quantity, total_cost
+
+                    added_cost = target_qty * target_price
+
+                    return (
+                        quantity + target_qty,
+                        total_cost + added_cost
+                    )
+
+                return quantity, total_cost
 
             case _:
                 return quantity, total_cost

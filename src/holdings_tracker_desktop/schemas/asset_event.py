@@ -13,9 +13,10 @@ REQUIRED_FIELDS_BY_EVENT_TYPE: dict[str, set[str]] = {
     "AMORTIZATION": {"quantity", "price"},
     "SUBSCRIPTION": {"quantity", "price"},
 
-    "CONVERSION": {
-        "converted_to_asset_id",
-        "conversion_quantity",
+    "TOTAL_CONVERSION": {
+        "target_asset_id",
+        "target_quantity",
+        "target_unit_price",
     }
 }
 
@@ -29,8 +30,9 @@ class AssetEventBase(BaseSchema):
     quantity: Optional[Decimal] = Field(None, gt=0)
     price: Optional[Decimal] = Field(None, gt=0)
 
-    converted_to_asset_id: Optional[int] = Field(None, gt=0)
-    conversion_quantity: Optional[Decimal] = Field(None, gt=0)
+    target_asset_id: Optional[int] = Field(None, gt=0)
+    target_quantity: Optional[Decimal] = Field(None, gt=0)
+    target_unit_price: Optional[Decimal] = Field(None, gt=0)
     residual_value: Optional[Decimal] = Field(None, ge=0)
 
 class AssetEventCreate(AssetEventBase):

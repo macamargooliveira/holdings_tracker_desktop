@@ -81,6 +81,11 @@ class Asset(AuditableModel):
         lazy="dynamic"
     )
 
+    events_as_target: Mapped[list["AssetEvent"]] = relationship(
+        back_populates="target_asset",
+        foreign_keys="[AssetEvent.target_asset_id]"
+    )
+
     def to_response(self) -> dict:
         """Convert to dictionary compatible with AssetResponse"""
         from holdings_tracker_desktop.schemas.asset import AssetResponse

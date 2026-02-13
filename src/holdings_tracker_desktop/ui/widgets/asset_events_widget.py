@@ -69,8 +69,9 @@ class AssetEventsWidget(EntityManagerWidget):
                         'factor': asset_event.factor,
                         'quantity': asset_event.quantity,
                         'price': asset_event.price,
-                        'converted_to_asset_id': asset_event.converted_to_asset_id,
-                        'conversion_quantity': asset_event.conversion_quantity,
+                        'target_asset_id': asset_event.target_asset_id,
+                        'target_quantity': asset_event.target_quantity,
+                        'target_unit_price': asset_event.target_unit_price,
                         'residual_value': asset_event.residual_value,
                     },
                     parent=self

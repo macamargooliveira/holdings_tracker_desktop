@@ -36,6 +36,7 @@ class AssetEventForm(BaseFormDialog):
 
         self._load_date(data)
         self._load_event_type(data)
+        self._load_target_asset(data)
         self._load_financial_fields(data)
 
     def _load_asset(self, asset_id):
@@ -62,6 +63,16 @@ class AssetEventForm(BaseFormDialog):
             self.event_type_combo.setCurrentIndex(index)
             self.event_type_combo.setEnabled(False)
 
+    def _load_target_asset(self, data: dict):
+        target_asset = data.get("target_asset_id")
+        if not target_asset:
+            return
+
+        index = self.target_asset_combo.findData(target_asset)
+        if index >= 0:
+            self.target_asset_combo.setCurrentIndex(index)
+            self.target_asset_combo.setEnabled(False)
+
     def _load_financial_fields(self, data: dict):
         if data.get("factor") is not None:
             self.factor_input.setValue(float(data["factor"]))
@@ -72,10 +83,20 @@ class AssetEventForm(BaseFormDialog):
         if data.get("price") is not None:
             self.price_input.setValue(float(data["price"]))
 
+        if data.get("target_quantity") is not None:
+            self.target_quantity_input.setValue(float(data["target_quantity"]))
+
+        if data.get("target_unit_price") is not None:
+            self.target_unit_price_input.setValue(float(data["target_unit_price"]))
+
+        if data.get("residual_value") is not None:
+            self.residual_value_input.setValue(float(data["residual_value"]))
+
     def _build_form(self, form_layout):
         self._setup_date_input(form_layout)
         self._setup_asset_combo(form_layout)
         self._setup_event_type_combo(form_layout)
+        self._setup_target_asset_combo(form_layout)
         self._setup_financial_fields(form_layout)
 
     def _setup_date_input(self, form_layout):
@@ -93,30 +114,49 @@ class AssetEventForm(BaseFormDialog):
         )
         form_layout.addRow(f"{t('type')}:", self.event_type_combo)
 
-    def _on_event_type_changed(self):
-        event_type = self.event_type_combo.currentData()
-        self._apply_event_type_ui(event_type)
+    def _setup_target_asset_combo(self, form_layout):
+        self.target_asset_combo = AssetComboBox()
+        form_layout.addRow(f"{t('target_asset')}:", self.target_asset_combo)
 
     def _setup_financial_fields(self, form_layout):
         self.factor_input = self.create_decimal_spinbox()
         self.quantity_input = self.create_decimal_spinbox(decimals=0, step=1)
         self.price_input = self.create_decimal_spinbox()
+        self.target_quantity_input = self.create_decimal_spinbox(decimals=0, step=1)
+        self.target_unit_price_input = self.create_decimal_spinbox()
+        self.residual_value_input = self.create_decimal_spinbox()
 
         form_layout.addRow(f"{t('factor')}:", self.factor_input)
         form_layout.addRow(f"{t('quantity')}:", self.quantity_input)
         form_layout.addRow(f"{t('unit_price')}:", self.price_input)
+        form_layout.addRow(f"{t('target_quantity')}:", self.target_quantity_input)
+        form_layout.addRow(f"{t('target_unit_price')}:", self.target_unit_price_input)
+        form_layout.addRow(f"{t('residual_value')}:", self.residual_value_input)
 
         self._reset_event_type_fields()
 
+    def _on_event_type_changed(self):
+        event_type = self.event_type_combo.currentData()
+        self._apply_event_type_ui(event_type)
+
     def _reset_event_type_fields(self):
-        for field in (
+        numeric_fields = (
             self.factor_input,
             self.quantity_input,
             self.price_input,
-        ):
+            self.target_quantity_input,
+            self.target_unit_price_input,
+            self.residual_value_input,
+        )
+
+        for field in numeric_fields:
             self._form_layout.setRowVisible(field, False)
             field.setEnabled(False)
             field.setValue(0)
+
+        self._form_layout.setRowVisible(self.target_asset_combo, False)
+        self.target_asset_combo.setEnabled(False)
+        self.target_asset_combo.setCurrentIndex(-1)
 
     def _apply_event_type_ui(self, event_type):
         self._reset_event_type_fields()
@@ -132,20 +172,39 @@ class AssetEventForm(BaseFormDialog):
                 self.quantity_input.setEnabled(True)
                 self.price_input.setEnabled(True)
 
+            case AssetEventType.TOTAL_CONVERSION:
+                self._form_layout.setRowVisible(self.target_asset_combo, True)
+                self._form_layout.setRowVisible(self.target_quantity_input, True)
+                self._form_layout.setRowVisible(self.target_unit_price_input, True)
+                self._form_layout.setRowVisible(self.residual_value_input, True)
+                self.target_asset_combo.setEnabled(True)
+                self.target_quantity_input.setEnabled(True)
+                self.target_unit_price_input.setEnabled(True)
+                self.residual_value_input.setEnabled(True)
+
+        self.adjustSize()
+
     def _save(self):
         asset_id = self.asset_id
         event_type =  self.event_type_combo.currentData()
         date = self.date_input.date().toPython()
 
         factor = quantity = price = None
+        target_asset_id = target_quantity = target_unit_price = residual_value = None
 
         match event_type:
             case AssetEventType.SPLIT | AssetEventType.REVERSE_SPLIT:
-                factor = Decimal(str(self.factor_input.value()))
+                factor = self._decimal(self.factor_input)
 
             case AssetEventType.AMORTIZATION | AssetEventType.SUBSCRIPTION:
-                quantity = Decimal(str(self.quantity_input.value()))
-                price = Decimal(str(self.price_input.value()))
+                quantity = self._decimal(self.quantity_input)
+                price = self._decimal(self.price_input)
+
+            case AssetEventType.TOTAL_CONVERSION:
+                target_asset_id = self.target_asset_combo.currentData()
+                target_quantity = self._decimal(self.target_quantity_input)
+                target_unit_price = self._decimal(self.target_unit_price_input)
+                residual_value = self._decimal(self.residual_value_input)
 
         with get_db() as db:
             service = AssetEventService(db)
@@ -157,7 +216,11 @@ class AssetEventForm(BaseFormDialog):
                     date=date, 
                     factor=factor,
                     quantity=quantity,
-                    price=price
+                    price=price,
+                    target_asset_id=target_asset_id,
+                    target_quantity=target_quantity,
+                    target_unit_price=target_unit_price,
+                    residual_value=residual_value,
                 )
                 service.update(self.asset_event_id, update_data)
             else:
@@ -167,6 +230,13 @@ class AssetEventForm(BaseFormDialog):
                     date=date,
                     factor=factor,
                     quantity=quantity,
-                    price=price
+                    price=price,
+                    target_asset_id=target_asset_id,
+                    target_quantity=target_quantity,
+                    target_unit_price=target_unit_price,
+                    residual_value=residual_value,
                 )
                 service.create(create_data)
+
+    def _decimal(self, spinbox):
+        return Decimal(str(spinbox.value())) 

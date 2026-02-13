@@ -20,7 +20,7 @@ class AssetEventType(PyEnum):
     SUBSCRIPTION = "SUBSCRIPTION"
 
     # Conversion Event
-    CONVERSION = "CONVERSION"
+    TOTAL_CONVERSION = "TOTAL_CONVERSION"
 
 class AssetEvent(AuditableModel):
     __tablename__ = "asset_events"
@@ -47,9 +47,10 @@ class AssetEvent(AuditableModel):
     quantity: Mapped[Decimal | None] = mapped_column(Numeric(20, 6), nullable=True)
     price: Mapped[Decimal | None] = mapped_column(Numeric(20, 6), nullable=True)
 
-    # Used only for CONVERSION.
-    converted_to_asset_id: Mapped[int | None] = mapped_column(ForeignKey("assets.id"), nullable=True)
-    conversion_quantity: Mapped[Decimal | None] = mapped_column(Numeric(20, 6), nullable=True)
+    # Used only for TOTAL_CONVERSION.
+    target_asset_id: Mapped[int | None] = mapped_column(ForeignKey("assets.id"), nullable=True)
+    target_quantity: Mapped[Decimal | None] = mapped_column(Numeric(20, 6), nullable=True)
+    target_unit_price: Mapped[Decimal | None] = mapped_column(Numeric(20, 6), nullable=True)
     residual_value: Mapped[Decimal | None] = mapped_column(Numeric(20, 6), nullable=True)
 
     asset: Mapped[Asset] = relationship(
@@ -59,10 +60,29 @@ class AssetEvent(AuditableModel):
         lazy="selectin"
     )
 
+    target_asset: Mapped[Asset] = relationship(
+        back_populates="events_as_target",
+        foreign_keys=[target_asset_id]
+    )
+
     @validates("event_type")
     def _validate_event_type(self, key, value):
         if self.id is not None and value != self.event_type:
             raise ValueError("Type cannot be changed")
+        return value
+
+    @validates("target_asset_id")
+    def _validate_conversion_target(self, key, value):
+        if (
+            self.event_type == AssetEventType.TOTAL_CONVERSION
+            and value is not None
+            and self.asset_id is not None
+            and value == self.asset_id
+        ):
+            raise ValueError(
+                "Conversion target asset must be different from source asset"
+            )
+
         return value
 
     def to_response(self) -> dict:
@@ -71,7 +91,7 @@ class AssetEvent(AuditableModel):
         return AssetEventResponse.model_validate(self).model_dump()
 
     @classmethod
-    def from_create_schema(cls, schema_data: dict) -> Asset:
+    def from_create_schema(cls, schema_data: dict) -> AssetEvent:
         """Create instance from creation schema"""
         from holdings_tracker_desktop.schemas.asset_event import AssetEventCreate
 
@@ -96,8 +116,9 @@ class AssetEvent(AuditableModel):
             'factor': self.factor,
             'quantity': self.quantity,
             'price': self.price,
-            'converted_to_asset_id': self.converted_to_asset_id,
-            'conversion_quantity': self.conversion_quantity,
+            'target_asset_id': self.target_asset_id,
+            'target_quantity': self.target_quantity,
+            'target_unit_price': self.target_unit_price,
             'residual_value': self.residual_value,
             'created_at': self.created_at_local.isoformat(),
             'updated_at': self.updated_at_local.isoformat(),

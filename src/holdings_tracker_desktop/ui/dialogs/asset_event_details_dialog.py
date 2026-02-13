@@ -27,9 +27,21 @@ class AssetEventDetailsDialog(BaseDetailsDialog):
 
             if event.quantity:
                 self.add_detail(t("quantity"), format_decimal(event.quantity, 0))
-            
+
             if event.price:
                 self.add_detail(t("unit_price"), format_decimal(event.price))
+
+            if event.target_asset:
+                self.add_detail(t("target_asset"), event.target_asset.ticker)
+
+            if event.target_quantity:
+                self.add_detail(t("target_quantity"), format_decimal(event.target_quantity, 0))
+
+            if event.target_unit_price:
+                self.add_detail(t("target_unit_price"), format_decimal(event.target_unit_price))
+
+            if event.residual_value:
+                self.add_detail(t("residual_value"), format_decimal(event.residual_value))
 
             self.add_detail(t("created_at"), format_datetime(event.created_at_local))
             self.add_detail(t("updated_at"), format_datetime(event.updated_at_local))

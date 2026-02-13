@@ -2,7 +2,7 @@ from typing import List
 
 from sqlalchemy.orm import Session, joinedload
 
-from holdings_tracker_desktop.models.asset_event import AssetEvent
+from holdings_tracker_desktop.models.asset_event import AssetEvent, AssetEventType
 from holdings_tracker_desktop.repositories.base_repository import BaseRepository
 from holdings_tracker_desktop.schemas.asset_event import (
   AssetEventCreate, AssetEventUpdate, AssetEventResponse
@@ -21,8 +21,8 @@ class AssetEventService:
         """Create new AssetEvent with validation"""
         asset_event = self.repository.create_from_schema(data)
 
-        self.position_snapshot_service.rebuild_from(
-            asset_id=asset_event.asset_id,
+        self._rebuild_positions_for_event(
+            event=asset_event,
             from_date=asset_event.date
         )
 
@@ -38,14 +38,13 @@ class AssetEventService:
         existing = self.repository.get_or_raise(asset_event_id)
 
         old_date = existing.date
-        asset_id = existing.asset_id
 
         updated = self.repository.update_from_schema(asset_event_id, data)
 
         rebuild_from_date = min(old_date, updated.date)
 
-        self.position_snapshot_service.rebuild_from(
-            asset_id=asset_id,
+        self._rebuild_positions_for_event(
+            event=updated,
             from_date=rebuild_from_date
         )
 
@@ -55,14 +54,13 @@ class AssetEventService:
         """Delete AssetEvent"""
         asset_event = self.repository.get_or_raise(asset_event_id)
 
-        asset_id = asset_event.asset_id
         from_date = asset_event.date
 
         deleted = self.repository.delete(asset_event_id)
 
         if deleted:
-            self.position_snapshot_service.rebuild_from(
-                asset_id=asset_id,
+            self._rebuild_positions_for_event(
+                event=asset_event,
                 from_date=from_date
             )
 
@@ -90,7 +88,40 @@ class AssetEventService:
         return (
             self.repository.db
             .query(AssetEvent)
-            .options(joinedload(AssetEvent.asset))
+            .options(
+                joinedload(AssetEvent.asset),
+                joinedload(AssetEvent.target_asset),
+            )
             .filter(AssetEvent.id == asset_event_id)
             .first()
         )
+
+    def _rebuild_positions_for_event(self, event: AssetEvent, from_date):
+        """
+        Rebuild position snapshots affected by this event.
+
+        Note:
+            Conversion events affect two assets:
+            - the source asset (event.asset_id)
+            - the target asset (event.target_asset_id)
+
+            For this reason, snapshot rebuild must be triggered explicitly
+            for both assets.
+        """
+        self.repository.db.flush()
+
+        self.position_snapshot_service.rebuild_from(
+            asset_id=event.asset_id,
+            from_date=from_date
+        )
+
+        if (
+            event.event_type == AssetEventType.TOTAL_CONVERSION
+            and event.target_asset_id
+        ):
+            self.position_snapshot_service.rebuild_from(
+                asset_id=event.target_asset_id,
+                from_date=from_date
+            )
+
+        self.repository.save_changes()
