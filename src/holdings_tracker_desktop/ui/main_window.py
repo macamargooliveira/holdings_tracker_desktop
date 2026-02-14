@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
 
+from holdings_tracker_desktop.version import get_app_version
 from holdings_tracker_desktop.ui.core import translations as i18n
 from holdings_tracker_desktop.ui.styles import base
 from holdings_tracker_desktop.ui.widgets.charts_widget import ChartsWidget
@@ -34,7 +35,8 @@ class MainWindow(QMainWindow):
         self.widgets_with_translation = []
 
     def _init_ui(self):
-        self.setWindowTitle("Holdings Tracker")
+        app_version = get_app_version()
+        self.setWindowTitle(f"Holdings Tracker v{app_version}")
         self._setup_layout()
         self._setup_panels()
         self.setStyleSheet(base.base_styles())
