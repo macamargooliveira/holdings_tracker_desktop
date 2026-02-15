@@ -58,7 +58,7 @@ class Bootstrap:
                 raise
 
     def _ensure_seed(self, session):
-        from holdings_tracker_desktop.database.scripts.seed import run_initial_seeds
+        from holdings_tracker_desktop.database.seed import run_initial_seeds
 
         if self._get_metadata(session, "seed_executed"):
             return
