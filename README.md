@@ -23,6 +23,7 @@ It allows you to manage and track financial holdings in a simple desktop interfa
 ## Project Structure
 
 ```
+├── assets/               # Static assets (icons, images, branding)
 ├── src/
 │   └── holdings_tracker_desktop/
 │       ├── alembic/      # Database migration files
