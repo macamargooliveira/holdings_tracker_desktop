@@ -184,6 +184,9 @@ class PieChartWidget(QWidget):
         return items
 
     def _calculate_legend_columns(self, items: list[dict]) -> int:
+        if not items:
+            return 0
+
         available_width = self.legend_scroll.viewport().width()
         item_width = self._calculate_item_legend_width(items)
         return max(1, available_width // item_width)

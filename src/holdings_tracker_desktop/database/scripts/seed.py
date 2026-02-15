@@ -1,55 +1,46 @@
-from holdings_tracker_desktop.database import SessionLocal
-from holdings_tracker_desktop.models import Country, Currency, AssetSector, AssetType, Broker
+from holdings_tracker_desktop.models import Country, Currency, AssetType, AssetSector, Broker
 
-def run_seeds():
-    db = SessionLocal()
+def run_initial_seeds(session):
 
-    try:
-        countries = [
-            Country(name="Brasil"),
-            Country(name="United States")
-        ]
-        db.add_all(countries)
+    countries = [
+        Country(name="Brasil"),
+        Country(name="United States")
+    ]
+    session.add_all(countries)
+    session.flush()
 
-        currencies = [
-            Currency(code="BRL", name="Real Brasileiro", symbol="R$"),
-            Currency(code="USD", name="United States Dollar", symbol="$")
-        ]
-        db.add_all(currencies)
+    brasil = next(c for c in countries if c.name == "Brasil")
+    usa = next(c for c in countries if c.name == "United States")
 
-        asset_types = [
-            AssetType(name="Ação", country_id=1),
-            AssetType(name="Fiagro", country_id=1),
-            AssetType(name="FI-Infra", country_id=1),
-            AssetType(name="FII", country_id=1),
-            AssetType(name="Reit", country_id=2),
-            AssetType(name="Stock", country_id=2)
-        ]
-        db.add_all(asset_types)
+    currencies = [
+        Currency(code="BRL", name="Real Brasileiro", symbol="R$"),
+        Currency(code="USD", name="United States Dollar", symbol="$")
+    ]
+    session.add_all(currencies)
 
-        asset_sector = [
-            AssetSector(name="Híbridos", asset_type_id=4),
-            AssetSector(name="Lajes Comerciais", asset_type_id=4),
-            AssetSector(name="Logísticos", asset_type_id=4),
-            AssetSector(name="Recebíveis Imobiliários", asset_type_id=4),
-            AssetSector(name="Shoppings", asset_type_id=4)
-        ]
-        db.add_all(asset_sector)
+    asset_types = [
+        AssetType(name="Ação", country_id=brasil.id),
+        AssetType(name="Fiagro", country_id=brasil.id),
+        AssetType(name="FI-Infra", country_id=brasil.id),
+        AssetType(name="FII", country_id=brasil.id),
+        AssetType(name="Reit", country_id=usa.id),
+        AssetType(name="Stock", country_id=usa.id)
+    ]
+    session.add_all(asset_types)
+    session.flush()
 
-        brokers = [
-            Broker(name="BB-BI S.A.", country_id=1)
-        ]
-        db.add_all(brokers)
+    fii = next(a for a in asset_types if a.name == "FII")
 
-        db.commit()
-        print("Seeds inserted successfully!")
+    asset_sectors = [
+        AssetSector(name="Híbridos", asset_type_id=fii.id),
+        AssetSector(name="Lajes Comerciais", asset_type_id=fii.id),
+        AssetSector(name="Logísticos", asset_type_id=fii.id),
+        AssetSector(name="Recebíveis Imobiliários", asset_type_id=fii.id),
+        AssetSector(name="Shoppings", asset_type_id=fii.id)
+    ]
+    session.add_all(asset_sectors)
 
-    except Exception as e:
-        db.rollback()
-        print("Seed error:", e)
-
-    finally:
-        db.close()
-
-if __name__ == "__main__":
-    run_seeds()
+    brokers = [
+        Broker(name="BB-BI S.A.", country_id=brasil.id)
+    ]
+    session.add_all(brokers)
