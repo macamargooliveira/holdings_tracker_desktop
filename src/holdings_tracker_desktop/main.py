@@ -1,5 +1,6 @@
 import qtawesome as qta
 import sys
+import traceback
 
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QApplication, QMessageBox
@@ -18,12 +19,17 @@ def main():
 
     try:
         Bootstrap().run()
-    except BootstrapError as e:
-        QMessageBox.critical(
-            None,
-            "Initialization Error",
-            f"The application failed to initialize properly:\n\n{str(e)}"
-        )
+    except BootstrapError:
+        detailed_error = traceback.format_exc()
+
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setWindowTitle("Initialization Error")
+        msg.setText("The application failed to initialize properly.")
+        msg.setInformativeText("Click 'Show Details' to see the technical error.")
+        msg.setDetailedText(detailed_error)
+        msg.exec()
+
         sys.exit(1)
 
     app.setStyle("Fusion")

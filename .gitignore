@@ -39,7 +39,6 @@ temp/
 *.swp
 *.swo
 
-*.spec
 *.qm
 *.qrc
 *.ui

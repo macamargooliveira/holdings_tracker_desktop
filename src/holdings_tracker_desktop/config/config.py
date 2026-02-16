@@ -6,7 +6,11 @@ from dotenv import load_dotenv
 
 class Config:
     IS_FROZEN = getattr(sys, "frozen", False)
-    APP_ENV = os.getenv("APP_ENV", "development")
+    APP_ENV = (
+        "production"
+        if getattr(sys, "frozen", False)
+        else os.getenv("APP_ENV", "development")
+    )
 
     def __init__(self) -> None:
         self._load_env()

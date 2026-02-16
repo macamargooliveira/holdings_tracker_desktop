@@ -1,3 +1,5 @@
+import sys
+
 from alembic import command
 from alembic.config import Config
 from alembic.script import ScriptDirectory
@@ -37,7 +39,7 @@ class Bootstrap:
         return current_rev or "unknown"
 
     def _get_alembic_config(self) -> Config:
-        base_path = Path(__file__).resolve().parent.parent
+        base_path = self._get_base_path()
         alembic_path = base_path / "alembic"
 
         alembic_cfg = Config()
@@ -45,6 +47,11 @@ class Bootstrap:
         alembic_cfg.set_main_option("sqlalchemy.url", config.database_url)
 
         return alembic_cfg
+
+    def _get_base_path(self) -> Path:
+        if getattr(sys, "frozen", False):
+            return Path(sys._MEIPASS)
+        return Path(__file__).resolve().parent.parent
 
     def _initialize_metadata(self, final_revision: str):
         with SessionLocal() as session:
