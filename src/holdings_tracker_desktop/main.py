@@ -38,6 +38,8 @@ def main():
 
     window = MainWindow()
     window.showMaximized()
+    window.raise_()
+    window.activateWindow()
 
     sys.exit(app.exec())
 
