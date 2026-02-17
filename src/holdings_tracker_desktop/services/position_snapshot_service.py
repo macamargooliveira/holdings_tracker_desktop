@@ -208,7 +208,10 @@ class PositionSnapshotService:
                 PositionSnapshot.asset_id == asset_id,
                 PositionSnapshot.snapshot_date < from_date
             )
-            .order_by(PositionSnapshot.snapshot_date.desc())
+            .order_by(
+                PositionSnapshot.snapshot_date.desc(),
+                PositionSnapshot.id.desc()
+            )
             .first()
         )
 
