@@ -24,6 +24,7 @@ include = ["src/holdings_tracker_desktop/ui/flags/*.svg"]
 
 [tool.poetry.scripts]
 app = "holdings_tracker_desktop.main:main"
+build-app = "scripts.build:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

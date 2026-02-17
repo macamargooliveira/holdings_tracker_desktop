@@ -54,22 +54,24 @@ It allows you to manage and track financial holdings in a simple desktop interfa
    poetry install
    ```
 
-3. Run database migrations:
-   ```bash
-   poetry run migrations
-   ```
-
-4. Seed the database:
-   ```bash
-   poetry run seeds
-   ```
-
 ## Usage
 
 Run the desktop application:
 ```bash
 poetry run app
 ```
+
+## Build
+
+To generate the distributable application using PyInstaller:
+```bash
+poetry run build-app
+```
+
+This command:
+- Removes previous build/ and dist/ directories
+- Executes PyInstaller using HoldingsTracker.spec
+- Generates the distributable files inside the dist/ directory
 
 ## Testing
 
