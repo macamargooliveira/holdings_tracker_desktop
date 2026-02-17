@@ -151,7 +151,8 @@ class PositionSnapshotService:
         subquery = (
             self.db.query(
                 PositionSnapshot.asset_id,
-                func.max(PositionSnapshot.snapshot_date).label("max_date")
+                func.max(PositionSnapshot.snapshot_date).label("max_date"),
+                func.max(PositionSnapshot.id).label("max_id")
             )
             .filter(func.extract("year", PositionSnapshot.snapshot_date) <= year)
             .group_by(PositionSnapshot.asset_id)
@@ -169,7 +170,7 @@ class PositionSnapshotService:
             .join(
                 subquery,
                 (PositionSnapshot.asset_id == subquery.c.asset_id) &
-                (PositionSnapshot.snapshot_date == subquery.c.max_date)
+                (PositionSnapshot.id == subquery.c.max_id)
             )
         )
 
