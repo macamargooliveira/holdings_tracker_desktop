@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog, QHeaderView
 
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.broker_note_service import BrokerNoteService
@@ -133,12 +133,16 @@ class BrokerNotesWidget(EntityManagerWidget):
         ).exec()
 
     def _populate_table(self, items):
-        prepare_table(self.table, 8, len(items))
+        prepare_table(self.table, 7, len(items))
 
         self.table.setHorizontalHeaderLabels(
             [t("date"), t("operation_abbr"), t("asset"), t("quantity_abbr"), 
-             t("price"), t("fees"), t("taxes"), t("total_value")]
+             t("price"), t("fees"), t("total_value")]
         )
+
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
 
         for row, item in enumerate(items):
             self.table.setItem(row, 0, table_item(format_date(item['date']), item['id']))
@@ -148,5 +152,4 @@ class BrokerNotesWidget(EntityManagerWidget):
             currency = item.get("asset_currency", "")
             self.table.setItem(row, 4, decimal_table_item(item['price'], 2, currency))
             self.table.setItem(row, 5, decimal_table_item(item['fees'], 2, currency))
-            self.table.setItem(row, 6, decimal_table_item(item['taxes'], 2, currency))
-            self.table.setItem(row, 7, decimal_table_item(item['total_value'], 2, currency))
+            self.table.setItem(row, 6, decimal_table_item(item['total_value'], 2, currency))
