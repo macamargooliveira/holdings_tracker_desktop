@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog, QHeaderView
 
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.asset_service import AssetService
@@ -36,7 +36,7 @@ class AssetsWidget(EntityManagerWidget):
         super().translate_ui()
         self.title_widget.setText(t("assets"))
         self.table.setHorizontalHeaderLabels(
-            [t("ticker"), t("type"), t("currency"), t("sector"), t("notes"), t("events")]
+            [t("ticker"), t("type"), t("currency"), t("sector")]
         )
 
     def open_new_form(self):
@@ -116,12 +116,14 @@ class AssetsWidget(EntityManagerWidget):
         self.navigate_to(widget_cls, asset_id)
 
     def _populate_table(self, items):
-        prepare_table(self.table, 6, len(items))
+        prepare_table(self.table, columns=4, rows=len(items))
+
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
 
         for row, item in enumerate(items):
             self.table.setItem(row, 0, table_item(item['ticker'], item['id']))
             self.table.setItem(row, 1, table_item(item['type_name']))
             self.table.setItem(row, 2, table_item(item['currency_code']))
             self.table.setItem(row, 3, table_item(item['sector_name']))
-            self.table.setItem(row, 4, table_item(str(item['broker_notes_count'])))
-            self.table.setItem(row, 5, table_item(str(item['events_count'])))
