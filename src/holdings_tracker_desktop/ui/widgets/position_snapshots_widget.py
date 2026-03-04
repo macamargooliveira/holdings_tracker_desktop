@@ -1,5 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QHeaderView
 
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
@@ -109,6 +110,10 @@ class PositionSnapshotsWidget(EntityManagerWidget):
             [t("asset"), t("date"), t("quantity_abbr"), t("avg_price"), t("total_cost"), t("origin")]
         )
 
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+
         for row, item in enumerate(items):
             self.table.setItem(row, 0, table_item(item['asset_ticker'], item['id']))
             self.table.setItem(row, 1, table_item(format_date(item['snapshot_date'])))
@@ -123,6 +128,10 @@ class PositionSnapshotsWidget(EntityManagerWidget):
         self.table.setHorizontalHeaderLabels(
             [t("asset"), t("quantity_abbr"), t("avg_price"), t("total_cost")]
         )
+
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
 
         for row, item in enumerate(items):
             self.table.setItem(row, 0, table_item(item['asset_ticker'], item['asset_id']))
