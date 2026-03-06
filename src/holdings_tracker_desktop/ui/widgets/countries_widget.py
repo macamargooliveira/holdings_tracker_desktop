@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog, QHeaderView
 
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.country_service import CountryService
@@ -91,6 +91,9 @@ class CountriesWidget(EntityManagerWidget):
 
     def _populate_table(self, items):
         prepare_table(self.table, 3, len(items))
+
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
 
         for row, item in enumerate(items):
             self.table.setItem(row, 0, table_item(item['name'], item['id']))
