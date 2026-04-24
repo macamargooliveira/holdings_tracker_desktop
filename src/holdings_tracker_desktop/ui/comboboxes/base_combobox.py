@@ -41,3 +41,6 @@ class BaseComboBox(QComboBox):
 
     def reload(self):
         pass
+
+    def translate_placeholder(self):
+        self.setItemText(0, t(self.placeholder_key))

@@ -55,10 +55,11 @@ class PositionSnapshotService:
     def list_all_for_ui_by_year(
         self,
         year: int,
+        asset_type_id: int | None = None,
         skip: int = 0,
         limit: int = 150
     ) -> List[dict]:
-        """Get PositionSnapshots already formatted for UI"""
+        """Get PositionSnapshots already formatted for UI, optionally filtered by asset type"""
         subquery = (
             self.db.query(
                 PositionSnapshot.asset_id,
@@ -78,6 +79,13 @@ class PositionSnapshotService:
                 (PositionSnapshot.id == subquery.c.max_id)
             )
             .join(Asset, Asset.id == PositionSnapshot.asset_id)
+        )
+
+        if asset_type_id is not None:
+            snapshots = snapshots.filter(Asset.type_id == asset_type_id)
+
+        snapshots = (
+            snapshots
             .order_by(Asset.ticker.asc())
             .offset(skip)
             .limit(limit)

@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QHeaderView
 
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.position_snapshot_service import PositionSnapshotService
-from holdings_tracker_desktop.ui.comboboxes import PositionSnapshotYearComboBox
+from holdings_tracker_desktop.ui.comboboxes import PositionSnapshotYearComboBox, AssetTypeComboBox
 from holdings_tracker_desktop.ui.core import t
 from holdings_tracker_desktop.ui.core.formatters import format_date
 from holdings_tracker_desktop.ui.core.ui_helpers import prepare_table, table_item, decimal_table_item
@@ -16,7 +16,7 @@ class PositionSnapshotsWidget(EntityManagerWidget):
         self.origin = origin
         self.year = None
 
-        self._setup_year_filter()
+        self._setup_filters()
         self._setup_font_demi_bold()
 
         super().__init__(parent)
@@ -24,7 +24,12 @@ class PositionSnapshotsWidget(EntityManagerWidget):
         self.table.itemDoubleClicked.connect(self.on_item_double_clicked)
 
     def get_toolbar_filters(self):
-        return [self.year_filter] if self.year_filter else []
+        filters = []
+        if self.year_filter:
+            filters.append(self.year_filter)
+        if self.asset_type_filter:
+            filters.append(self.asset_type_filter)
+        return filters
 
     def load_data(self):
         self.ui_data = []
@@ -38,7 +43,8 @@ class PositionSnapshotsWidget(EntityManagerWidget):
                 else:
                     self.year = self.year_filter.currentData()
                     if self.year is not None:
-                        self.ui_data = service.list_all_for_ui_by_year(self.year)
+                        asset_type_id = self.asset_type_filter.currentData() if self.asset_type_filter else None
+                        self.ui_data = service.list_all_for_ui_by_year(self.year, asset_type_id=asset_type_id)
 
         except Exception as e:
             self.show_error(f"Error loading position snapshots: {str(e)}")
@@ -55,6 +61,9 @@ class PositionSnapshotsWidget(EntityManagerWidget):
 
         if self.year_filter:
             self.year_filter.translate_placeholder()
+
+        if self.asset_type_filter:
+            self.asset_type_filter.translate_placeholder()
 
         if self.asset_id is None:
             self.table.setToolTip(t("double_click_to_view_details"))
@@ -87,12 +96,17 @@ class PositionSnapshotsWidget(EntityManagerWidget):
             from holdings_tracker_desktop.ui.widgets.assets_widget import AssetsWidget
             self.navigate_to(AssetsWidget)
 
-    def _setup_year_filter(self):
+    def _setup_filters(self):
         if self.asset_id is None:
             self.year_filter = PositionSnapshotYearComboBox()
             self.year_filter.currentIndexChanged.connect(self.load_data)
+
+            self.asset_type_filter = AssetTypeComboBox(placeholder_key="all")
+            self.asset_type_filter.setObjectName("FilterComboBox")
+            self.asset_type_filter.currentIndexChanged.connect(self.load_data)
         else:
             self.year_filter = None
+            self.asset_type_filter = None
 
     def _setup_font_demi_bold(self):
         self.font_demi_bold = QFont()

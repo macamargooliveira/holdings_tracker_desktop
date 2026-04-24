@@ -158,8 +158,6 @@ class EntityManagerWidget(TranslatableWidget):
         for widget in self.get_toolbar_filters():
             toolbar.addWidget(widget)
 
-        toolbar.addStretch()
-
         for action in self.get_enabled_actions():
             icon = BUTTONS_CONFIG[action]
 

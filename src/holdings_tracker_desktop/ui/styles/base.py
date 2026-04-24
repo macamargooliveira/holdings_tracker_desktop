@@ -24,7 +24,8 @@ QPushButton:disabled {
 """
 
 COMBOBOXES = """
-QComboBox#YearComboBox {
+QComboBox#YearComboBox,
+QComboBox#FilterComboBox {
     padding: 4px 8px;
 }
 """

@@ -31,6 +31,3 @@ class BaseYearComboBox(BaseComboBox):
 
         self.blockSignals(False)
         self.currentIndexChanged.emit(self.currentIndex())
-
-    def translate_placeholder(self):
-        self.setItemText(0, f" {t(self.placeholder_key)}")
