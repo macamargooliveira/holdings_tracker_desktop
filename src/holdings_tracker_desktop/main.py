@@ -7,19 +7,25 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 
 from holdings_tracker_desktop.database.bootstrap import Bootstrap, BootstrapError
 from holdings_tracker_desktop.ui.main_window import MainWindow
+from holdings_tracker_desktop.ui.splash_screen import SplashScreen
 
 def main():
     """
     Application entry point.
-    Initializes infrastructure (database, migrations, metadata)
-    before starting the Qt UI.
+    Shows splash screen during Bootstrap initialization, then launches main window.
     """
 
     app = QApplication(sys.argv)
 
+    # Show splash screen while Bootstrap runs
+    splash = SplashScreen()
+    splash.show()
+    app.processEvents()  # Force immediate display
+
     try:
         Bootstrap().run()
     except BootstrapError:
+        splash.close()
         detailed_error = traceback.format_exc()
 
         msg = QMessageBox()
@@ -37,6 +43,8 @@ def main():
     app.setWindowIcon(qta.icon("fa5s.chart-bar"))
 
     window = MainWindow()
+    splash.close()  # Hide splash screen before showing main window
+
     window.showMaximized()
     window.raise_()
     window.activateWindow()

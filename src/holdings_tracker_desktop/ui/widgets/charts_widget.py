@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import date as Date
 from typing import Optional
 
+from PySide6.QtGui import QShowEvent
 from PySide6.QtWidgets import QVBoxLayout, QMenuBar
 
 from holdings_tracker_desktop.database import get_db
@@ -33,6 +34,8 @@ class ChartsWidget(TranslatableWidget):
         self._init_state()
         self._setup_ui()
         self.translate_ui()
+
+        self._data_loaded = False
 
         global_signals.asset_types_updated.connect(self.refresh_asset_types_menu)
         global_signals.asset_events_updated.connect(self.refresh_years_menu)
@@ -71,6 +74,8 @@ class ChartsWidget(TranslatableWidget):
         self.menus: dict[str, QMenuBar] = {}
         self.actions: dict[str, object] = {}
         self.state = ChartState()
+        self._asset_types_menu = None
+        self._years_menu = None
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -83,22 +88,36 @@ class ChartsWidget(TranslatableWidget):
     def _setup_menu(self, layout):
         menu_bar = QMenuBar(self)
 
-        menu_loaders = {
-            "charts": self._load_charts,
-            "asset_type": self._load_asset_types,
-            "year": self._load_years,
-        }
+        # Load 'charts' menu immediately (no database queries)
+        charts_menu = menu_bar.addMenu("")
+        self.menus["charts"] = charts_menu
+        self._load_charts(charts_menu)
 
-        for key in MENU_KEYS:
-            menu = menu_bar.addMenu("")
-            self.menus[key] = menu
-            menu_loaders[key](menu)
+        # Defer asset_type and year menus - they require database queries
+        # Will be populated in showEvent() on first display
+        asset_type_menu = menu_bar.addMenu("")
+        self.menus["asset_type"] = asset_type_menu
+        self._asset_types_menu = asset_type_menu
+
+        year_menu = menu_bar.addMenu("")
+        self.menus["year"] = year_menu
+        self._years_menu = year_menu
 
         layout.addWidget(menu_bar, stretch=0)
 
     def _setup_pie_chart(self, layout):
         self.pie_chart = PieChartWidget()
         layout.addWidget(self.pie_chart, stretch=1)
+
+    def showEvent(self, event: QShowEvent):
+        """Load data from database when widget first becomes visible."""
+        super().showEvent(event)
+        
+        if not self._data_loaded and self.isVisible():
+            self._data_loaded = True
+            self._load_asset_types(self._asset_types_menu)
+            self._load_years(self._years_menu)
+            self._refresh_chart()
 
     def _load_charts(self, menu):
         self.by_assets_action = self._add_action(
