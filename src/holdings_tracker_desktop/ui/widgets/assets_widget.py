@@ -2,12 +2,15 @@ from PySide6.QtWidgets import QDialog, QHeaderView
 
 from holdings_tracker_desktop.database import get_db
 from holdings_tracker_desktop.services.asset_service import AssetService
+from holdings_tracker_desktop.ui.comboboxes import AssetTypeComboBox
 from holdings_tracker_desktop.ui.core import t
 from holdings_tracker_desktop.ui.core.ui_helpers import prepare_table, table_item
 from holdings_tracker_desktop.ui.widgets.entity_manager_widget import EntityManagerWidget
 
 class AssetsWidget(EntityManagerWidget):
     def __init__(self, parent=None):
+        self._setup_filters()
+
         super().__init__(parent)
 
     def get_extra_buttons(self):
@@ -16,6 +19,9 @@ class AssetsWidget(EntityManagerWidget):
             ("events", "fa5s.exchange-alt", self.on_event_clicked),
         ]
 
+    def get_toolbar_filters(self):
+        return [self.asset_type_filter] if self.asset_type_filter else []
+
     def supports_details(self) -> bool:
         return True
 
@@ -23,7 +29,8 @@ class AssetsWidget(EntityManagerWidget):
         try:
             with get_db() as db:
                 service = AssetService(db)
-                ui_data = service.list_all_for_ui()
+                asset_type_id = self.asset_type_filter.currentData() if self.asset_type_filter else None
+                ui_data = service.list_all_for_ui(asset_type_id=asset_type_id)
                 self._populate_table(ui_data)
 
         except Exception as e:
@@ -35,6 +42,10 @@ class AssetsWidget(EntityManagerWidget):
     def translate_ui(self):
         super().translate_ui()
         self.title_widget.setText(t("assets"))
+        
+        if self.asset_type_filter:
+            self.asset_type_filter.translate_placeholder()
+        
         self.table.setHorizontalHeaderLabels(
             [t("ticker"), t("type"), t("currency"), t("sector")]
         )
@@ -114,6 +125,11 @@ class AssetsWidget(EntityManagerWidget):
             return
 
         self.navigate_to(widget_cls, asset_id)
+
+    def _setup_filters(self):
+        self.asset_type_filter = AssetTypeComboBox(placeholder_key="all")
+        self.asset_type_filter.setObjectName("FilterComboBox")
+        self.asset_type_filter.currentIndexChanged.connect(self.load_data)
 
     def _populate_table(self, items):
         prepare_table(self.table, columns=4, rows=len(items))

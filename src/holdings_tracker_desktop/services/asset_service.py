@@ -53,10 +53,21 @@ class AssetService:
         skip: int = 0, 
         limit: int = 100,
         order_by: str = "ticker",
-        descending: bool = False
+        asset_type_id: int | None = None
     ) -> List[dict]:
-        """Get Assets already formatted for UI"""
-        assets = self.repository.get_all(skip, limit, order_by, descending)
+        """Get Assets already formatted for UI, optionally filtered by asset type"""
+        query = self.repository.db.query(Asset)
+
+        if asset_type_id is not None:
+            query = query.filter(Asset.type_id == asset_type_id)
+        
+        assets = (
+            query
+            .order_by(Asset.ticker if order_by == "ticker" else order_by)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
         return [a.to_ui_dict() for a in assets]
 
     def count_all(self) -> int:
