@@ -3,9 +3,11 @@ Splash screen widget displayed during application startup.
 Shows loading indicator while Bootstrap initializes the database.
 """
 
+from pathlib import Path
+
 from PySide6.QtCore import Qt, QTimer, QSize
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QPixmap, QTransform
 import qtawesome as qta
 
 
@@ -82,15 +84,21 @@ class SplashScreen(QWidget):
 
     def _update_icon(self):
         """Update icon with current rotation."""
-        # Create icon from qtawesome
-        icon = qta.icon("fa5s.chart-bar")
-
-        # Convert to pixmap
-        pixmap = icon.pixmap(QSize(64, 64))
+        # Try to load from assets, fallback to qtawesome if not available
+        asset_path = Path(__file__).parent / "assets" / "HoldingsTracker.ico"
         
-        # Rotate pixmap
+        if asset_path.exists():
+            pixmap = QPixmap(str(asset_path))
+            # Resize to standard splash icon size
+            if not pixmap.isNull():
+                pixmap = pixmap.scaledToWidth(64, Qt.TransformationMode.SmoothTransformation)
+        else:
+            # Fallback: create icon from qtawesome
+            icon = qta.icon("fa5s.chart-bar")
+            pixmap = icon.pixmap(QSize(64, 64))
+        
+        # Rotate pixmap if rotation is set
         if self._rotation > 0:
-            from PySide6.QtGui import QTransform
             transform = QTransform()
             transform.translate(32, 32)
             transform.rotate(self._rotation)

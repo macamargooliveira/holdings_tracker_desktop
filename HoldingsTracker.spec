@@ -13,6 +13,7 @@ a = Analysis(
         (str(spec_dir / "src/holdings_tracker_desktop/alembic"), "alembic"),
         (str(spec_dir / "alembic.ini"), "."),
         (str(spec_dir / "src/holdings_tracker_desktop/ui/flags"), "holdings_tracker_desktop/ui/flags"),
+        (str(spec_dir / "src/holdings_tracker_desktop/ui/assets"), "holdings_tracker_desktop/ui/assets"),
     ],
     hiddenimports=[
         "logging.config",
@@ -43,6 +44,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=str(spec_dir / "src/holdings_tracker_desktop/ui/assets/HoldingsTracker.ico"),
 )
 
 coll = COLLECT(
