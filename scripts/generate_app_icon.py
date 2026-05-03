@@ -61,14 +61,19 @@ def save_ico_with_multiple_resolutions(images: list, output_path: Path) -> None:
             f.write(png_data)
 
 
-def create_rounded_icon(icon_name: str, output_path: Path) -> None:
+def create_rounded_icon(icon_name: str, output_ico_path: Path, output_png_path: Path = None) -> None:
     """
-    Create a multi-resolution ICO file with the specified icon.
+    Create a multi-resolution ICO file and optionally a high-res PNG.
     
-    Generates 6 resolutions: 16, 32, 48, 64, 128, 256 pixels.
+    Args:
+        icon_name: qtawesome icon name (e.g., "fa5s.chart-bar")
+        output_ico_path: Path to save the multi-resolution ICO file
+        output_png_path: Optional path to save a 256x256 PNG for UI display
+    
+    Generates 6 resolutions for ICO: 16, 32, 48, 64, 128, 256 pixels.
     This ensures crisp display in the Windows taskbar and other contexts.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_ico_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Generate pixmaps for each resolution
     sizes = [16, 32, 48, 64, 128, 256]
@@ -113,13 +118,21 @@ def create_rounded_icon(icon_name: str, output_path: Path) -> None:
     
     # Save all sizes to a single ICO file
     print(f"Saving ICO with {len(pil_images)} resolutions: {[f'{img.width}x{img.height}' for img in pil_images]}")
-    save_ico_with_multiple_resolutions(pil_images, output_path)
-    print(f"Successfully saved multi-resolution ICO")
+    save_ico_with_multiple_resolutions(pil_images, output_ico_path)
+    print(f"Successfully saved multi-resolution ICO to {output_ico_path}")
+    
+    # Save 256x256 PNG for UI usage (splash screen, etc.)
+    if output_png_path is None:
+        output_png_path = output_ico_path.parent / "HoldingsTracker_256.png"
+    
+    pil_images[-1].save(str(output_png_path))
+    print(f"Successfully saved high-res PNG to {output_png_path}")
 
 
 if __name__ == "__main__":
     app = QGuiApplication([])
     project_root = Path(__file__).resolve().parent.parent
     icon_path = project_root / "src" / "holdings_tracker_desktop" / "ui" / "assets" / "HoldingsTracker.ico"
-    create_rounded_icon("fa5s.chart-bar", icon_path)
+    png_path = project_root / "src" / "holdings_tracker_desktop" / "ui" / "assets" / "HoldingsTracker_256.png"
+    create_rounded_icon("fa5s.chart-bar", icon_path, png_path)
     print(f"Created {icon_path}")

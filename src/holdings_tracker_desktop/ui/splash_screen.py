@@ -84,25 +84,30 @@ class SplashScreen(QWidget):
 
     def _update_icon(self):
         """Update icon with current rotation."""
-        # Try to load from assets, fallback to qtawesome if not available
-        asset_path = Path(__file__).parent / "assets" / "HoldingsTracker.ico"
+        # Try to load high-res PNG first, then ICO, then fallback to qtawesome
+        assets_dir = Path(__file__).parent / "assets"
+        png_path = assets_dir / "HoldingsTracker_256.png"
+        ico_path = assets_dir / "HoldingsTracker.ico"
         
-        if asset_path.exists():
-            pixmap = QPixmap(str(asset_path))
-            # Resize to standard splash icon size
+        if png_path.exists():
+            pixmap = QPixmap(str(png_path))
             if not pixmap.isNull():
-                pixmap = pixmap.scaledToWidth(64, Qt.TransformationMode.SmoothTransformation)
+                pixmap = pixmap.scaledToWidth(128, Qt.TransformationMode.SmoothTransformation)
+        elif ico_path.exists():
+            pixmap = QPixmap(str(ico_path))
+            if not pixmap.isNull():
+                pixmap = pixmap.scaledToWidth(128, Qt.TransformationMode.SmoothTransformation)
         else:
             # Fallback: create icon from qtawesome
             icon = qta.icon("fa5s.chart-bar")
-            pixmap = icon.pixmap(QSize(64, 64))
+            pixmap = icon.pixmap(QSize(128, 128))
         
         # Rotate pixmap if rotation is set
         if self._rotation > 0:
             transform = QTransform()
-            transform.translate(32, 32)
+            transform.translate(64, 64)
             transform.rotate(self._rotation)
-            transform.translate(-32, -32)
+            transform.translate(-64, -64)
             pixmap = pixmap.transformed(transform, Qt.TransformationMode.SmoothTransformation)
         
         self.icon_label.setPixmap(pixmap)
