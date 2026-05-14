@@ -1,42 +1,48 @@
-import qtawesome as qta
 import sys
 import traceback
-
-from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QApplication, QMessageBox
-
-from holdings_tracker_desktop.database.bootstrap import Bootstrap, BootstrapError
-from holdings_tracker_desktop.ui.main_window import MainWindow
-from holdings_tracker_desktop.ui.splash_screen import SplashScreen
 
 def main():
     """
     Application entry point.
     Shows splash screen during Bootstrap initialization, then launches main window.
+    Uses lazy loading to minimize startup time before splash screen appears.
     """
+    # Minimal imports - only what's needed before splash
+    from PySide6.QtWidgets import QApplication, QMessageBox
 
     app = QApplication(sys.argv)
 
     # Show splash screen while Bootstrap runs
+    from holdings_tracker_desktop.ui.splash_screen import SplashScreen
     splash = SplashScreen()
     splash.show()
     app.processEvents()  # Force immediate display
 
     try:
+        # Lazy load Bootstrap - happens while splash is visible
+        from holdings_tracker_desktop.database.bootstrap import Bootstrap, BootstrapError
         Bootstrap().run()
-    except BootstrapError:
+    except Exception as e:
         splash.close()
-        detailed_error = traceback.format_exc()
-
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Critical)
-        msg.setWindowTitle("Initialization Error")
-        msg.setText("The application failed to initialize properly.")
-        msg.setInformativeText("Click 'Show Details' to see the technical error.")
-        msg.setDetailedText(detailed_error)
-        msg.exec()
+        
+        # Lazy load for error handling
+        from holdings_tracker_desktop.database.bootstrap import BootstrapError
+        if isinstance(e, BootstrapError):
+            detailed_error = traceback.format_exc()
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle("Initialization Error")
+            msg.setText("The application failed to initialize properly.")
+            msg.setInformativeText("Click 'Show Details' to see the technical error.")
+            msg.setDetailedText(detailed_error)
+            msg.exec()
 
         sys.exit(1)
+
+    # Lazy load UI components after bootstrap succeeds
+    from PySide6.QtGui import QFont
+    import qtawesome as qta
+    from holdings_tracker_desktop.ui.main_window import MainWindow
 
     app.setStyle("Fusion")
     app.setFont(QFont("Segoe UI", 10))
