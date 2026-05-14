@@ -1,31 +1,28 @@
 """
 Splash screen widget displayed during application startup.
-Shows loading indicator while Bootstrap initializes the database.
+Shows app icon centered.
 """
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QTimer, QSize
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PySide6.QtGui import QFont, QPixmap, QTransform
+from PySide6.QtGui import QPixmap
 import qtawesome as qta
 
 
 class SplashScreen(QWidget):
     """
-    Custom splash screen shown during Bootstrap.
+    Minimal splash screen shown during Bootstrap.
     Features:
     - App icon centered
-    - "Loading..." text with rotating animation
     - Clean, minimal design
     - Stays on top of all windows
     """
 
     def __init__(self):
         super().__init__()
-        self._rotation = 0
         self._setup_ui()
-        self._setup_animation()
 
     def _setup_ui(self):
         """Initialize UI components."""
@@ -40,7 +37,7 @@ class SplashScreen(QWidget):
         # Layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(20)
+        layout.setSpacing(0)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Icon label
@@ -48,14 +45,6 @@ class SplashScreen(QWidget):
         self.icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._update_icon()
         layout.addWidget(self.icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        # Loading text
-        text_label = QLabel("Loading HoldingsTracker...")
-        font = QFont("Segoe UI", 10)
-        text_label.setFont(font)
-        text_label.setStyleSheet("color: #444444;")
-        text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(text_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Window size and position
         self.setFixedSize(300, 200)
@@ -71,19 +60,8 @@ class SplashScreen(QWidget):
             y = (geometry.height() - self.height()) // 2
             self.move(x, y)
 
-    def _setup_animation(self):
-        """Setup rotating animation for icon."""
-        self.animation_timer = QTimer()
-        self.animation_timer.timeout.connect(self._animate_icon)
-        self.animation_timer.start(50)  # Update every 50ms
-
-    def _animate_icon(self):
-        """Rotate icon for animation effect."""
-        self._rotation = (self._rotation + 6) % 360
-        self._update_icon()
-
     def _update_icon(self):
-        """Update icon with current rotation."""
+        """Load and display icon."""
         # Try to load high-res PNG first, then ICO, then fallback to qtawesome
         assets_dir = Path(__file__).parent / "assets"
         png_path = assets_dir / "HoldingsTracker_256.png"
@@ -101,18 +79,5 @@ class SplashScreen(QWidget):
             # Fallback: create icon from qtawesome
             icon = qta.icon("fa5s.chart-bar")
             pixmap = icon.pixmap(QSize(128, 128))
-        
-        # Rotate pixmap if rotation is set
-        if self._rotation > 0:
-            transform = QTransform()
-            transform.translate(64, 64)
-            transform.rotate(self._rotation)
-            transform.translate(-64, -64)
-            pixmap = pixmap.transformed(transform, Qt.TransformationMode.SmoothTransformation)
-        
-        self.icon_label.setPixmap(pixmap)
 
-    def closeEvent(self, event):
-        """Cleanup animation when closing."""
-        self.animation_timer.stop()
-        super().closeEvent(event)
+        self.icon_label.setPixmap(pixmap)
