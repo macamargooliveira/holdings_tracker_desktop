@@ -14,11 +14,12 @@ class AssetSectorsWidget(EntityManagerWidget):
         return True
 
     def load_data(self):
+        self.ui_data = []
+
         try:
             with get_db() as db:
                 service = AssetSectorService(db)
-                ui_data = service.list_all_for_ui()
-                self._populate_table(ui_data)
+                self.ui_data = service.list_all_for_ui()
 
         except Exception as e:
             self.show_error(f"Error loading asset sectors: {str(e)}")
@@ -28,8 +29,9 @@ class AssetSectorsWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_widget.setText(t("asset_sectors"))
-        self.table.setHorizontalHeaderLabels([t("name"), t("asset_type"), t("assets")])
+        self.title_widget.set_primary_text(t("asset_sectors"))
+        self.title_widget.set_secondary_text(str(len(self.ui_data)))
+        self._populate_table(self.ui_data)
 
     def open_new_form(self):
         from holdings_tracker_desktop.ui.forms.asset_sector_form import AssetSectorForm
@@ -93,6 +95,7 @@ class AssetSectorsWidget(EntityManagerWidget):
     def _populate_table(self, items):
         prepare_table(self.table, 3, len(items))
 
+        self.table.setHorizontalHeaderLabels([t("name"), t("asset_type"), t("assets")])
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
 

@@ -14,11 +14,12 @@ class CurrenciesWidget(EntityManagerWidget):
         return True
 
     def load_data(self):
+        self.ui_data = []
+
         try:
             with get_db() as db:
                 service = CurrencyService(db)
-                ui_data = service.list_all_for_ui()
-                self._populate_table(ui_data)
+                self.ui_data = service.list_all_for_ui()
 
         except Exception as e:
             self.show_error(f"Error loading currencies: {str(e)}")
@@ -28,8 +29,9 @@ class CurrenciesWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_widget.setText(t("currencies"))
-        self.table.setHorizontalHeaderLabels([t("code"), t("name"), t("symbol"), t("assets")])
+        self.title_widget.set_primary_text(t("currencies"))
+        self.title_widget.set_secondary_text(str(len(self.ui_data)))
+        self._populate_table(self.ui_data)
 
     def open_new_form(self):
         from holdings_tracker_desktop.ui.forms.currency_form import CurrencyForm
@@ -94,6 +96,7 @@ class CurrenciesWidget(EntityManagerWidget):
     def _populate_table(self, items):
         prepare_table(self.table, 4, len(items))
 
+        self.table.setHorizontalHeaderLabels([t("code"), t("name"), t("symbol"), t("assets")])
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
 

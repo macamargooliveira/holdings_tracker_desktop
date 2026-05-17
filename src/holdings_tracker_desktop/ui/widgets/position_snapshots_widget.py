@@ -48,6 +48,7 @@ class PositionSnapshotsWidget(EntityManagerWidget):
 
         except Exception as e:
             self.show_error(f"Error loading position snapshots: {str(e)}")
+            self.table.setRowCount(0)
 
         self.translate_ui()
 
@@ -55,9 +56,9 @@ class PositionSnapshotsWidget(EntityManagerWidget):
         super().translate_ui()
 
         if self.year:
-            self.title_widget.setText(f"{t('position')} — {self.year}")
+            self.title_widget.set_primary_text(f"{t('position')} — {self.year}")
         else:
-            self.title_widget.setText(t("position"))
+            self.title_widget.set_primary_text(t("position"))
 
         if self.year_filter:
             self.year_filter.translate_placeholder()

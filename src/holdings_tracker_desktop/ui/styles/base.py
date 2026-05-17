@@ -44,6 +44,10 @@ QLabel#TitleLabel {
     font-size: 13pt;
     font-weight: bold;
 }
+QLabel#SecondaryTitleLabel {
+    font-size: 9pt;
+    font-weight: bold;
+}
 """
 
 TABLES = """

@@ -31,12 +31,14 @@ class AssetTickerHistoriesWidget(EntityManagerWidget):
 
         except Exception as e:
             self.show_error(f"Error loading asset ticker histories: {str(e)}")
+            self.table.setRowCount(0)
 
         self.translate_ui()
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_widget.setText(t("asset_ticker_history"))
+        self.title_widget.set_primary_text(t("asset_ticker_history"))
+        self.title_widget.set_secondary_text(str(len(self.ui_data)))
         self._populate_table(self.ui_data)
 
     def on_back_clicked(self):

@@ -29,7 +29,7 @@ class PieChartWidget(QWidget):
     def render_chart(self, data: list[dict], title: str, no_data_text: str):
         self.legend_data = data
         self.legend_columns = None
-        self.title_widget.setText(title)
+        self.title_widget.set_primary_text(title)
 
         if not data:
             self._render_no_data(no_data_text)

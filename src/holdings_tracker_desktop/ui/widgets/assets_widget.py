@@ -26,12 +26,13 @@ class AssetsWidget(EntityManagerWidget):
         return True
 
     def load_data(self):
+        self.ui_data = []
+
         try:
             with get_db() as db:
                 service = AssetService(db)
                 asset_type_id = self.asset_type_filter.currentData() if self.asset_type_filter else None
-                ui_data = service.list_all_for_ui(asset_type_id=asset_type_id)
-                self._populate_table(ui_data)
+                self.ui_data = service.list_all_for_ui(asset_type_id=asset_type_id)
 
         except Exception as e:
             self.show_error(f"Error loading assets: {str(e)}")
@@ -41,14 +42,13 @@ class AssetsWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_widget.setText(t("assets"))
-        
+        self.title_widget.set_primary_text(t("assets"))
+        self.title_widget.set_secondary_text(str(len(self.ui_data)))
+
         if self.asset_type_filter:
             self.asset_type_filter.translate_placeholder()
-        
-        self.table.setHorizontalHeaderLabels(
-            [t("ticker"), t("type"), t("currency"), t("sector")]
-        )
+
+        self._populate_table(self.ui_data)
 
     def open_new_form(self):
         from holdings_tracker_desktop.ui.forms.asset_form import AssetForm
@@ -134,6 +134,7 @@ class AssetsWidget(EntityManagerWidget):
     def _populate_table(self, items):
         prepare_table(self.table, columns=4, rows=len(items))
 
+        self.table.setHorizontalHeaderLabels([t("ticker"), t("type"), t("currency"), t("sector")])
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)

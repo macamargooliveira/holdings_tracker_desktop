@@ -14,11 +14,12 @@ class CountriesWidget(EntityManagerWidget):
         return True
 
     def load_data(self):
+        self.ui_data = []
+
         try:
             with get_db() as db:
                 service = CountryService(db)
-                ui_data = service.list_all_for_ui()
-                self._populate_table(ui_data)
+                self.ui_data = service.list_all_for_ui()
 
         except Exception as e:
             self.show_error(f"Error loading countries: {str(e)}")
@@ -28,8 +29,9 @@ class CountriesWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_widget.setText(t("countries"))
-        self.table.setHorizontalHeaderLabels([t("name"), t("asset_types"), t("brokers")])
+        self.title_widget.set_primary_text(t("countries"))
+        self.title_widget.set_secondary_text(str(len(self.ui_data)))
+        self._populate_table(self.ui_data)
 
     def open_new_form(self):
         from holdings_tracker_desktop.ui.forms.country_form import CountryForm
@@ -92,6 +94,7 @@ class CountriesWidget(EntityManagerWidget):
     def _populate_table(self, items):
         prepare_table(self.table, 3, len(items))
 
+        self.table.setHorizontalHeaderLabels([t("name"), t("asset_types"), t("brokers")])
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
 

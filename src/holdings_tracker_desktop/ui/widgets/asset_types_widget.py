@@ -14,11 +14,12 @@ class AssetTypesWidget(EntityManagerWidget):
         return True
 
     def load_data(self):
+        self.ui_data = []
+
         try:
             with get_db() as db:
                 service = AssetTypeService(db)
-                ui_data = service.list_all_for_ui()
-                self._populate_table(ui_data)
+                self.ui_data = service.list_all_for_ui()
 
         except Exception as e:
             self.show_error(f"Error loading asset types: {str(e)}")
@@ -28,8 +29,9 @@ class AssetTypesWidget(EntityManagerWidget):
 
     def translate_ui(self):
         super().translate_ui()
-        self.title_widget.setText(t("asset_types"))
-        self.table.setHorizontalHeaderLabels([t("name"), t("country"), t("assets"), t("asset_sectors")])
+        self.title_widget.set_primary_text(t("asset_types"))
+        self.title_widget.set_secondary_text(str(len(self.ui_data)))
+        self._populate_table(self.ui_data)
 
     def open_new_form(self):
         from holdings_tracker_desktop.ui.forms.asset_type_form import AssetTypeForm
@@ -96,6 +98,7 @@ class AssetTypesWidget(EntityManagerWidget):
     def _populate_table(self, items):
         prepare_table(self.table, 4, len(items))
 
+        self.table.setHorizontalHeaderLabels([t("name"), t("country"), t("assets"), t("asset_sectors")])
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
