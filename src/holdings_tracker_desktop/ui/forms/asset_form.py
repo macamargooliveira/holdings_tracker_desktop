@@ -29,6 +29,16 @@ class AssetForm(BaseFormDialog):
 
         self._load_ticker(data)
         self._load_type(data)
+
+        # After setting the type, populate the sector combo filtered by that type
+        # so that `_load_sector` can select the correct sector if present.
+        try:
+            # call handler with current index (signal usually passes an int)
+            self._on_type_changed(self.type_combo.currentIndex())
+        except Exception:
+            # defensive: if combo not ready or handler missing, ignore
+            pass
+
         self._load_currency(data)
         self._load_sector(data)
 
@@ -79,6 +89,8 @@ class AssetForm(BaseFormDialog):
 
     def _setup_type_combo(self, form_layout):
         self.type_combo = AssetTypeComboBox()
+        # update sectors when the selected type changes
+        self.type_combo.currentIndexChanged.connect(self._on_type_changed)
         form_layout.addRow(f"{t('type')}:", self.type_combo)
 
     def _setup_currency_combo(self, form_layout):
@@ -88,6 +100,31 @@ class AssetForm(BaseFormDialog):
     def _setup_sector_combo(self, form_layout):
         self.sector_combo = AssetSectorComboBox()
         form_layout.addRow(f"{t('sector')}:", self.sector_combo)
+
+    def _on_type_changed(self, index=None):
+        """Handler called when asset type changes. Reloads sectors for the
+        selected type and clears sector selection if current sector is not
+        present in the new list.
+        """
+        # remember previously selected sector id
+        prev_sector_id = self.sector_combo.currentData()
+
+        # get currently selected type id
+        type_id = self.type_combo.currentData()
+
+        # reload sector options filtered by type
+        self.sector_combo.load_for_type(type_id)
+
+        # if there was a previously selected sector, try to restore it
+        if prev_sector_id is None:
+            return
+
+        idx = self.sector_combo.findData(prev_sector_id)
+        if idx >= 0:
+            self.sector_combo.setCurrentIndex(idx)
+        else:
+            # clear selection (set to placeholder)
+            self.sector_combo.setCurrentIndex(0)
 
     def _save(self):
         ticker = self.ticker_input.text().strip()

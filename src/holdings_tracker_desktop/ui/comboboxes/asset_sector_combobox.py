@@ -6,6 +6,10 @@ class AssetSectorComboBox(BaseComboBox):
         self.reload()
 
     def reload(self):
+        self.load_for_type(None)
+
+    def load_for_type(self, type_id):
+        """Load sectors filtered by asset type. If `type_id` is None, load all."""
         from holdings_tracker_desktop.database import get_db
         from holdings_tracker_desktop.services.asset_sector_service import AssetSectorService
 
@@ -13,5 +17,13 @@ class AssetSectorComboBox(BaseComboBox):
 
         with get_db() as db:
             service = AssetSectorService(db)
-            for sector in service.list_all_models():
+            sectors = []
+            if type_id is None:
+                for sector in service.list_all_models():
+                    sectors.append(sector)
+            else:
+                for sector in service.get_by_asset_type(type_id):
+                    sectors.append(sector)
+
+            for sector in sectors:
                 self.addItem(sector.name, sector.id)
