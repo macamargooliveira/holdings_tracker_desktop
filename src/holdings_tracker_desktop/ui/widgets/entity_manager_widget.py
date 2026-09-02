@@ -1,6 +1,7 @@
 import qtawesome as qta
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, 
     QFrame, QHeaderView, QMessageBox, QDialog
@@ -10,6 +11,7 @@ from holdings_tracker_desktop.ui.core import t
 from holdings_tracker_desktop.ui.dialogs.confirm_dialog import ConfirmDialog
 from holdings_tracker_desktop.ui.widgets.title_widget import TitleWidget
 from holdings_tracker_desktop.ui.widgets.translatable_widget import TranslatableWidget
+from holdings_tracker_desktop.ui.core.ui_helpers import table_item, decimal_table_item
 
 DEFAULT_ACTIONS = ("add", "edit", "delete")
 
@@ -131,6 +133,75 @@ class EntityManagerWidget(TranslatableWidget):
 
     def supports_details(self) -> bool:
         return False
+
+    def add_grouped_total_rows(
+        self,
+        items: list[dict],
+        *,
+        group_by_key,
+        value_key: str,
+        value_column: int,
+        label_column: int = 0,
+        label_text: str | None = None,
+        decimals: int = 2,
+        currency_key: str | None = None,
+        value_item_factory=None,
+    ) -> None:
+        """Aggregate `items` by `group_by_key` and append total rows to ``self.table``.
+
+        - ``group_by_key``: either a string key to lookup in each item or a callable(item)->group.
+        - ``value_key``: the dict key whose numeric values will be summed per group.
+        - ``value_column``: the table column index where the summed value will be placed.
+        - ``label_column``: the table column index to place the "total" label (default 0).
+        - ``label_text``: text to use for the total label (defaults to translation of "total").
+        - ``decimals``: number of decimals when formatting numbers.
+        - ``currency_key``: optional key name for currency; when provided the group value is used as currency.
+        - ``value_item_factory``: optional callable(total, decimals, currency) -> QTableWidgetItem.
+        """
+        if label_text is None:
+            label_text = t("total")
+
+        totals_by_group = {}
+
+        for item in items:
+            group = group_by_key(item) if callable(group_by_key) else item.get(group_by_key, "")
+            total_value = item.get(value_key, 0) or 0
+
+            if group in totals_by_group:
+                totals_by_group[group] += total_value
+            else:
+                totals_by_group[group] = total_value
+
+        for group, total in totals_by_group.items():
+            total_row = self.table.rowCount()
+            self.table.insertRow(total_row)
+
+            total_item = table_item(label_text)
+            total_item.setFont(self.font_demi_bold)
+            self.table.setItem(total_row, label_column, total_item)
+
+            currency = group if currency_key else ""
+
+            if value_item_factory:
+                value_item = value_item_factory(total, decimals, currency)
+            else:
+                value_item = decimal_table_item(total, decimals, currency)
+
+            value_item.setFont(self.font_demi_bold)
+            self.table.setItem(total_row, value_column, value_item)
+
+    @property
+    def font_demi_bold(self):
+        """Return a cached QFont with DemiBold weight.
+
+        The font is created on first access and stored on the instance so
+        subclasses can reuse the same QFont even if accessed before
+        `super().__init__()` completes.
+        """
+        if not hasattr(self, "_font_demi_bold") or self._font_demi_bold is None:
+            self._font_demi_bold = QFont()
+            self._font_demi_bold.setWeight(QFont.DemiBold)
+        return self._font_demi_bold
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)

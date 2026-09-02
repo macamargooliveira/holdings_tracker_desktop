@@ -1,5 +1,4 @@
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QHeaderView
 
 from holdings_tracker_desktop.database import get_db
@@ -17,7 +16,6 @@ class PositionSnapshotsWidget(EntityManagerWidget):
         self.year = None
 
         self._setup_filters()
-        self._setup_font_demi_bold()
 
         super().__init__(parent)
 
@@ -57,6 +55,7 @@ class PositionSnapshotsWidget(EntityManagerWidget):
 
         if self.year:
             self.title_widget.set_primary_text(f"{t('position')} — {self.year}")
+            self.title_widget.set_secondary_text(str(len(self.ui_data)))
         else:
             self.title_widget.set_primary_text(t("position"))
 
@@ -109,10 +108,6 @@ class PositionSnapshotsWidget(EntityManagerWidget):
             self.year_filter = None
             self.asset_type_filter = None
 
-    def _setup_font_demi_bold(self):
-        self.font_demi_bold = QFont()
-        self.font_demi_bold.setWeight(QFont.DemiBold)
-
     def _populate_table(self, items):
         if self.asset_id is not None:
             self._populate_table_single_asset(items)
@@ -156,28 +151,13 @@ class PositionSnapshotsWidget(EntityManagerWidget):
             self.table.setItem(row, 3, decimal_table_item(item['total_cost'], 2, currency))
 
         if self.year and items:
-            self._add_total_row(items)
-
-    def _add_total_row(self, items):
-        totals_by_currency = {}
-
-        for item in items:
-            currency = item.get("asset_currency", "")
-            total_cost = item["total_cost"]
-
-            if currency in totals_by_currency:
-                totals_by_currency[currency] += total_cost
-            else:
-                totals_by_currency[currency] = total_cost
-
-        for currency, total_cost in totals_by_currency.items():
-            total_row = self.table.rowCount()
-            self.table.insertRow(total_row)
-
-            total_item = table_item(t("total"))
-            total_item.setFont(self.font_demi_bold)
-            self.table.setItem(total_row, 0, total_item)
-
-            value_item = decimal_table_item(total_cost, 2, currency)
-            value_item.setFont(self.font_demi_bold)
-            self.table.setItem(total_row, 3, value_item)
+            self.add_grouped_total_rows(
+                items,
+                group_by_key="asset_currency",
+                value_key="total_cost",
+                value_column=3,
+                label_column=0,
+                label_text=t("total"),
+                decimals=2,
+                currency_key="asset_currency",
+            )
